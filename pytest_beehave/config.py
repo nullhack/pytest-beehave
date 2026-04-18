@@ -81,15 +81,10 @@ def is_explicitly_configured(rootdir: Path) -> bool:
 
 
 def resolve_features_path(rootdir: Path) -> Path:
-    """Resolve the features directory path from pyproject.toml or use the default.
-
-    Reads [tool.beehave].features_path from pyproject.toml located at rootdir.
-    Falls back to docs/features/ if pyproject.toml is absent or has no
-    [tool.beehave] section. Does not validate existence.
+    """Resolve the features directory path from config or fall back to default.
 
     Args:
-        rootdir: Absolute path to the project root (directory containing
-            pyproject.toml).
+        rootdir: Absolute path to the project root.
 
     Returns:
         Resolved absolute Path to the features directory.

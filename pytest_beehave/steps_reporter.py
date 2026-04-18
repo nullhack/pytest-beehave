@@ -26,7 +26,8 @@ class StepsReporter:
         """
         if report.when != "call" and not (report.when == "setup" and report.skipped):
             return
-        verbose = self._config.option.verbose
+        option = self._config.option
+        verbose = option.verbose
         if verbose < 1:
             return
         nodeid = report.nodeid
@@ -35,7 +36,14 @@ class StepsReporter:
         docstring = getattr(report, "_beehave_docstring", "")
         if not docstring:
             return
-        steps = docstring.strip()
+        self._write_steps(docstring.strip())
+
+    def _write_steps(self, steps: str) -> None:
+        """Write the steps string to the terminal or stdout fallback.
+
+        Args:
+            steps: The stripped docstring content to write.
+        """
         try:
             writer = self._config.get_terminal_writer()
             writer.write("\n" + steps + "\n")

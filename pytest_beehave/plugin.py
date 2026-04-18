@@ -109,13 +109,21 @@ def pytest_runtest_makereport(item: pytest.Item, call: pytest.CallInfo[None]) ->
     )
 
 
+def _register_output_plugins(config: pytest.Config, rootdir: Path) -> None:
+    """Register terminal and HTML output plugins based on configuration.
+
+    Args:
+        config: The pytest Config object.
+        rootdir: Project root directory.
+    """
+    if show_steps_in_terminal(rootdir):
+        config.pluginmanager.register(StepsReporter(config), "beehave-steps-reporter")
+    if show_steps_in_html(rootdir) and _html_available():
+        config.pluginmanager.register(HtmlStepsPlugin(), "beehave-html-steps")
+
+
 def pytest_configure(config: pytest.Config) -> None:
     """Read beehave configuration, bootstrap directory, sync stubs.
-
-    Resolves the features directory from pyproject.toml. Bootstraps the
-    canonical subfolder structure. Assigns IDs to untagged Examples. Syncs
-    test stubs. Exits pytest with a hard error only when features_path is
-    explicitly configured AND the path does not exist.
 
     Args:
         config: The pytest Config object (provides rootdir and stash).
@@ -126,7 +134,4 @@ def pytest_configure(config: pytest.Config) -> None:
     config.stash[features_path_key] = path
     if path.exists():
         _run_beehave_sync(config, path)
-    if show_steps_in_terminal(rootdir):
-        config.pluginmanager.register(StepsReporter(config), "beehave-steps-reporter")
-    if show_steps_in_html(rootdir) and _html_available():
-        config.pluginmanager.register(HtmlStepsPlugin(), "beehave-html-steps")
+    _register_output_plugins(config, rootdir)
