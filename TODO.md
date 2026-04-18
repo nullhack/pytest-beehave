@@ -2,7 +2,7 @@
 
 Feature: stub-creation
 Step: 3 (TDD Loop — all @id tests green)
-Source: docs/features/in-progress/stub-creation/stub-creation.feature
+Source: docs/features/in-progress/stub-creation.feature
 
 ## Progress
 - [x] `@id:692972dd`: New stub is created with the correct function name

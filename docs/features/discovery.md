@@ -20,7 +20,7 @@ Status: BASELINED
 | Q12 | "All steps" in docstrings? | Every individual step line including And/But continuations | ANSWERED |
 | Q13 | Plugin location? | This repository IS the plugin (`name = "pytest-beehave"` in pyproject.toml) | ANSWERED |
 | Q14 | Default marker for new stubs? | `@pytest.mark.skip(reason="not yet implemented")` — stub-sync always adds this; software-engineer adds `@pytest.mark.slow` when the test is genuinely slow | ANSWERED |
-| Q15 | Test structure: plain functions or class-based? | Class-based when the feature has Rule blocks — each Rule gets `class Test<RuleSlug>` in `<rule-slug>_test.py`; features with no Rules get module-level functions in `examples_test.py` | ANSWERED |
+| Q15 | Test structure: plain functions or class-based? | Class-based when the feature has Rule blocks — each Rule gets `class Test<RuleSlug>` in `<rule_slug>_test.py`; features with no Rules get module-level functions in `examples_test.py` | ANSWERED |
 | Q16 | What owns stub-sync markers vs software-engineer markers? | Two non-overlapping domains: stub-sync owns `skip/not-yet-implemented`, `skip/orphan`, `skip/non-conforming`, `deprecated`; software-engineer owns `slow` — crossing is prohibited | ANSWERED |
 | Q17 | How is test conformance defined? | Three-part: (1) correct file name, (2) correct class context, (3) correct function name — all three must match | ANSWERED |
 | Q18 | How is `@deprecated` inherited from parent Gherkin nodes? | `@deprecated` on a `Rule:` or `Feature:` node is treated as present on all child Examples for marker sync purposes | ANSWERED |
@@ -38,10 +38,10 @@ Status: BASELINED
 ## Design Decisions
 
 ### Test Structure
-- Features with `Rule:` blocks: one `<rule-slug>_test.py` per Rule, each containing `class Test<RuleSlug>` with test methods
+- Features with `Rule:` blocks: one `<rule_slug>_test.py` per Rule, each containing `class Test<RuleSlug>` with test methods
 - Features with no `Rule:` blocks: single `examples_test.py` with module-level functions
 - Feature-level `Background:` → `conftest.py` autouse fixture
-- Rule-level `Background:` → module-level autouse fixture inside `<rule-slug>_test.py`
+- Rule-level `Background:` → module-level autouse fixture inside `<rule_slug>_test.py`
 
 ### Marker Ownership
 Two non-overlapping ownership domains:
@@ -70,7 +70,7 @@ For every test_<feature_slug>_<8hex> in tests/features/<feature-name>/:
 
 ### Conformance (3-part check)
 A test is conforming if ALL THREE match:
-1. Correct file (`<rule-slug>_test.py` or `examples_test.py`)
+1. Correct file (`<rule_slug>_test.py` or `examples_test.py`)
 2. Correct class context (inside `class Test<RuleSlug>` or at module level)
 3. Correct function name (`test_<feature_slug>_<8hex>`)
 

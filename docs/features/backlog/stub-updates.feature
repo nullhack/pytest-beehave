@@ -11,7 +11,7 @@ Feature: Test stub updates
   | Type | Name | Candidate Class/Method | In Scope |
   |------|------|----------------------|----------|
   | Noun | test stub | generated `test_<feature_slug>_<hex>()` method or function | Yes |
-  | Noun | test file | `tests/features/<feature>/<rule-slug>_test.py` or `examples_test.py` | Yes |
+  | Noun | test file | `tests/features/<feature>/<rule_slug>_test.py` or `examples_test.py` | Yes |
   | Noun | feature slug | underscored folder name used in function names | Yes |
   | Noun | rule slug | `Rule:` title slugified; used as test file name | Yes |
   | Noun | class Test<RuleSlug> | class wrapping all stubs for a Rule block | Yes |
@@ -30,7 +30,7 @@ Feature: Test stub updates
   - Docstring format per step: `<Keyword>: <step text>` (e.g., `Given: user is logged in`, `And: user has admin role`)
   - Test function bodies are NEVER modified — parameter lists MAY be updated to stay in sync with documentation
   - stub-sync NEVER touches `@pytest.mark.slow` or any other software-engineer-owned marker
-  - Conformance requires all three: (1) correct file (`<rule-slug>_test.py` or `examples_test.py`), (2) correct class context (`class Test<RuleSlug>` or module-level), (3) correct function name (`test_<feature_slug>_<8hex>`)
+  - Conformance requires all three: (1) correct file (`<rule_slug>_test.py` or `examples_test.py`), (2) correct class context (`class Test<RuleSlug>` or module-level), (3) correct function name (`test_<feature_slug>_<8hex>`)
   - Non-conforming test (correct `@id`, wrong location or class): stub-sync creates a conforming version first, then marks the non-conforming test with `@pytest.mark.skip(reason="non-conforming: moved to <file>::<Class>")`
   - Orphaned tests (no matching `@id` in any `.feature` file) receive `@pytest.mark.skip(reason="orphan: no matching @id in .feature files")`
 

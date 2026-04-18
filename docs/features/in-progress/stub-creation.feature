@@ -11,7 +11,7 @@ Feature: Test stub creation
   | Type | Name | Candidate Class/Method | In Scope |
   |------|------|----------------------|----------|
   | Noun | test stub | generated `test_<feature_slug>_<hex>()` method or function | Yes |
-  | Noun | test file | `tests/features/<feature>/<rule-slug>_test.py` or `examples_test.py` | Yes |
+  | Noun | test file | `tests/features/<feature>/<rule_slug>_test.py` or `examples_test.py` | Yes |
   | Noun | feature slug | underscored folder name used in function names | Yes |
   | Noun | rule slug | `Rule:` title slugified (hyphens, lowercase); used as test file name | Yes |
   | Noun | class Test<RuleSlug> | class wrapping all stubs for a Rule block | Yes |
@@ -32,9 +32,9 @@ Feature: Test stub creation
   - The docstring includes EVERY step line in order, including `And` and `But` continuations
   - Docstring format per step: `<Keyword>: <step text>` (e.g., `Given: user is logged in`, `And: user has admin role`)
   - Test function bodies start with `raise NotImplementedError` — no section comments
-  - Features with `Rule:` blocks: stubs are methods inside `class Test<RuleSlug>` in `<rule-slug>_test.py`
+  - Features with `Rule:` blocks: stubs are methods inside `class Test<RuleSlug>` in `<rule_slug>_test.py`
   - Features with no `Rule:` blocks: stubs are module-level functions in `examples_test.py`
-  - Feature-level `Background:` → `conftest.py` autouse fixture; Rule-level `Background:` → module-level autouse fixture in `<rule-slug>_test.py`
+  - Feature-level `Background:` → `conftest.py` autouse fixture; Rule-level `Background:` → module-level autouse fixture in `<rule_slug>_test.py`
 
   Constraints:
   - Must handle the case where the test file does not yet exist (create it)
@@ -108,7 +108,7 @@ Feature: Test stub creation
     Example: New stub for a Rule block is a method inside the rule class
       Given a backlog feature file with a Rule block containing a new @id-tagged Example
       When pytest is invoked
-      Then the generated stub is a method inside class Test<RuleSlug> in <rule-slug>_test.py
+      Then the generated stub is a method inside class Test<RuleSlug> in <rule_slug>_test.py
 
     @id:f1a5c823
     Example: New stub for a feature with no Rule blocks is a module-level function
