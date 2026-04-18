@@ -28,7 +28,7 @@ def _make_readonly_feature(pytester: pytest.Pytester) -> None:
 class TestCiIdEnforcement:
     """Tests for the CI ID enforcement Rule."""
 
-    def test_auto_id_generation_c4d6d9ce(self, pytester: pytest.Pytester) -> None:
+    def test_ci_id_enforcement_c4d6d9ce(self, pytester: pytest.Pytester) -> None:
         """
         Given: a read-only .feature file containing an Example with no @id tag
         When: pytest is invoked
@@ -38,7 +38,7 @@ class TestCiIdEnforcement:
         result = pytester.runpytest()
         assert result.ret != 0
 
-    def test_auto_id_generation_8b9230d4(self, pytester: pytest.Pytester) -> None:
+    def test_ci_id_enforcement_8b9230d4(self, pytester: pytest.Pytester) -> None:
         """
         Given: a read-only .feature file containing an Example with no @id tag
         When: pytest is invoked

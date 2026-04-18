@@ -3,8 +3,6 @@
 import re
 from pathlib import Path
 
-import pytest
-
 from pytest_beehave.id_generator import assign_ids
 
 
@@ -49,7 +47,7 @@ def _three_examples_content() -> str:
 class TestAutoIdWriteBack:
     """Tests for the Auto ID write-back Rule."""
 
-    def test_auto_id_generation_cd98877d(self, tmp_path: Path) -> None:
+    def test_auto_id_write_back_cd98877d(self, tmp_path: Path) -> None:
         """
         Given: a writable .feature file containing an Example with no @id tag
         When: pytest is invoked
@@ -61,16 +59,7 @@ class TestAutoIdWriteBack:
         example_idx = next(i for i, line in enumerate(lines) if "Example:" in line)
         assert re.fullmatch(r"@id:[0-9a-f]{8}", lines[example_idx - 1].strip())
 
-    @pytest.mark.skip(reason="orphan: no matching @id in .feature files")
-    def test_auto_id_generation_09a986e7(self, tmp_path: Path) -> None:
-        """
-        Given: a project with multiple .feature files each containing untagged Examples
-        When: pytest is invoked
-        Then: each generated @id tag is unique across all .feature files in the project
-        """
-        raise NotImplementedError
-
-    def test_auto_id_generation_27cf14bf(self, tmp_path: Path) -> None:
+    def test_auto_id_write_back_27cf14bf(self, tmp_path: Path) -> None:
         """
         Given: a writable .feature file containing multiple untagged Examples
         When: pytest is invoked
@@ -82,7 +71,7 @@ class TestAutoIdWriteBack:
         assert len(found_ids) == 3
         assert len(found_ids) == len(set(found_ids))
 
-    def test_auto_id_generation_842409ed(self, tmp_path: Path) -> None:
+    def test_auto_id_write_back_842409ed(self, tmp_path: Path) -> None:
         """
         Given: a .feature file where all Examples already have @id tags
         When: pytest is invoked
