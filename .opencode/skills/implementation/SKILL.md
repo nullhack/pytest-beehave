@@ -163,7 +163,7 @@ For each `Rule:` block in the in-progress `.feature` file, create `tests/feature
 
 ```python
 @pytest.mark.skip(reason="not yet implemented")
-def test_<rule_slug>_<8char_hex>() -> None:
+def test_<feature_slug>_<rule_slug>_<8char_hex>() -> None:
     """
     Given: ...
     When: ...
@@ -287,9 +287,14 @@ tests/features/<feature-name>/<rule_slug>_test.py
 ### Function Naming
 
 ```python
-def test_<rule_slug>_<8char_hex>() -> None:
+# When the test is inside a Rule: block (most common):
+def test_<feature_slug>_<rule_slug>_<8char_hex>() -> None:
+
+# When there is no Rule: block (flat feature, Examples directly under Feature:):
+def test_<feature_slug>_<8char_hex>() -> None:
 ```
 
+- `feature_slug` = the `.feature` file stem with hyphens replaced by underscores, lowercase
 - `rule_slug` = the `Rule:` title with spaces/hyphens replaced by underscores, lowercase
 - `8char_hex` = the `@id` from the `Example:` block
 
@@ -299,7 +304,7 @@ New tests start as skipped stubs. Remove `@pytest.mark.skip` when implementing i
 
 ```python
 @pytest.mark.skip(reason="not yet implemented")
-def test_wall_bounce_a3f2b1c4() -> None:
+def test_ball_game_wall_bounce_a3f2b1c4() -> None:
     """
     Given: A ball moving upward reaches y=0
     When: The physics engine processes the next frame

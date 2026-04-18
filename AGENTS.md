@@ -114,14 +114,18 @@ tests/features/<feature-name>/<rule_slug>_test.py
 ### Function Naming
 
 ```python
-def test_<rule_slug>_<8char_hex>() -> None:
+# When the test is inside a Rule: block (most common):
+def test_<feature_slug>_<rule_slug>_<8char_hex>() -> None:
+
+# When there is no Rule: block (flat feature, Examples directly under Feature:):
+def test_<feature_slug>_<8char_hex>() -> None:
 ```
 
 ### Docstring Format (mandatory)
 
 ```python
 @pytest.mark.skip(reason="not yet implemented")
-def test_wall_bounce_a3f2b1c4() -> None:
+def test_ball_game_wall_bounce_a3f2b1c4() -> None:
     """
     Given: A ball moving upward reaches y=0
     When: The physics engine processes the next frame

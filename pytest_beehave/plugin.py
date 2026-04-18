@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import importlib.util
 import sys
 from pathlib import Path
 
@@ -89,11 +90,7 @@ def _html_available() -> bool:
     Returns:
         True when pytest-html is installed.
     """
-    try:
-        import pytest_html  # noqa: F401
-    except ImportError:
-        return False
-    return True
+    return importlib.util.find_spec("pytest_html") is not None
 
 
 @pytest.hookimpl(hookwrapper=True)
@@ -132,6 +129,4 @@ def pytest_configure(config: pytest.Config) -> None:
     if show_steps_in_terminal(rootdir):
         config.pluginmanager.register(StepsReporter(config), "beehave-steps-reporter")
     if show_steps_in_html(rootdir) and _html_available():
-        config.pluginmanager.register(
-            HtmlStepsPlugin(rootdir / "tests"), "beehave-html-steps"
-        )
+        config.pluginmanager.register(HtmlStepsPlugin(), "beehave-html-steps")

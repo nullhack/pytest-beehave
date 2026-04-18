@@ -2,21 +2,11 @@
 
 from __future__ import annotations
 
-from pathlib import Path
-
 import pytest
 
 
 class HtmlStepsPlugin:
     """Adds an Acceptance Criteria column to pytest-html reports."""
-
-    def __init__(self, tests_root: Path) -> None:
-        """Initialise the plugin.
-
-        Args:
-            tests_root: Absolute path to the tests/ directory.
-        """
-        self._tests_root = tests_root
 
     def pytest_html_results_table_header(self, cells: list[object]) -> None:
         """Insert the Acceptance Criteria column header.
@@ -36,8 +26,7 @@ class HtmlStepsPlugin:
             cells: The list of row cells to modify.
         """
         nodeid = report.nodeid
-        features_prefix = str(self._tests_root / "features")
-        if "tests/features/" in nodeid or nodeid.startswith(features_prefix):
+        if "tests/features/" in nodeid:
             docstring = getattr(report, "_beehave_docstring", "") or ""
         else:
             docstring = ""

@@ -3,7 +3,9 @@
 import pytest
 
 
-def test_terminal_steps_display_2ba9da81(pytester: pytest.Pytester) -> None:
+def test_report_steps_2ba9da81(
+    pytester: pytest.Pytester,
+) -> None:
     """
     Given: a test in tests/features/ with a docstring containing BDD steps
     When: pytest runs with -v
@@ -39,7 +41,9 @@ def test_terminal_steps_display_2ba9da81(pytester: pytest.Pytester) -> None:
     )
 
 
-def test_terminal_steps_display_0869902b(pytester: pytest.Pytester) -> None:
+def test_report_steps_0869902b(
+    pytester: pytest.Pytester,
+) -> None:
     """
     Given: a test in tests/features/ marked skip with a docstring
     When: pytest runs with -v
@@ -75,7 +79,9 @@ def test_terminal_steps_display_0869902b(pytester: pytest.Pytester) -> None:
     )
 
 
-def test_terminal_steps_display_99cbca75(pytester: pytest.Pytester) -> None:
+def test_report_steps_99cbca75(
+    pytester: pytest.Pytester,
+) -> None:
     """
     Given: a test in tests/unit/ with a docstring
     When: pytest runs with -v
@@ -105,7 +111,9 @@ def test_terminal_steps_display_99cbca75(pytester: pytest.Pytester) -> None:
     assert "Given: a unit condition" not in result.stdout.str()
 
 
-def test_terminal_steps_display_3c1b6d21(pytester: pytest.Pytester) -> None:
+def test_report_steps_3c1b6d21(
+    pytester: pytest.Pytester,
+) -> None:
     """
     Given: show_steps_in_terminal = false in pyproject.toml
     And: a test in tests/features/ with a docstring
@@ -136,7 +144,9 @@ def test_terminal_steps_display_3c1b6d21(pytester: pytest.Pytester) -> None:
     assert "Given: a condition" not in result.stdout.str()
 
 
-def test_terminal_steps_display_3278cf4d(pytester: pytest.Pytester) -> None:
+def test_report_steps_3278cf4d(
+    pytester: pytest.Pytester,
+) -> None:
     """
     Given: show_steps_in_terminal = true in pyproject.toml
     And: a test in tests/features/ with a docstring

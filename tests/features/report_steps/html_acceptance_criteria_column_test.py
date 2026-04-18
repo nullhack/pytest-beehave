@@ -3,7 +3,9 @@
 import pytest
 
 
-def test_html_acceptance_criteria_column_88d58f5c(pytester: pytest.Pytester) -> None:
+def test_report_steps_88d58f5c(
+    pytester: pytest.Pytester,
+) -> None:
     """
     Given: pytest-html is installed and show_steps_in_html = true
     And: a test in tests/features/ with a docstring
@@ -38,7 +40,9 @@ def test_html_acceptance_criteria_column_88d58f5c(pytester: pytest.Pytester) -> 
     assert "Given: a condition" in html_content
 
 
-def test_html_acceptance_criteria_column_73c4a71a(pytester: pytest.Pytester) -> None:
+def test_report_steps_73c4a71a(
+    pytester: pytest.Pytester,
+) -> None:
     """
     Given: pytest-html is installed and show_steps_in_html = true
     And: a test outside tests/features/
@@ -71,8 +75,8 @@ def test_html_acceptance_criteria_column_73c4a71a(pytester: pytest.Pytester) -> 
     assert "Given: a unit condition" not in html_content
 
 
-def test_html_acceptance_criteria_column_6c592c81(
-    pytester: pytest.Pytester, monkeypatch: pytest.MonkeyPatch
+def test_report_steps_6c592c81(
+    pytester: pytest.Pytester,
 ) -> None:
     """
     Given: pytest-html is not installed
@@ -99,7 +103,10 @@ def test_html_acceptance_criteria_column_6c592c81(
     pytester.makeconftest(
         "from pytest_beehave import plugin\nplugin._html_available = lambda: False\n"
     )
+    report_path = pytester.path / "report.html"
     # When
-    result = pytester.runpytest("--ignore=docs")
+    result = pytester.runpytest("--html", str(report_path), "--ignore=docs")
     # Then
     assert result.ret == 0
+    html_content = report_path.read_text(encoding="utf-8")
+    assert "Acceptance Criteria" not in html_content

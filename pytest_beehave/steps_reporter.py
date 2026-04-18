@@ -26,7 +26,8 @@ class StepsReporter:
         """
         if report.when != "call" and not (report.when == "setup" and report.skipped):
             return
-        if self._config.option.verbose < 1:
+        verbose = self._config.option.verbose
+        if verbose < 1:
             return
         nodeid = report.nodeid
         if "tests/features/" not in nodeid:
@@ -34,10 +35,10 @@ class StepsReporter:
         docstring = getattr(report, "_beehave_docstring", "")
         if not docstring:
             return
+        steps = docstring.strip()
         try:
             writer = self._config.get_terminal_writer()
-            writer.line(docstring)
-            writer.line("")
+            writer.write("\n" + steps + "\n")
         except (AssertionError, AttributeError):
-            sys.stdout.write(docstring + "\n\n")
+            sys.stdout.write("\n" + steps + "\n")
             sys.stdout.flush()
