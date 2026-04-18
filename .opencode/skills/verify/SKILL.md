@@ -102,7 +102,7 @@ Read the source files changed in this feature. **Do this before running lint/sta
 | 5 | One dot per line | `a.b.c()` chains = FAIL |
 | 6 | No abbreviations | `mgr`, `tmp`, `calc` = FAIL |
 | 7 | Small entities | Functions > 20 lines or classes > 50 lines = FAIL |
-| 8 | ≤ 2 instance variables | Count `self.x` in `__init__` — >2 = FAIL |
+| 8 | ≤ 2 instance variables (behavioural classes only) | Count `self.x` in `__init__` — >2 = FAIL; dataclasses/Pydantic/value objects/TypedDicts exempt |
 | 9 | No getters/setters | `get_x()`/`set_x()` = FAIL |
 
 #### 5e. Design Patterns — any FAIL → REJECTED

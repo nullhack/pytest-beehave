@@ -176,7 +176,7 @@ uv run task doc-serve
 - **Function length**: ≤ 20 lines
 - **Class length**: ≤ 50 lines
 - **Max nesting**: 2 levels
-- **Instance variables**: ≤ 2 per class
+**Instance variables**: ≤ 2 per class *(exception: dataclasses, Pydantic models, value objects, and TypedDicts are exempt — they may carry as many fields as the domain requires)*
 - **Semantic alignment**: tests must operate at the same abstraction level as the acceptance criteria they cover
 - **Integration tests**: multi-component features require at least one test in `tests/features/` that exercises the public entry point end-to-end
 
