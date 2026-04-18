@@ -65,33 +65,33 @@ Feature: Multilingual feature parsing
 
   Rule: Spanish feature file parsing
     As a developer working on a Spanish-language project
-    I want a .feature file with # language: es to be parsed correctly
+    I want my Spanish Gherkin feature files to be parsed correctly
     So that the plugin does not break on non-English files
 
     @id:e1081346
-    Example: Spanish feature file with language comment is parsed without error
-      Given a .feature file starting with # language: es using Spanish Gherkin keywords
+    Example: A valid Spanish Gherkin feature file is parsed without error
+      Given a valid Spanish Gherkin feature file
       When parse_feature is called on that file
       Then a ParsedFeature is returned with the correct number of examples
 
   Rule: Chinese feature file parsing
     As a developer working on a Chinese-language project
-    I want a .feature file with # language: zh-CN to be parsed correctly
+    I want my Chinese Gherkin feature files to be parsed correctly
     So that the plugin does not break on non-English files
 
     @id:55e4d669
-    Example: Chinese feature file with language comment is parsed without error
-      Given a .feature file starting with # language: zh-CN using Chinese Gherkin keywords
+    Example: A valid Chinese Gherkin feature file is parsed without error
+      Given a valid Chinese Gherkin feature file
       When parse_feature is called on that file
       Then a ParsedFeature is returned with the correct number of examples
 
   Rule: Mixed-language project compatibility
     As a developer on a project with feature files in multiple languages
-    I want all .feature files to be parsed correctly in a single sync run
+    I want all feature files to be parsed correctly in a single sync run
     So that language choice per file does not affect the rest of the project
 
     @id:3c04262e
     Example: Spanish and English feature files coexist in the same project without conflict
-      Given a project containing one .feature file with # language: es and one without a language comment
+      Given a project containing a valid Spanish Gherkin feature file and a valid English feature file
       When parse_feature is called on each file independently
       Then both files are parsed successfully and return valid ParsedFeature objects
