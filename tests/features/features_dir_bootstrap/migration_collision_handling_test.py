@@ -14,7 +14,7 @@ class TestMigrationCollisionHandling:
     """Tests for the Migration collision handling Rule."""
 
     @pytest.mark.unit
-    def test_features_dir_bootstrap_7f2a0d51(self, tmp_path: Path) -> None:
+    def test_migration_collision_handling_7f2a0d51(self, tmp_path: Path) -> None:
         """
         Given: the features directory contains root-level feature.feature and backlog/feature.feature already exists
         When: pytest is invoked
@@ -36,7 +36,7 @@ class TestMigrationCollisionHandling:
         assert backlog_file.read_text(encoding="utf-8") == "Feature: Backlog\n"
 
     @pytest.mark.unit
-    def test_features_dir_bootstrap_8c3b1e96(self, tmp_path: Path) -> None:
+    def test_migration_collision_handling_8c3b1e96(self, tmp_path: Path) -> None:
         """
         Given: the features directory contains root-level feature.feature and backlog/feature.feature already exists
         When: pytest is invoked

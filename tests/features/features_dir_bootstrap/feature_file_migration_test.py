@@ -14,7 +14,7 @@ class TestFeatureFileMigration:
     """Tests for the Feature file migration Rule."""
 
     @pytest.mark.unit
-    def test_features_dir_bootstrap_e8b61d04(self, tmp_path: Path) -> None:
+    def test_feature_file_migration_e8b61d04(self, tmp_path: Path) -> None:
         """
         Given: the features directory contains a .feature file directly (not inside any subfolder)
         When: pytest is invoked
@@ -33,7 +33,7 @@ class TestFeatureFileMigration:
         assert (features_root / "backlog" / "my-feature.feature").exists()
 
     @pytest.mark.unit
-    def test_features_dir_bootstrap_f3c97a52(self, tmp_path: Path) -> None:
+    def test_feature_file_migration_f3c97a52(self, tmp_path: Path) -> None:
         """
         Given: the features directory contains a non-.feature file (e.g. discovery.md) directly in the root
         When: pytest is invoked
@@ -52,7 +52,7 @@ class TestFeatureFileMigration:
         assert not (features_root / "backlog" / "discovery.md").exists()
 
     @pytest.mark.unit
-    def test_features_dir_bootstrap_a9d02b6e(self, tmp_path: Path) -> None:
+    def test_feature_file_migration_a9d02b6e(self, tmp_path: Path) -> None:
         """
         Given: the features directory contains a .feature file inside the in-progress subfolder
         When: pytest is invoked
@@ -74,7 +74,7 @@ class TestFeatureFileMigration:
         assert not (features_root / "backlog" / "story.feature").exists()
 
     @pytest.mark.unit
-    def test_features_dir_bootstrap_d1e74c83(self, tmp_path: Path) -> None:
+    def test_feature_file_migration_d1e74c83(self, tmp_path: Path) -> None:
         """
         Given: the features directory contains a .feature file directly in the root
         When: pytest is invoked

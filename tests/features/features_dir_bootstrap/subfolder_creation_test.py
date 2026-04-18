@@ -14,7 +14,7 @@ class TestSubfolderCreation:
     """Tests for the Subfolder creation Rule."""
 
     @pytest.mark.unit
-    def test_features_dir_bootstrap_3a1f8c2e(self, tmp_path: Path) -> None:
+    def test_subfolder_creation_3a1f8c2e(self, tmp_path: Path) -> None:
         """
         Given: the features directory exists with no backlog, in-progress, or completed subfolders
         When: pytest is invoked
@@ -30,7 +30,7 @@ class TestSubfolderCreation:
         assert (features_root / "completed").is_dir()
 
     @pytest.mark.unit
-    def test_features_dir_bootstrap_b7d4e091(self, tmp_path: Path) -> None:
+    def test_subfolder_creation_b7d4e091(self, tmp_path: Path) -> None:
         """
         Given: the features directory exists with a backlog subfolder but no in-progress or completed subfolders
         When: pytest is invoked
@@ -50,7 +50,7 @@ class TestSubfolderCreation:
         assert sentinel.read_text(encoding="utf-8") == "Feature: My Feature\n"
 
     @pytest.mark.unit
-    def test_features_dir_bootstrap_c2a53f7d(self, tmp_path: Path) -> None:
+    def test_subfolder_creation_c2a53f7d(self, tmp_path: Path) -> None:
         """
         Given: the features directory exists with no backlog, in-progress, or completed subfolders
         When: pytest is invoked

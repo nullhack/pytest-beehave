@@ -14,7 +14,7 @@ class TestNoOpWhenStructureIsCorrect:
     """Tests for the No-op when structure is correct Rule."""
 
     @pytest.mark.unit
-    def test_features_dir_bootstrap_5e6f9b17(self, tmp_path: Path) -> None:
+    def test_no_op_when_structure_is_correct_5e6f9b17(self, tmp_path: Path) -> None:
         """
         Given: the features directory contains backlog, in-progress, and completed subfolders and no root-level .feature files
         When: pytest is invoked
@@ -37,7 +37,7 @@ class TestNoOpWhenStructureIsCorrect:
         assert lines == []
 
     @pytest.mark.unit
-    def test_features_dir_bootstrap_2d8a4c70(self, tmp_path: Path) -> None:
+    def test_no_op_when_structure_is_correct_2d8a4c70(self, tmp_path: Path) -> None:
         """
         Given: the features directory does not exist
         When: pytest is invoked
