@@ -253,7 +253,7 @@ As a software-engineer I declare:
 * OC-4: first-class collections — AGREE/DISAGREE | file:line
 * OC-5: one dot per line — AGREE/DISAGREE | file:line
 * OC-6: no abbreviations — AGREE/DISAGREE | file:line
-* OC-7: ≤20 lines per function, ≤50 per class — AGREE/DISAGREE | longest: file:line
+* OC-7: ≤20 code lines per function, ≤50 code lines per class (docstrings excluded) — AGREE/DISAGREE | longest: file:line
 * OC-8: ≤2 instance variables per class (behavioural classes only; dataclasses, Pydantic models, value objects, and TypedDicts are exempt) — AGREE/DISAGREE | file:line
 * OC-9: no getters/setters — AGREE/DISAGREE | file:line
 * Patterns: no creational smell — AGREE/DISAGREE | file:line

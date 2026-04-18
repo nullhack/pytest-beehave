@@ -183,8 +183,8 @@ uv run task doc-serve
 - **Linting**: ruff, Google docstring convention, `noqa` forbidden
 - **Type checking**: pyright, 0 errors required
 - **Coverage**: 100% (measured against your actual package)
-- **Function length**: ≤ 20 lines
-- **Class length**: ≤ 50 lines
+- **Function length**: ≤ 20 lines (code lines only, excluding docstrings)
+- **Class length**: ≤ 50 lines (code lines only, excluding docstrings)
 - **Max nesting**: 2 levels
 **Instance variables**: ≤ 2 per class *(exception: dataclasses, Pydantic models, value objects, and TypedDicts are exempt — they may carry as many fields as the domain requires)*
 - **Semantic alignment**: tests must operate at the same abstraction level as the acceptance criteria they cover

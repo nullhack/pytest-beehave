@@ -78,8 +78,8 @@ Read the source files changed in this feature. **Do this before running lint/sta
 |---|---|---|---|---|
 | Functions do one thing | Read each function; can you describe it without `and`? | Yes | No | Split into focused functions |
 | Nesting ≤ 2 levels | Count indent levels in each function | ≤ 2 | > 2 | Extract inner block |
-| Functions ≤ 20 lines | Count lines | ≤ 20 | > 20 | Extract helper |
-| Classes ≤ 50 lines | Count lines | ≤ 50 | > 50 | Split class |
+| Functions ≤ 20 lines | Count code lines only (exclude docstrings) | ≤ 20 | > 20 | Extract helper |
+| Classes ≤ 50 lines | Count code lines only (exclude docstrings) | ≤ 50 | > 50 | Split class |
 
 #### 5c. SOLID — any FAIL → REJECTED
 
@@ -232,8 +232,8 @@ OR
 | Test coverage | 100% |
 | Type errors | 0 |
 | Lint errors | 0 |
-| Function length | ≤ 20 lines |
-| Class length | ≤ 50 lines |
+| Function length | ≤ 20 code lines (excluding docstrings) |
+| Class length | ≤ 50 code lines (excluding docstrings) |
 | Max nesting | 2 levels |
 | Instance variables | ≤ 2 per class |
 | Uncovered `@id` tags | 0 |
