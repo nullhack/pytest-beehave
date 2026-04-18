@@ -13,7 +13,7 @@ from pytest_beehave.sync_engine import run_sync as sync_stubs
 class TestOrphanHandling:
     """Tests for the Orphan handling Rule."""
 
-    def test_stub_updates_9d7a0b34(
+    def test_orphan_handling_9d7a0b34(
         self,
         tmp_path: Path,
         make_feature: Callable[..., None],
@@ -72,7 +72,7 @@ def test_my_feature_deadbeef() -> None:
         def_idx = content.index("def test_my_feature_deadbeef")
         assert skip_idx < def_idx
 
-    def test_stub_updates_67192894(
+    def test_orphan_handling_67192894(
         self,
         tmp_path: Path,
         make_feature: Callable[..., None],
@@ -129,7 +129,7 @@ def test_my_feature_deadbeef() -> None:
         assert "def test_my_feature_deadbeef() -> None:" in content
 
     @pytest.mark.unit
-    def test_stub_updates_8b2e4f17(
+    def test_orphan_handling_8b2e4f17(
         self,
         tmp_path: Path,
         make_feature: Callable[..., None],
@@ -184,7 +184,7 @@ def test_done_feature_deadbeef() -> None:
         )
 
     @pytest.mark.unit
-    def test_stub_updates_c9a30d52(
+    def test_orphan_handling_c9a30d52(
         self,
         tmp_path: Path,
         make_feature: Callable[..., None],

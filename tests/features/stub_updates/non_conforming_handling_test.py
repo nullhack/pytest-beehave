@@ -14,7 +14,7 @@ class TestNonConformingHandling:
     """Tests for the Non-conforming handling Rule."""
 
     @pytest.mark.unit
-    def test_stub_updates_4a7c2e81(
+    def test_non_conforming_handling_4a7c2e81(
         self,
         tmp_path: Path,
         make_feature: Callable[..., None],
@@ -73,7 +73,7 @@ def test_my_feature_aabbccdd() -> None:
         assert "non-conforming" in wrong_content
 
     @pytest.mark.unit
-    def test_stub_updates_3f9d1b56(
+    def test_non_conforming_handling_3f9d1b56(
         self,
         tmp_path: Path,
         make_feature: Callable[..., None],

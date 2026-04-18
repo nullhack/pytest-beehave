@@ -11,7 +11,7 @@ from pytest_beehave.sync_engine import run_sync as sync_stubs
 class TestFunctionRenames:
     """Tests for the Function renames Rule."""
 
-    def test_stub_updates_b6b9ab28(
+    def test_function_renames_b6b9ab28(
         self,
         tmp_path: Path,
         make_feature: Callable[..., None],
@@ -63,7 +63,7 @@ def test_old_feature_aabbccdd() -> None:
         assert "def test_new_feature_aabbccdd() -> None:" in content
         assert "def test_old_feature_aabbccdd" not in content
 
-    def test_stub_updates_d89540f9(
+    def test_function_renames_d89540f9(
         self,
         tmp_path: Path,
         make_feature: Callable[..., None],

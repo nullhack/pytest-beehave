@@ -11,7 +11,7 @@ from pytest_beehave.sync_engine import run_sync as sync_stubs
 class TestDocstringUpdates:
     """Tests for the Docstring updates Rule."""
 
-    def test_stub_updates_bdb8e233(
+    def test_docstring_updates_bdb8e233(
         self,
         tmp_path: Path,
         make_feature: Callable[..., None],
@@ -65,7 +65,7 @@ def test_my_feature_aabbccdd() -> None:
         assert "Then: the new result appears" in content
         assert "OLD" not in content
 
-    def test_stub_updates_6bb59874(
+    def test_docstring_updates_6bb59874(
         self,
         tmp_path: Path,
         make_feature: Callable[..., None],
