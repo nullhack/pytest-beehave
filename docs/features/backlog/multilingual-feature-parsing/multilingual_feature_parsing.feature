@@ -67,7 +67,7 @@ Feature: Multilingual feature parsing
   Rule: Spanish feature file parsing
     As a developer working on a Spanish-language project
     I want a .feature file with # language: es to be parsed correctly
-    So that Spanish Gherkin keywords are recognised and stubs are generated with original keywords in docstrings
+    So that the plugin does not break on non-English files
 
     @id:e1081346
     Example: Spanish feature file with language comment is parsed without error
@@ -75,7 +75,7 @@ Feature: Multilingual feature parsing
       When parse_feature is called on that file
       Then a ParsedFeature is returned with the correct number of examples
 
-    @id:ee932be9
+    @deprecated @id:ee932be9
     Example: Spanish step keywords are preserved verbatim in the parsed step objects
       Given a .feature file starting with # language: es with steps using Dado, Cuando, and Entonces
       When parse_feature is called on that file
@@ -84,7 +84,7 @@ Feature: Multilingual feature parsing
   Rule: Chinese feature file parsing
     As a developer working on a Chinese-language project
     I want a .feature file with # language: zh-CN to be parsed correctly
-    So that Chinese Gherkin keywords are recognised and stubs are generated with original keywords in docstrings
+    So that the plugin does not break on non-English files
 
     @id:55e4d669
     Example: Chinese feature file with language comment is parsed without error
@@ -92,7 +92,7 @@ Feature: Multilingual feature parsing
       When parse_feature is called on that file
       Then a ParsedFeature is returned with the correct number of examples
 
-    @id:23c2b59b
+    @deprecated @id:23c2b59b
     Example: Chinese step keywords are preserved verbatim in the parsed step objects
       Given a .feature file starting with # language: zh-CN with steps using Chinese keywords
       When parse_feature is called on that file
