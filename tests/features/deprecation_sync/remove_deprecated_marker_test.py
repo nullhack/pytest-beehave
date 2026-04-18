@@ -5,15 +5,12 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Callable
 
-import pytest
-
 from pytest_beehave.sync_engine import run_sync as sync_stubs
 
 
 class TestRemoveDeprecatedMarker:
     """Tests for the Remove deprecated marker Rule."""
 
-    @pytest.mark.unit
     def test_deprecation_sync_7fcee92a(
         self,
         tmp_path: Path,

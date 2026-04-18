@@ -17,8 +17,10 @@ from pytest_beehave.stub_reader import ExistingStub, read_stubs_from_file
 from pytest_beehave.stub_writer import (
     StubSpec,
     SyncAction,
+    build_class_name,
     build_docstring,
     build_function_name,
+    mark_non_conforming,
     mark_orphan,
     remove_orphan_marker,
     toggle_deprecated_marker,
@@ -115,6 +117,34 @@ def _collect_all_ids(
     return frozenset(ids)
 
 
+def _build_expected_locations(
+    feature_stage_pairs: list[tuple[ParsedFeature, FeatureStage]],
+    tests_dir: Path,
+) -> dict[ExampleId, tuple[Path, str | None]]:
+    """Build a map of ExampleId to (expected_test_file, expected_class_name).
+
+    Args:
+        feature_stage_pairs: All parsed feature/stage tuples.
+        tests_dir: Root of the tests/features/ directory.
+
+    Returns:
+        Dict mapping ExampleId to (file_path, class_name_or_None).
+    """
+    locations: dict[ExampleId, tuple[Path, str | None]] = {}
+    for feature, _stage in feature_stage_pairs:
+        feature_dir = tests_dir / str(feature.feature_slug)
+        if feature.rules:
+            for rule in feature.rules:
+                test_file = feature_dir / f"{rule.rule_slug}_test.py"
+                class_name = build_class_name(rule.rule_slug)
+                for example in rule.examples:
+                    locations[example.example_id] = (test_file, class_name)
+        for example in feature.top_level_examples:
+            test_file = feature_dir / "examples_test.py"
+            locations[example.example_id] = (test_file, None)
+    return locations
+
+
 def _sync_orphans(
     tests_dir: Path,
     all_ids: frozenset[ExampleId],
@@ -138,6 +168,44 @@ def _sync_orphans(
                 action = mark_orphan(test_file, stub.function_name)
             else:
                 action = remove_orphan_marker(test_file, stub.function_name)
+            if action is not None:
+                actions.append(action)
+    return actions
+
+
+def _sync_non_conforming(
+    tests_dir: Path,
+    expected_locations: dict[ExampleId, tuple[Path, str | None]],
+    filesystem: FileSystemProtocol,
+) -> list[SyncAction]:
+    """Mark test stubs found in the wrong file as non-conforming.
+
+    Only applies to Rule-based stubs (those with an expected class). Top-level
+    examples without a class context are skipped — orphan detection handles
+    unrecognised test files.
+
+    Args:
+        tests_dir: Root of the tests/features/ directory.
+        expected_locations: Map of ExampleId to (expected_file, expected_class).
+        filesystem: Filesystem adapter.
+
+    Returns:
+        List of SyncAction objects.
+    """
+    actions: list[SyncAction] = []
+    for test_file in filesystem.list_test_files(tests_dir):
+        stubs = read_stubs_from_file(test_file)
+        for stub in stubs:
+            if stub.example_id not in expected_locations:
+                continue
+            expected_file, expected_class = expected_locations[stub.example_id]
+            if expected_class is None:
+                continue
+            if test_file == expected_file:
+                continue
+            action = mark_non_conforming(
+                test_file, stub.function_name, expected_file, expected_class
+            )
             if action is not None:
                 actions.append(action)
     return actions
@@ -374,6 +442,8 @@ def run_sync(
             actions.extend(_sync_completed_feature(feature, tests_root))
         else:
             actions.extend(_sync_active_feature(feature, tests_root))
+    expected_locations = _build_expected_locations(feature_stage_pairs, tests_root)
+    actions.extend(_sync_non_conforming(tests_root, expected_locations, filesystem))
     all_ids = _collect_all_ids(features_root, filesystem)
     actions.extend(_sync_orphans(tests_root, all_ids, filesystem))
     return [str(a) for a in actions]

@@ -3,8 +3,6 @@
 from pathlib import Path
 from unittest.mock import MagicMock
 
-import pytest
-
 from pytest_beehave.bootstrap import BootstrapResult
 from pytest_beehave.reporter import (
     TerminalWriterProtocol,
@@ -18,7 +16,6 @@ def _make_writer() -> MagicMock:
     return MagicMock(spec=TerminalWriterProtocol)
 
 
-@pytest.mark.unit
 def test_report_bootstrap_reports_created_subfolders() -> None:
     """
     Given: A BootstrapResult with created subfolders
@@ -36,7 +33,6 @@ def test_report_bootstrap_reports_created_subfolders() -> None:
     writer.line.assert_any_call("[beehave] MKDIR in-progress/")
 
 
-@pytest.mark.unit
 def test_report_bootstrap_reports_migrated_files() -> None:
     """
     Given: A BootstrapResult with migrated files
@@ -54,7 +50,6 @@ def test_report_bootstrap_reports_migrated_files() -> None:
     writer.line.assert_any_call(f"[beehave] MIGRATE {path}")
 
 
-@pytest.mark.unit
 def test_report_bootstrap_reports_collision_warnings() -> None:
     """
     Given: A BootstrapResult with collision warnings
@@ -71,7 +66,6 @@ def test_report_bootstrap_reports_collision_warnings() -> None:
     writer.line.assert_any_call("[beehave] WARNING Cannot migrate foo: bar exists")
 
 
-@pytest.mark.unit
 def test_report_bootstrap_does_nothing_for_noop() -> None:
     """
     Given: A no-op BootstrapResult
@@ -88,7 +82,6 @@ def test_report_bootstrap_does_nothing_for_noop() -> None:
     writer.line.assert_not_called()
 
 
-@pytest.mark.unit
 def test_report_id_write_back_reports_errors() -> None:
     """
     Given: A list of error strings
@@ -101,7 +94,6 @@ def test_report_id_write_back_reports_errors() -> None:
     writer.line.assert_any_call("[beehave] ERROR: error two")
 
 
-@pytest.mark.unit
 def test_report_sync_actions_reports_actions() -> None:
     """
     Given: A list of action strings

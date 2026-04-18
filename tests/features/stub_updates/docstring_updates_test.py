@@ -5,15 +5,12 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Callable
 
-import pytest
-
 from pytest_beehave.sync_engine import run_sync as sync_stubs
 
 
 class TestDocstringUpdates:
     """Tests for the Docstring updates Rule."""
 
-    @pytest.mark.unit
     def test_stub_updates_bdb8e233(
         self,
         tmp_path: Path,
@@ -68,7 +65,6 @@ def test_my_feature_aabbccdd() -> None:
         assert "Then: the new result appears" in content
         assert "OLD" not in content
 
-    @pytest.mark.unit
     def test_stub_updates_6bb59874(
         self,
         tmp_path: Path,

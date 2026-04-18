@@ -50,7 +50,6 @@ def _make_feature(
     )
 
 
-@pytest.mark.unit
 def test_sync_action_str_includes_detail_when_present() -> None:
     """
     Given: A SyncAction with a non-empty detail
@@ -65,7 +64,6 @@ def test_sync_action_str_includes_detail_when_present() -> None:
     assert "ORPHAN" in result
 
 
-@pytest.mark.unit
 def test_sync_action_str_excludes_detail_when_empty() -> None:
     """
     Given: A SyncAction with an empty detail
@@ -78,7 +76,6 @@ def test_sync_action_str_excludes_detail_when_empty() -> None:
     assert "CREATE" in result
 
 
-@pytest.mark.unit
 def test_stub_function_source_deprecated_branch() -> None:
     """
     Given: A deprecated=True flag
@@ -90,7 +87,6 @@ def test_stub_function_source_deprecated_branch() -> None:
     assert "@pytest.mark.skip" not in source
 
 
-@pytest.mark.unit
 def test_write_stub_to_file_appends_to_existing_module_level(tmp_path: Path) -> None:
     """
     Given: An existing test file with one stub already
@@ -120,7 +116,6 @@ def test_write_stub_to_file_appends_to_existing_module_level(tmp_path: Path) -> 
     assert "test_my_feature_22222222" in content
 
 
-@pytest.mark.unit
 def test_write_class_based_stub_raises_on_none_rule_slug(tmp_path: Path) -> None:
     """
     Given: A StubSpec with rule_slug=None passed to _write_class_based_stub
@@ -147,7 +142,6 @@ def test_write_class_based_stub_raises_on_none_rule_slug(tmp_path: Path) -> None
         )
 
 
-@pytest.mark.unit
 def test_write_class_based_stub_adds_to_existing_class(tmp_path: Path) -> None:
     """
     Given: A test file with an existing class
@@ -167,14 +161,14 @@ def test_write_class_based_stub_adds_to_existing_class(tmp_path: Path) -> None:
     example = _make_example("22222222")
     rule = ParsedRule(
         title="My Rule",
-        rule_slug=RuleSlug("my-rule"),
+        rule_slug=RuleSlug("my_rule"),
         examples=(example,),
         is_deprecated=False,
     )
     feature = _make_feature("my_feature", rules=(rule,))
     spec = StubSpec(
         feature_slug=FeatureSlug("my_feature"),
-        rule_slug=RuleSlug("my-rule"),
+        rule_slug=RuleSlug("my_rule"),
         example=example,
         feature=feature,
     )
@@ -184,7 +178,6 @@ def test_write_class_based_stub_adds_to_existing_class(tmp_path: Path) -> None:
     assert "test_my_feature_22222222" in content
 
 
-@pytest.mark.unit
 def test_write_class_based_stub_creates_new_class_in_existing_file(
     tmp_path: Path,
 ) -> None:
@@ -203,14 +196,14 @@ def test_write_class_based_stub_creates_new_class_in_existing_file(
     example = _make_example("aabbccdd")
     rule = ParsedRule(
         title="New Rule",
-        rule_slug=RuleSlug("new-rule"),
+        rule_slug=RuleSlug("new_rule"),
         examples=(example,),
         is_deprecated=False,
     )
     feature = _make_feature("my_feature", rules=(rule,))
     spec = StubSpec(
         feature_slug=FeatureSlug("my_feature"),
-        rule_slug=RuleSlug("new-rule"),
+        rule_slug=RuleSlug("new_rule"),
         example=example,
         feature=feature,
     )
@@ -221,7 +214,6 @@ def test_write_class_based_stub_creates_new_class_in_existing_file(
     assert "test_my_feature_aabbccdd" in content
 
 
-@pytest.mark.unit
 def test_find_rule_returns_none_when_not_found() -> None:
     """
     Given: A feature with rules that don't match the target slug
@@ -232,16 +224,15 @@ def test_find_rule_returns_none_when_not_found() -> None:
 
     rule = ParsedRule(
         title="Existing Rule",
-        rule_slug=RuleSlug("existing-rule"),
+        rule_slug=RuleSlug("existing_rule"),
         examples=(),
         is_deprecated=False,
     )
     feature = _make_feature("my_feature", rules=(rule,))
-    result = _find_rule(feature, RuleSlug("non-existent"))
+    result = _find_rule(feature, RuleSlug("non_existent"))
     assert result is None
 
 
-@pytest.mark.unit
 def test_mark_orphan_returns_none_when_function_not_found(tmp_path: Path) -> None:
     """
     Given: A test file that doesn't contain the target function
@@ -259,7 +250,6 @@ def test_mark_orphan_returns_none_when_function_not_found(tmp_path: Path) -> Non
     assert result is None
 
 
-@pytest.mark.unit
 def test_mark_orphan_returns_none_when_already_marked(tmp_path: Path) -> None:
     """
     Given: A test file with a function already marked as orphan
@@ -278,7 +268,6 @@ def test_mark_orphan_returns_none_when_already_marked(tmp_path: Path) -> None:
     assert result is None
 
 
-@pytest.mark.unit
 def test_mark_non_conforming_adds_marker(tmp_path: Path) -> None:
     """
     Given: A test file with a non-conforming function
@@ -303,7 +292,6 @@ def test_mark_non_conforming_adds_marker(tmp_path: Path) -> None:
     assert "TestMyRule" in content
 
 
-@pytest.mark.unit
 def test_mark_non_conforming_returns_none_when_function_not_found(
     tmp_path: Path,
 ) -> None:
@@ -322,7 +310,6 @@ def test_mark_non_conforming_returns_none_when_function_not_found(
     assert result is None
 
 
-@pytest.mark.unit
 def test_mark_non_conforming_returns_none_when_already_marked(tmp_path: Path) -> None:
     """
     Given: A test file where the function already has a non-conforming marker
@@ -343,7 +330,6 @@ def test_mark_non_conforming_returns_none_when_already_marked(tmp_path: Path) ->
     assert result is None
 
 
-@pytest.mark.unit
 def test_toggle_deprecated_marker_skips_non_matching_functions(tmp_path: Path) -> None:
     """
     Given: A test file with multiple functions and only one matching the target
@@ -370,7 +356,6 @@ def test_toggle_deprecated_marker_skips_non_matching_functions(tmp_path: Path) -
     assert "def test_my_feature_aabbccdd" in content
 
 
-@pytest.mark.unit
 def test_toggle_deprecated_marker_removes_when_not_deprecated(tmp_path: Path) -> None:
     """
     Given: A test file with @pytest.mark.deprecated on a function

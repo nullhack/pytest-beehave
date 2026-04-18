@@ -49,7 +49,6 @@ def _three_examples_content() -> str:
 class TestAutoIdWriteBack:
     """Tests for the Auto ID write-back Rule."""
 
-    @pytest.mark.unit
     def test_auto_id_generation_cd98877d(self, tmp_path: Path) -> None:
         """
         Given: a writable .feature file containing an Example with no @id tag
@@ -71,7 +70,6 @@ class TestAutoIdWriteBack:
         """
         raise NotImplementedError
 
-    @pytest.mark.unit
     def test_auto_id_generation_27cf14bf(self, tmp_path: Path) -> None:
         """
         Given: a writable .feature file containing multiple untagged Examples
@@ -84,7 +82,6 @@ class TestAutoIdWriteBack:
         assert len(found_ids) == 3
         assert len(found_ids) == len(set(found_ids))
 
-    @pytest.mark.unit
     def test_auto_id_generation_842409ed(self, tmp_path: Path) -> None:
         """
         Given: a .feature file where all Examples already have @id tags

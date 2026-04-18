@@ -78,7 +78,7 @@ def build_class_name(rule_slug: RuleSlug) -> str:
     Returns:
         String like 'TestMyRule'.
     """
-    parts = str(rule_slug).split("-")
+    parts = str(rule_slug).split("_")
     return "Test" + "".join(p.capitalize() for p in parts if p)
 
 

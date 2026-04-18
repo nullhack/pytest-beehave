@@ -2,8 +2,6 @@
 
 from pathlib import Path
 
-import pytest
-
 from pytest_beehave.feature_parser import (
     ParsedExample,
     ParsedFeature,
@@ -50,7 +48,6 @@ def _make_feature(
     )
 
 
-@pytest.mark.unit
 def test_sync_result_is_noop_when_no_actions() -> None:
     """
     Given: A SyncResult with no actions
@@ -61,7 +58,6 @@ def test_sync_result_is_noop_when_no_actions() -> None:
     assert result.is_noop is True
 
 
-@pytest.mark.unit
 def test_sync_rule_stubs_returns_empty_when_no_examples(tmp_path: Path) -> None:
     """
     Given: A rule with no examples
@@ -79,7 +75,6 @@ def test_sync_rule_stubs_returns_empty_when_no_examples(tmp_path: Path) -> None:
     assert result == []
 
 
-@pytest.mark.unit
 def test_sync_completed_feature_with_rules(tmp_path: Path) -> None:
     """
     Given: A completed feature with Rule blocks and a test file with a stub
@@ -112,7 +107,6 @@ def test_sync_completed_feature_with_rules(tmp_path: Path) -> None:
     assert isinstance(actions, list)
 
 
-@pytest.mark.unit
 def test_discover_feature_locations_uses_stem_when_feature_at_stage_root(
     tmp_path: Path,
 ) -> None:
@@ -149,7 +143,6 @@ def test_discover_feature_locations_uses_stem_when_feature_at_stage_root(
     assert result_stage == FeatureStage.BACKLOG
 
 
-@pytest.mark.unit
 def test_discover_feature_locations_uses_parent_name_when_feature_in_subfolder(
     tmp_path: Path,
 ) -> None:
@@ -180,7 +173,6 @@ def test_discover_feature_locations_uses_parent_name_when_feature_in_subfolder(
     assert str(feature.feature_slug) == "my_feature"
 
 
-@pytest.mark.unit
 def test_sync_rule_stubs_syncs_deprecated_markers_after_creating_stubs(
     tmp_path: Path,
 ) -> None:
@@ -205,7 +197,6 @@ def test_sync_rule_stubs_syncs_deprecated_markers_after_creating_stubs(
     assert "CREATE" in action_names
 
 
-@pytest.mark.unit
 def test_run_sync_returns_empty_list_for_empty_features_dir(tmp_path: Path) -> None:
     """
     Given: Features and tests directories that are empty

@@ -163,8 +163,8 @@ def test_bounce_physics_a3f2b1c4() -> None:
 - `@pytest.mark.slow` — takes > 50ms; additionally applied alongside `unit` or `integration`
 - `@pytest.mark.deprecated` — auto-skipped by conftest hook; added by `gen-tests`
 
-Every implemented test gets exactly one of `unit` or `integration`. Slow tests additionally get `slow`.
-Stubs (`@pytest.mark.skip(reason="not yet implemented")`) do not carry `unit` or `integration` — the implementer adds the correct marker when writing the test body.
+Slow tests additionally get `slow`.
+Stubs (`@pytest.mark.skip(reason="not yet implemented")`) do not carry markers — the implementer adds the correct marker when writing the test body.
 
 ## Development Commands
 

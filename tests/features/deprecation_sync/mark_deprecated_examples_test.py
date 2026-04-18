@@ -5,15 +5,12 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Callable
 
-import pytest
-
 from pytest_beehave.sync_engine import run_sync as sync_stubs
 
 
 class TestMarkDeprecatedExamples:
     """Tests for the Mark deprecated Examples Rule."""
 
-    @pytest.mark.unit
     def test_deprecation_sync_f9b636df(
         self,
         tmp_path: Path,
@@ -67,7 +64,6 @@ def test_my_feature_aabbccdd() -> None:
         def_idx = content.index("def test_my_feature_aabbccdd")
         assert deprecated_idx < def_idx
 
-    @pytest.mark.unit
     def test_deprecation_sync_fc372f15(
         self,
         tmp_path: Path,

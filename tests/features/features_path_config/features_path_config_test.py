@@ -10,7 +10,6 @@ from pytest_beehave.config import resolve_features_path
 class TestCustomFeaturesPath:
     """Tests for the Custom features path Rule."""
 
-    @pytest.mark.unit
     def test_features_path_config_acf12157(self, tmp_path: Path) -> None:
         """
         Given: pyproject.toml contains [tool.beehave] with features_path set to a custom directory
@@ -22,8 +21,6 @@ class TestCustomFeaturesPath:
         result = resolve_features_path(tmp_path)
         assert result == tmp_path / "custom" / "path"
 
-    @pytest.mark.integration
-    @pytest.mark.slow
     def test_features_path_config_124f65e7(self, pytester: pytest.Pytester) -> None:
         """
         Given: pyproject.toml contains [tool.beehave] with features_path pointing to a non-existent directory
@@ -40,7 +37,6 @@ class TestCustomFeaturesPath:
 class TestDefaultFeaturesPath:
     """Tests for the Default features path Rule."""
 
-    @pytest.mark.unit
     def test_features_path_config_ce8a95e7(self, tmp_path: Path) -> None:
         """
         Given: pyproject.toml contains no [tool.beehave] section
@@ -52,7 +48,6 @@ class TestDefaultFeaturesPath:
         result = resolve_features_path(tmp_path)
         assert result == tmp_path / "docs" / "features"
 
-    @pytest.mark.unit
     def test_features_path_config_aaeda817(self, tmp_path: Path) -> None:
         """
         Given: no pyproject.toml exists in the project root

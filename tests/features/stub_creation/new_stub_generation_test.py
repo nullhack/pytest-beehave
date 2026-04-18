@@ -13,7 +13,6 @@ from pytest_beehave.sync_engine import run_sync as sync_stubs
 class TestNewStubGeneration:
     """Tests for the New stub generation Rule."""
 
-    @pytest.mark.unit
     def test_stub_creation_692972dd(
         self,
         tmp_path: Path,
@@ -47,7 +46,6 @@ Feature: My feature
         assert "def test_my_feature_aabbccdd() -> None:" in content
 
     @pytest.mark.deprecated
-    @pytest.mark.unit
     def test_stub_creation_d14d975f(
         self,
         tmp_path: Path,
@@ -83,7 +81,6 @@ Feature: My feature
         lines_before = [ln for ln in block_before_def.splitlines() if ln.strip()]
         assert not any(line.startswith("@pytest.mark") for line in lines_before)
 
-    @pytest.mark.unit
     def test_stub_creation_a4c781f2(
         self,
         tmp_path: Path,
@@ -118,7 +115,6 @@ Feature: My feature
         def_idx = content.index("def test_my_feature_aabbccdd")
         assert skip_idx < def_idx
 
-    @pytest.mark.unit
     def test_stub_creation_e2b093d1(
         self,
         tmp_path: Path,
@@ -148,7 +144,7 @@ Feature: My feature
 """,
         )
         sync_stubs(features_dir, tests_dir)
-        content = read_test_file(tests_dir, "my_feature", "premium-customers")
+        content = read_test_file(tests_dir, "my_feature", "premium_customers")
         assert "class TestPremiumCustomers:" in content
         assert "def test_my_feature_aabbccdd" in content
         lines = content.splitlines()
@@ -157,7 +153,6 @@ Feature: My feature
         )
         assert def_line.startswith("    ")
 
-    @pytest.mark.unit
     def test_stub_creation_f1a5c823(
         self,
         tmp_path: Path,
@@ -194,7 +189,6 @@ Feature: My feature
         )
         assert def_line.startswith("def ")
 
-    @pytest.mark.unit
     def test_stub_creation_777a9638(
         self,
         tmp_path: Path,
@@ -228,7 +222,6 @@ Feature: My feature
         non_empty_lines = [ln for ln in content.splitlines() if ln.strip()]
         assert non_empty_lines[-1].strip() == "raise NotImplementedError"
 
-    @pytest.mark.unit
     def test_stub_creation_bba184c0(
         self,
         tmp_path: Path,
@@ -267,7 +260,6 @@ Feature: My feature
         assert "# When" not in body
         assert "# Then" not in body
 
-    @pytest.mark.unit
     def test_stub_creation_edc964fc(
         self,
         tmp_path: Path,
@@ -298,7 +290,6 @@ Feature: My feature
         assert (tests_dir / "my_feature" / "examples_test.py").exists()
         assert not (tests_dir / "my-feature").exists()
 
-    @pytest.mark.unit
     def test_stub_creation_38d864b9(
         self,
         tmp_path: Path,

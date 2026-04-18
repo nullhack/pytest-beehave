@@ -2,12 +2,9 @@
 
 from pathlib import Path
 
-import pytest
-
 from pytest_beehave.bootstrap import BootstrapResult, bootstrap_features_directory
 
 
-@pytest.mark.unit
 def test_bootstrap_result_is_noop_when_empty() -> None:
     """
     Given: A BootstrapResult with no changes
@@ -22,7 +19,6 @@ def test_bootstrap_result_is_noop_when_empty() -> None:
     assert result.is_noop is True
 
 
-@pytest.mark.unit
 def test_bootstrap_result_is_not_noop_when_folders_created() -> None:
     """
     Given: A BootstrapResult with created subfolders
@@ -37,7 +33,6 @@ def test_bootstrap_result_is_not_noop_when_folders_created() -> None:
     assert result.is_noop is False
 
 
-@pytest.mark.unit
 def test_bootstrap_returns_empty_result_when_root_does_not_exist(
     tmp_path: Path,
 ) -> None:
@@ -54,7 +49,6 @@ def test_bootstrap_returns_empty_result_when_root_does_not_exist(
     assert result.collision_warnings == ()
 
 
-@pytest.mark.unit
 def test_bootstrap_migrates_loose_feature_files(tmp_path: Path) -> None:
     """
     Given: A features root with loose .feature files
@@ -76,7 +70,6 @@ def test_bootstrap_migrates_loose_feature_files(tmp_path: Path) -> None:
     assert (features_root / "backlog" / "my-feature.feature").exists()
 
 
-@pytest.mark.unit
 def test_bootstrap_warns_on_collision(tmp_path: Path) -> None:
     """
     Given: A loose .feature file that already exists in backlog/

@@ -6,8 +6,6 @@ import pytest
 class TestGracefulHandling:
     """Tests for the Graceful handling Rule."""
 
-    @pytest.mark.integration
-    @pytest.mark.slow
     def test_plugin_hook_d0f2866d(self, pytester: pytest.Pytester) -> None:
         """
         Given: no pyproject.toml [tool.beehave] section is present and the default docs/features/ directory does not exist

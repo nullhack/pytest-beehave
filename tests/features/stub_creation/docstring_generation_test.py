@@ -5,15 +5,12 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Callable
 
-import pytest
-
 from pytest_beehave.sync_engine import run_sync as sync_stubs
 
 
 class TestDocstringGeneration:
     """Tests for the Docstring generation Rule."""
 
-    @pytest.mark.unit
     def test_stub_creation_db596443(
         self,
         tmp_path: Path,
@@ -48,7 +45,6 @@ Feature: My feature
         assert "And: an additional condition" in content
         assert "But: not this other thing" in content
 
-    @pytest.mark.unit
     def test_stub_creation_17b01d7a(
         self,
         tmp_path: Path,
@@ -81,7 +77,6 @@ Feature: My feature
         content = read_test_file(tests_dir, "my_feature", "examples")
         assert "*: a bullet step" in content
 
-    @pytest.mark.unit
     def test_stub_creation_c56883ce(
         self,
         tmp_path: Path,
@@ -132,7 +127,6 @@ Feature: My feature
             for j in range(step_line_idx + 1, min(step_line_idx + 6, len(lines)))
         )
 
-    @pytest.mark.unit
     def test_stub_creation_2fc458f8(
         self,
         tmp_path: Path,
@@ -178,7 +172,6 @@ Feature: My feature
             for j in range(step_line_idx + 1, min(step_line_idx + 6, len(lines)))
         )
 
-    @pytest.mark.unit
     def test_stub_creation_7f91cf3a(
         self,
         tmp_path: Path,
@@ -213,7 +206,7 @@ Feature: My feature
 """,
         )
         sync_stubs(features_dir, tests_dir)
-        content = read_test_file(tests_dir, "my_feature", "premium-customers")
+        content = read_test_file(tests_dir, "my_feature", "premium_customers")
         assert content.count("Background:") == 2
         first_bg = content.find("Background:")
         second_bg = content.find("Background:", first_bg + 1)
@@ -222,7 +215,6 @@ Feature: My feature
         assert second_bg > first_bg
         assert when_idx > second_bg
 
-    @pytest.mark.unit
     def test_stub_creation_9a4e199a(
         self,
         tmp_path: Path,

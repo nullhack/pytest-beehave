@@ -5,15 +5,12 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Callable
 
-import pytest
-
 from pytest_beehave.sync_engine import run_sync as sync_stubs
 
 
 class TestFunctionRenames:
     """Tests for the Function renames Rule."""
 
-    @pytest.mark.unit
     def test_stub_updates_b6b9ab28(
         self,
         tmp_path: Path,
@@ -66,7 +63,6 @@ def test_old_feature_aabbccdd() -> None:
         assert "def test_new_feature_aabbccdd() -> None:" in content
         assert "def test_old_feature_aabbccdd" not in content
 
-    @pytest.mark.unit
     def test_stub_updates_d89540f9(
         self,
         tmp_path: Path,

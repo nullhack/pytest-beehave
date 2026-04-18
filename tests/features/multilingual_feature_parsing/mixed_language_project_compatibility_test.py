@@ -2,8 +2,6 @@
 
 from pathlib import Path
 
-import pytest
-
 from pytest_beehave.feature_parser import ParsedFeature, parse_feature
 from pytest_beehave.models import ExampleId
 
@@ -42,7 +40,6 @@ def _write_english_feature(directory: Path) -> Path:
 class TestMixedLanguageProjectCompatibility:
     """Tests for the Mixed-language project compatibility Rule."""
 
-    @pytest.mark.unit
     def test_multilingual_feature_parsing_3c04262e(self, tmp_path: Path) -> None:
         """
         Given: a project containing a valid Spanish Gherkin feature file and a valid English feature file

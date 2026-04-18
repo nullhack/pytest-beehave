@@ -2,8 +2,6 @@
 
 from pathlib import Path
 
-import pytest
-
 from pytest_beehave.feature_parser import ParsedFeature, parse_feature
 from pytest_beehave.models import ExampleId
 
@@ -27,7 +25,6 @@ def _write_chinese_feature(directory: Path) -> Path:
 class TestChineseFeatureFileParsing:
     """Tests for the Chinese feature file parsing Rule."""
 
-    @pytest.mark.unit
     def test_multilingual_feature_parsing_55e4d669(self, tmp_path: Path) -> None:
         """
         Given: a valid Chinese Gherkin feature file

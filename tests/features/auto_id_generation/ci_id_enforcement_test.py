@@ -28,8 +28,6 @@ def _make_readonly_feature(pytester: pytest.Pytester) -> None:
 class TestCiIdEnforcement:
     """Tests for the CI ID enforcement Rule."""
 
-    @pytest.mark.integration
-    @pytest.mark.slow
     def test_auto_id_generation_c4d6d9ce(self, pytester: pytest.Pytester) -> None:
         """
         Given: a read-only .feature file containing an Example with no @id tag
@@ -40,8 +38,6 @@ class TestCiIdEnforcement:
         result = pytester.runpytest()
         assert result.ret != 0
 
-    @pytest.mark.integration
-    @pytest.mark.slow
     def test_auto_id_generation_8b9230d4(self, pytester: pytest.Pytester) -> None:
         """
         Given: a read-only .feature file containing an Example with no @id tag

@@ -78,6 +78,6 @@ class RuleSlug:
             title: The Rule: title text.
 
         Returns:
-            A RuleSlug with spaces replaced by hyphens, lowercased.
+            A RuleSlug with spaces and hyphens replaced by underscores, lowercased.
         """
-        return cls(title.strip().replace(" ", "-").lower())
+        return cls(title.strip().replace("-", "_").replace(" ", "_").lower())

@@ -3,8 +3,6 @@
 from pathlib import Path
 from typing import Any
 
-import pytest
-
 from pytest_beehave.feature_parser import (
     _extract_id_from_tags,
     _render_data_table,
@@ -15,7 +13,6 @@ from pytest_beehave.feature_parser import (
 from pytest_beehave.models import ExampleId, FeatureSlug
 
 
-@pytest.mark.unit
 def test_render_data_table_empty_rows() -> None:
     """
     Given: An empty rows list
@@ -26,7 +23,6 @@ def test_render_data_table_empty_rows() -> None:
     assert result == ""
 
 
-@pytest.mark.unit
 def test_render_examples_table_empty_examples() -> None:
     """
     Given: An empty examples list
@@ -37,7 +33,6 @@ def test_render_examples_table_empty_examples() -> None:
     assert result == ""
 
 
-@pytest.mark.unit
 def test_render_examples_table_no_rows() -> None:
     """
     Given: An examples list with no tableHeader and no tableBody
@@ -49,7 +44,6 @@ def test_render_examples_table_no_rows() -> None:
     assert result == "Examples:"
 
 
-@pytest.mark.unit
 def test_extract_id_from_tags_returns_none_when_no_match() -> None:
     """
     Given: A list of tags with no @id tag
@@ -61,7 +55,6 @@ def test_extract_id_from_tags_returns_none_when_no_match() -> None:
     assert result is None
 
 
-@pytest.mark.unit
 def test_parse_feature_uses_parent_name_when_folder_name_is_none(
     tmp_path: Path,
 ) -> None:
@@ -80,7 +73,6 @@ def test_parse_feature_uses_parent_name_when_folder_name_is_none(
     assert result.feature_slug == FeatureSlug.from_folder_name("my-feature")
 
 
-@pytest.mark.unit
 def test_parse_feature_returns_empty_when_feature_node_missing(tmp_path: Path) -> None:
     """
     Given: A .feature file with no Feature: block
@@ -97,7 +89,6 @@ def test_parse_feature_returns_empty_when_feature_node_missing(tmp_path: Path) -
     assert result.is_deprecated is False
 
 
-@pytest.mark.unit
 def test_parse_feature_skips_scenario_without_id_tag(tmp_path: Path) -> None:
     """
     Given: A .feature file with a scenario that has no @id tag
@@ -119,7 +110,6 @@ def test_parse_feature_skips_scenario_without_id_tag(tmp_path: Path) -> None:
     assert result.top_level_examples == ()
 
 
-@pytest.mark.unit
 def test_parsed_feature_all_example_ids_collects_from_rules_and_top_level(
     tmp_path: Path,
 ) -> None:
@@ -149,7 +139,6 @@ def test_parsed_feature_all_example_ids_collects_from_rules_and_top_level(
     assert len(ids) == 2
 
 
-@pytest.mark.unit
 def test_collect_all_example_ids_delegates_to_all_example_ids(tmp_path: Path) -> None:
     """
     Given: A parsed feature with examples

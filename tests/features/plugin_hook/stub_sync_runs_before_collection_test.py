@@ -23,8 +23,6 @@ def _make_backlog_feature(pytester: pytest.Pytester) -> None:
 class TestStubSyncRunsBeforeCollection:
     """Tests for the Stub sync runs before collection Rule."""
 
-    @pytest.mark.integration
-    @pytest.mark.slow
     def test_plugin_hook_bde8de30(self, pytester: pytest.Pytester) -> None:
         """
         Given: a project with a backlog feature containing a new Example with an @id tag
@@ -44,8 +42,6 @@ class TestStubSyncRunsBeforeCollection:
         result = pytester.runpytest("--ignore=tests/features/")
         assert result.ret == 0
 
-    @pytest.mark.integration
-    @pytest.mark.slow
     def test_plugin_hook_d5824c75(self, pytester: pytest.Pytester) -> None:
         """
         Given: a project with a backlog feature containing a new Example
@@ -57,8 +53,6 @@ class TestStubSyncRunsBeforeCollection:
         result = pytester.runpytest()
         result.stdout.fnmatch_lines(["*CREATE*examples_test.py*"])
 
-    @pytest.mark.integration
-    @pytest.mark.slow
     @pytest.mark.skip(reason="orphan: no matching @id in .feature files")
     def test_plugin_hook_e3a13b58(self) -> None:
         """

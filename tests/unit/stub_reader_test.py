@@ -2,8 +2,6 @@
 
 from pathlib import Path
 
-import pytest
-
 from pytest_beehave.models import ExampleId
 from pytest_beehave.stub_reader import (
     _extract_docstring,
@@ -13,7 +11,6 @@ from pytest_beehave.stub_reader import (
 )
 
 
-@pytest.mark.unit
 def test_extract_example_id_from_name_returns_id_when_matched() -> None:
     """
     Given: A function name with an 8-char hex suffix
@@ -24,7 +21,6 @@ def test_extract_example_id_from_name_returns_id_when_matched() -> None:
     assert result == ExampleId("aabbccdd")
 
 
-@pytest.mark.unit
 def test_extract_example_id_from_name_returns_none_when_no_match() -> None:
     """
     Given: A string without an 8-char hex suffix
@@ -35,7 +31,6 @@ def test_extract_example_id_from_name_returns_none_when_no_match() -> None:
     assert result is None
 
 
-@pytest.mark.unit
 def test_find_triple_quote_end_returns_content_length_when_unclosed() -> None:
     """
     Given: Content where the triple-quote is never closed
@@ -47,7 +42,6 @@ def test_find_triple_quote_end_returns_content_length_when_unclosed() -> None:
     assert result == len(content)
 
 
-@pytest.mark.unit
 def test_extract_docstring_returns_empty_when_no_newline_after_def() -> None:
     """
     Given: Content where there is no newline after the def line position
@@ -60,7 +54,6 @@ def test_extract_docstring_returns_empty_when_no_newline_after_def() -> None:
     assert result == ""
 
 
-@pytest.mark.unit
 def test_extract_docstring_returns_empty_when_no_triple_quote() -> None:
     """
     Given: A function with no docstring after the def line
@@ -72,7 +65,6 @@ def test_extract_docstring_returns_empty_when_no_triple_quote() -> None:
     assert result == ""
 
 
-@pytest.mark.unit
 def test_extract_docstring_returns_empty_when_unclosed_triple_quote() -> None:
     """
     Given: A function with an unclosed triple-quote docstring
@@ -84,7 +76,6 @@ def test_extract_docstring_returns_empty_when_unclosed_triple_quote() -> None:
     assert result == ""
 
 
-@pytest.mark.unit
 def test_read_stubs_from_file_returns_empty_when_file_not_exists(
     tmp_path: Path,
 ) -> None:
@@ -98,7 +89,6 @@ def test_read_stubs_from_file_returns_empty_when_file_not_exists(
     assert result == []
 
 
-@pytest.mark.unit
 def test_read_stubs_from_file_skips_function_inside_string(tmp_path: Path) -> None:
     """
     Given: A test file with a def statement inside a triple-quoted string
@@ -117,7 +107,6 @@ def test_read_stubs_from_file_skips_function_inside_string(tmp_path: Path) -> No
     assert result == []
 
 
-@pytest.mark.unit
 def test_read_stubs_from_file_reads_real_stubs(tmp_path: Path) -> None:
     """
     Given: A test file with a real test function
