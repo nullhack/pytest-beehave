@@ -463,7 +463,7 @@ def _sync_deprecated_top_level(
     feature: ParsedFeature,
     test_file: Path,
 ) -> list[SyncAction]:
-    """Sync deprecated markers for top-level examples in a completed feature.
+    """Sync deprecated markers for top-level examples (no Rule blocks).
 
     Args:
         feature: The parsed feature.

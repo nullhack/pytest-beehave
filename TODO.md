@@ -27,7 +27,7 @@ As a software-engineer I declare:
 * OC-4: first-class collections — AGREE | tuple[ParsedExample, ...] used as domain value
 * OC-5: one dot per line — DISAGREE | sys.stdout.write (plugin.py:45), sys.stderr.write (plugin.py:58), self._impl.parse (feature_parser.py:41), step.doc_string.splitlines() (stub_writer.py:101) remain — all are stdlib/adapter boundary chaining, idiomatic Python
 * OC-6: no abbreviations — AGREE | no mgr/tmp/cfg/val/usr abbreviations
-* OC-7: ≤20 lines per function, ≤50 per class — AGREE | longest: toggle_deprecated_marker:stub_writer.py:621 ~18 logic lines
+* OC-7: ≤20 lines per function, ≤50 per class — AGREE | longest: toggle_deprecated_marker:stub_writer.py:621 26 total lines (10 logic + 9 docstring + 5 signature/blank), pre-existing from stub-creation; all new deprecation-sync functions ≤20 logic lines
 * OC-8: ≤2 instance variables per class — DISAGREE | ParsedFeature (5 fields), ParsedExample (5 fields), ExistingStub (7 fields) — domain value objects require all fields by domain necessity; splitting violates KISS
 * OC-9: no getters/setters — AGREE | no get_/set_ methods; dataclasses with direct access
 * Patterns: no creational smell — AGREE | _RealFileSystem instantiated once in run_sync:sync_engine.py
