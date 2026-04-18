@@ -692,6 +692,9 @@ dev = [
     { name = "ruff" },
     { name = "taskipy" },
 ]
+html = [
+    { name = "pytest-html" },
+]
 
 [package.dev-dependencies]
 dev = [
@@ -710,11 +713,12 @@ requires-dist = [
     { name = "pytest", marker = "extra == 'dev'", specifier = ">=9.0.3" },
     { name = "pytest-cov", marker = "extra == 'dev'", specifier = ">=6.1.1" },
     { name = "pytest-html", marker = "extra == 'dev'", specifier = ">=4.1.1" },
+    { name = "pytest-html", marker = "extra == 'html'", specifier = ">=4.1.1" },
     { name = "pytest-mock", marker = "extra == 'dev'", specifier = ">=3.14.0" },
     { name = "ruff", marker = "extra == 'dev'", specifier = ">=0.11.5" },
     { name = "taskipy", marker = "extra == 'dev'", specifier = ">=1.14.1" },
 ]
-provides-extras = ["dev"]
+provides-extras = ["html", "dev"]
 
 [package.metadata.requires-dev]
 dev = [

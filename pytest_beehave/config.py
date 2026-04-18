@@ -6,6 +6,12 @@ from pathlib import Path
 DEFAULT_FEATURES_PATH: str = "docs/features"
 
 
+def show_steps_in_terminal(rootdir: Path) -> bool: ...
+
+
+def show_steps_in_html(rootdir: Path) -> bool: ...
+
+
 def _read_configured_path(pyproject: Path) -> str | None:
     """Read features_path from [tool.beehave] in pyproject.toml.
 

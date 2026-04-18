@@ -24,6 +24,9 @@ Repository = "https://github.com/nullhack/pytest-beehave"
 Documentation = "https://github.com/nullhack/pytest-beehave/tree/main/docs/api/"
 
 [project.optional-dependencies]
+html = [
+    "pytest-html>=4.1.1",
+]
 dev = [
     "pdoc>=14.0",
     "pytest>=9.0.3",
