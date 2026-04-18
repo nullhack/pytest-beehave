@@ -6,10 +6,47 @@ from pathlib import Path
 DEFAULT_FEATURES_PATH: str = "docs/features"
 
 
-def show_steps_in_terminal(rootdir: Path) -> bool: ...
+def _read_beehave_section(rootdir: Path) -> dict[str, object]:
+    """Read the [tool.beehave] section from pyproject.toml.
+
+    Args:
+        rootdir: Absolute path to the project root.
+
+    Returns:
+        The [tool.beehave] dict, or empty dict if absent.
+    """
+    pyproject = rootdir / "pyproject.toml"
+    if not pyproject.exists():
+        return {}
+    with pyproject.open("rb") as f:
+        data = tomllib.load(f)
+    return data.get("tool", {}).get("beehave", {})
 
 
-def show_steps_in_html(rootdir: Path) -> bool: ...
+def show_steps_in_terminal(rootdir: Path) -> bool:
+    """Return True if show_steps_in_terminal is enabled (default: True).
+
+    Args:
+        rootdir: Absolute path to the project root.
+
+    Returns:
+        True unless explicitly set to false in [tool.beehave].
+    """
+    section = _read_beehave_section(rootdir)
+    return bool(section.get("show_steps_in_terminal", True))
+
+
+def show_steps_in_html(rootdir: Path) -> bool:
+    """Return True if show_steps_in_html is enabled (default: True).
+
+    Args:
+        rootdir: Absolute path to the project root.
+
+    Returns:
+        True unless explicitly set to false in [tool.beehave].
+    """
+    section = _read_beehave_section(rootdir)
+    return bool(section.get("show_steps_in_html", True))
 
 
 def _read_configured_path(pyproject: Path) -> str | None:

@@ -8,13 +8,20 @@ from pathlib import Path
 import pytest
 
 from pytest_beehave.bootstrap import bootstrap_features_directory
-from pytest_beehave.config import is_explicitly_configured, resolve_features_path
+from pytest_beehave.config import (
+    is_explicitly_configured,
+    resolve_features_path,
+    show_steps_in_html,
+    show_steps_in_terminal,
+)
+from pytest_beehave.html_steps_plugin import HtmlStepsPlugin
 from pytest_beehave.id_generator import assign_ids
 from pytest_beehave.reporter import (
     report_bootstrap,
     report_id_write_back,
     report_sync_actions,
 )
+from pytest_beehave.steps_reporter import StepsReporter
 from pytest_beehave.sync_engine import run_sync
 
 features_path_key: pytest.StashKey[Path] = pytest.StashKey()
@@ -76,6 +83,35 @@ def _run_beehave_sync(config: pytest.Config, path: Path) -> None:
     report_sync_actions(writer, run_sync(path, config.rootpath / "tests" / "features"))
 
 
+def _html_available() -> bool:
+    """Return True if pytest-html is importable.
+
+    Returns:
+        True when pytest-html is installed.
+    """
+    try:
+        import pytest_html  # noqa: F401
+    except ImportError:
+        return False
+    return True
+
+
+@pytest.hookimpl(hookwrapper=True)
+def pytest_runtest_makereport(item: pytest.Item, call: pytest.CallInfo[None]) -> object:
+    """Attach the test docstring to the report for steps display.
+
+    Args:
+        item: The test item being reported.
+        call: The call info (unused).
+    """
+    outcome = yield
+    report = outcome.get_result()
+    obj = getattr(item, "obj", None)
+    report._beehave_docstring = (
+        getattr(obj, "__doc__", None) or "" if obj is not None else ""
+    )
+
+
 def pytest_configure(config: pytest.Config) -> None:
     """Read beehave configuration, bootstrap directory, sync stubs.
 
@@ -93,3 +129,9 @@ def pytest_configure(config: pytest.Config) -> None:
     config.stash[features_path_key] = path
     if path.exists():
         _run_beehave_sync(config, path)
+    if show_steps_in_terminal(rootdir):
+        config.pluginmanager.register(StepsReporter(config), "beehave-steps-reporter")
+    if show_steps_in_html(rootdir) and _html_available():
+        config.pluginmanager.register(
+            HtmlStepsPlugin(rootdir / "tests"), "beehave-html-steps"
+        )
