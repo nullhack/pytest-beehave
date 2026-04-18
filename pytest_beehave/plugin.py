@@ -59,10 +59,10 @@ def pytest_configure(config: pytest.Config) -> None:
     rootdir = config.rootpath
     path = resolve_features_path(rootdir)
     if not path.exists() and is_explicitly_configured(rootdir):
-        pytest.exit(
-            f"[beehave] features_path not found: {path}",
-            returncode=1,
-        )
+        msg = f"[beehave] features_path not found: {path}"
+        sys.stderr.write(msg + "\n")
+        sys.stderr.flush()
+        pytest.exit(msg, returncode=1)
     config.stash[features_path_key] = path
     if not path.exists():
         return

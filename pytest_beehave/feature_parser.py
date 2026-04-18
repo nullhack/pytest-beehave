@@ -38,7 +38,7 @@ class GherkinParser:
         Returns:
             AST as a dict.
         """
-        return self._impl.parse(text)  # type: ignore[return-value]
+        return cast(dict[str, Any], self._impl.parse(text))
 
 
 @dataclass(frozen=True, slots=True)

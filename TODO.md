@@ -1,11 +1,13 @@
 # Current Work
 
 Feature: multilingual-feature-parsing
-Step: 1 (SCOPE — BASELINED)
-Source: docs/features/backlog/multilingual-feature-parsing/discovery.md
+Step: 2 (ARCH)
+Source: docs/features/in-progress/multilingual-feature-parsing/multilingual_feature_parsing.feature
 
 ## Progress
-- [x] Discovery and acceptance criteria written (3 examples across 3 rules)
+- [ ] `@id:e1081346`: Spanish feature file parses without error
+- [ ] `@id:55e4d669`: Chinese feature file parses without error
+- [ ] `@id:3c04262e`: Spanish and English feature files coexist in same project
 
 ## Next
-Move `docs/features/backlog/multilingual-feature-parsing/` to `in-progress/` and run `@developer /skill implementation` to implement the 3 test stubs (no production code changes expected — tests prove existing behaviour).
+Run @software-engineer — Step 2: read the feature file, confirm no production code changes needed, write test stubs, commit `feat(multilingual-feature-parsing): add architecture stubs`
