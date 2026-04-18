@@ -68,7 +68,7 @@ Feature: Features directory bootstrap
   - No-op behavior: If all three subfolders exist and no root-level .feature files are present, the bootstrap completes silently
 
   Session 3 — Feature Synthesis:
-  Synthesis: The features-dir-bootstrap feature ensures the BeeHave plugin can always operate on a
+  Synthesis: The features-dir-bootstrap feature ensures the Beehave plugin can always operate on a
   well-structured features directory. When pytest is invoked, the plugin runs a bootstrap step as its
   very first action (before stub sync). The bootstrap inspects the configured features directory and,
   if it exists, ensures all three canonical subfolders (backlog/, in-progress/, completed/) are

@@ -1,9 +1,9 @@
 <div align="center">
-  <img src="docs/images/banner.svg" alt="BeeHave" width="860"/>
+  <img src="docs/images/banner.svg" alt="Beehave" width="860"/>
 
   <br><br>
 
-  <p><strong>Stop writing test scaffolding by hand. BeeHave does it for you — every time you run pytest.</strong></p>
+  <p><strong>Stop writing test scaffolding by hand. Beehave does it for you — every time you run pytest.</strong></p>
 
   [![Contributors][contributors-shield]][contributors-url]
   [![Forks][forks-shield]][forks-url]
@@ -21,7 +21,7 @@
 
 You write a Gherkin acceptance criterion. Then you write a test stub. Then you rename the feature. Now you have a stale stub, a broken docstring, and an orphaned test — and you only find out three sprints later.
 
-**BeeHave closes that gap.**
+**Beehave closes that gap.**
 
 It is a pytest plugin that keeps your test suite in perfect sync with your `.feature` files — automatically, every time you invoke `pytest`. No scripts to remember. No CI step to add. No drift.
 
@@ -33,10 +33,10 @@ It is a pytest plugin that keeps your test suite in perfect sync with your `.fea
 |---|---|
 | **Auto stub generation** | Sees a new `@id`-tagged `Example:` → writes a typed, skipped test stub before collection runs |
 | **Docstring sync** | Steps change in your `.feature`? Docstrings update. Test bodies are never touched. |
-| **Auto ID assignment** | Missing `@id` on an `Example:`? BeeHave generates one and writes it back in-place |
-| **CI enforcement** | Read-only filesystem (CI)? BeeHave fails loudly and names every untagged Example |
+| **Auto ID assignment** | Missing `@id` on an `Example:`? Beehave generates one and writes it back in-place |
+| **CI enforcement** | Read-only filesystem (CI)? Beehave fails loudly and names every untagged Example |
 | **Orphan detection** | `@id` disappears from the feature file? The test is marked `skip(reason="orphan")` — not deleted, not silently run |
-| **Non-conforming redirect** | Test in the wrong file or class? BeeHave creates the canonical stub and marks the original as moved |
+| **Non-conforming redirect** | Test in the wrong file or class? Beehave creates the canonical stub and marks the original as moved |
 | **Deprecation sync** | `@deprecated` tag on an `Example:`, `Rule:`, or `Feature:`? The pytest marker propagates automatically |
 | **Zero config** | Works out of the box. Optionally configure `features_path` in `pyproject.toml` |
 
@@ -77,7 +77,7 @@ Feature: Checkout
 pytest
 ```
 
-**3. BeeHave generates this before any test is collected:**
+**3. Beehave generates this before any test is collected:**
 
 ```python
 # tests/features/checkout/tax-calculation_test.py
@@ -101,12 +101,12 @@ The `@id` is also written back to your `.feature` file automatically.
 
 ## How it works
 
-BeeHave hooks into `pytest_configure` — the earliest possible hook — so stubs exist before collection begins. The same `pytest` invocation that generates a stub also discovers and runs it.
+Beehave hooks into `pytest_configure` — the earliest possible hook — so stubs exist before collection begins. The same `pytest` invocation that generates a stub also discovers and runs it.
 
 ```
 pytest invoked
     └─ pytest_configure fires
-         └─ BeeHave reads docs/features/backlog/ + in-progress/
+         └─ Beehave reads docs/features/backlog/ + in-progress/
               ├─ assigns missing @id tags (or fails in CI)
               ├─ creates missing test stubs
               ├─ updates outdated docstrings
@@ -126,7 +126,7 @@ pytest invoked
 features_path = "docs/features"   # default — omit if this is your layout
 ```
 
-If `features_path` is set but the directory does not exist, BeeHave fails with a clear error message naming the missing path.
+If `features_path` is set but the directory does not exist, Beehave fails with a clear error message naming the missing path.
 
 ---
 
@@ -155,11 +155,11 @@ This makes every test traceable back to its exact `Example:` block — by ID, no
 
 | Marker | Set by | Meaning |
 |---|---|---|
-| `skip(reason="not yet implemented")` | BeeHave | Stub exists, test not written yet |
-| `skip(reason="orphan: ...")` | BeeHave | `@id` no longer in any `.feature` file |
-| `skip(reason="non-conforming: moved to ...")` | BeeHave | `@id` found but test is in the wrong location |
-| `deprecated` | BeeHave | Mirrors `@deprecated` Gherkin tag |
-| `slow` | You | Opt-in for Hypothesis / long-running tests — BeeHave never touches it |
+| `skip(reason="not yet implemented")` | Beehave | Stub exists, test not written yet |
+| `skip(reason="orphan: ...")` | Beehave | `@id` no longer in any `.feature` file |
+| `skip(reason="non-conforming: moved to ...")` | Beehave | `@id` found but test is in the wrong location |
+| `deprecated` | Beehave | Mirrors `@deprecated` Gherkin tag |
+| `slow` | You | Opt-in for Hypothesis / long-running tests — Beehave never touches it |
 
 ---
 
