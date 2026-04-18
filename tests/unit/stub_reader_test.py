@@ -133,3 +133,53 @@ def test_read_stubs_from_file_reads_real_stubs(tmp_path: Path) -> None:
     assert stub.function_name == "test_my_feature_aabbccdd"
     assert stub.example_id == ExampleId("aabbccdd")
     assert "pytest.mark.skip(reason=" in " ".join(stub.markers)
+
+
+def test_read_stubs_from_file_reads_class_method_stubs(tmp_path: Path) -> None:
+    """
+    Given: A test file with a class-method stub inside a Test class
+    When: read_stubs_from_file is called
+    Then: Returns ExistingStub with correct class_name
+    """
+    test_file = tmp_path / "my_rule_test.py"
+    test_file.write_text(
+        '"""Tests for my_rule story."""\n\n'
+        "import pytest\n\n\n"
+        "class TestMyRule:\n"
+        '    @pytest.mark.skip(reason="not yet implemented")\n'
+        "    def test_my_feature_aabbccdd(self) -> None:\n"
+        '        """\n'
+        "        Given: Something\n"
+        "        When: Something happens\n"
+        "        Then: Result\n"
+        '        """\n'
+        "        raise NotImplementedError\n",
+        encoding="utf-8",
+    )
+    result = read_stubs_from_file(test_file)
+    assert len(result) == 1
+    stub = result[0]
+    assert stub.function_name == "test_my_feature_aabbccdd"
+    assert stub.class_name == "TestMyRule"
+
+
+def test_read_stubs_from_file_indented_without_class_returns_none_class(
+    tmp_path: Path,
+) -> None:
+    """
+    Given: A test file where a def line is indented but has no class before it
+    When: read_stubs_from_file is called
+    Then: Returns ExistingStub with class_name=None
+    """
+    test_file = tmp_path / "edge_case_test.py"
+    # Indented function with no class declaration above it
+    test_file.write_text(
+        "if True:\n"
+        "    def test_my_feature_aabbccdd() -> None:\n"
+        '        """Given: x\nWhen: y\nThen: z\n"""\n'
+        "        pass\n",
+        encoding="utf-8",
+    )
+    result = read_stubs_from_file(test_file)
+    assert len(result) == 1
+    assert result[0].class_name is None

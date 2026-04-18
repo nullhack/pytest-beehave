@@ -102,11 +102,7 @@ Feature: My feature
 """,
         )
         # Conforming stub already in correct file (rule slug uses underscores → my_rule_test.py)
-        make_test_file(
-            tests_dir,
-            "my_feature",
-            "my_rule",
-            '''\
+        conforming_content = '''\
 """Tests for my_rule story."""
 
 import pytest
@@ -121,7 +117,12 @@ class TestMyRule:
         Then: it works
         """
         raise NotImplementedError
-''',
+'''
+        make_test_file(
+            tests_dir,
+            "my_feature",
+            "my_rule",
+            conforming_content,
         )
         # Original already marked non-conforming
         wrong_file = make_test_file(
@@ -148,7 +149,7 @@ def test_my_feature_aabbccdd() -> None:
         wrong_content = wrong_file.read_text(encoding="utf-8")
         # Non-conforming marker still present
         assert "non-conforming" in wrong_content
-        # Conforming stub unchanged
+        # Conforming stub is byte-for-byte unchanged
         correct_file = tests_dir / "my_feature" / "my_rule_test.py"
         correct_content = correct_file.read_text(encoding="utf-8")
-        assert "def test_my_feature_aabbccdd" in correct_content
+        assert correct_content == conforming_content

@@ -10,9 +10,10 @@ from pytest_beehave.models import ExampleId, FeatureSlug
 
 _ID_SUFFIX_RE: re.Pattern[str] = re.compile(r"test_\w+_([a-f0-9]{8})$")
 _FUNC_RE: re.Pattern[str] = re.compile(
-    r"^def (test_[a-z0-9_]+_([a-f0-9]{8}))\(",
+    r"^( {0,4})def (test_[a-z0-9_]+_([a-f0-9]{8}))\(",
     re.MULTILINE,
 )
+_CLASS_RE: re.Pattern[str] = re.compile(r"^class (Test\w+)", re.MULTILINE)
 
 
 @dataclass(frozen=True, slots=True)
@@ -223,6 +224,26 @@ def _extract_markers(content: str, func_start: int) -> tuple[str, ...]:
     return tuple(reversed(_collect_markers_reversed(lines)))
 
 
+def _extract_class_name(content: str, func_start: int, indent: str) -> str | None:
+    """Extract the enclosing class name for an indented method.
+
+    Args:
+        content: Full file content.
+        func_start: Start position of the def line.
+        indent: Leading whitespace of the def line.
+
+    Returns:
+        Class name string, or None for module-level functions.
+    """
+    if not indent:
+        return None
+    before = content[:func_start]
+    class_matches = list(_CLASS_RE.finditer(before))
+    if not class_matches:
+        return None
+    return class_matches[-1].group(1)
+
+
 def _build_stub(
     content: str,
     match: re.Match[str],
@@ -238,13 +259,14 @@ def _build_stub(
     Returns:
         ExistingStub for the matched function.
     """
-    func_name = match.group(1)
-    example_id = ExampleId(match.group(2))
+    indent = match.group(1)
+    func_name = match.group(2)
+    example_id = ExampleId(match.group(3))
     return ExistingStub(
         function_name=func_name,
         example_id=example_id,
         feature_slug=_extract_feature_slug_from_name(func_name),
-        class_name=None,
+        class_name=_extract_class_name(content, match.start(), indent),
         file_path=path,
         markers=_extract_markers(content, match.start()),
         docstring=_extract_docstring(content, match.start()),
