@@ -27,7 +27,6 @@ Status: BASELINED
 | Q19 | What library for reading/writing test files? | `libcst` — preserves formatting and comments; needs to be added as dependency | ANSWERED |
 
 ## Feature List
-- `display-version` — display version from pyproject.toml
 - `features-path-config` — custom features folder path via pyproject.toml
 - `plugin-hook` — pytest lifecycle integration (register plugin, run before collection)
 - `auto-id-generation` — detect missing @id tags, generate IDs, write back or fail in CI
