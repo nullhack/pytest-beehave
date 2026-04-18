@@ -1,15 +1,15 @@
 ---
 name: git-release
-description: Create releases with hybrid major.minor.calver versioning and AI-generated bee-ecosystem naming
+description: Create releases with hybrid major.minor.calver versioning and AI-generated adjective-animal naming
 version: "1.0"
-author: developer
-audience: developer
+author: software-engineer
+audience: software-engineer
 workflow: release-management
 ---
 
 # Git Release
 
-Create a tagged GitHub release after the PO accepts the feature (Step 6).
+Create a tagged GitHub release after the PO accepts the feature (Step 5).
 
 ## Version Format
 
@@ -28,12 +28,12 @@ v1.2.20260415  →  v1.3.20260415   (same-day second release)
 
 ## Release Naming
 
-Each release gets a unique bee-ecosystem name. Analyze the commits and PRs since the last release, identify the theme, and choose a name that reflects it.
+Each release gets a unique adjective-animal name. Analyze the commits and PRs since the last release, identify the theme, and choose a name that reflects it.
 
-Use bee-ecosystem vocabulary: scientific names of bee species (e.g. *Apis mellifera*, *Bombus terrestris*, *Xylocopa violacea*), hive structures, honey varieties, or related apiary terms. The only constraints:
+Choose any adjective and any animal (use scientific name, not common name). The only constraints:
 
 1. **Thematic fit**: the name should reflect what this release does
-2. **No repetition**: the chosen term may not appear in a previous release
+2. **No repetition**: neither the adjective nor the animal may appear in a previous release
 
 Check previous names to avoid repetition:
 ```bash
@@ -70,7 +70,7 @@ Both must match:
 
 Add at the top:
 ```markdown
-## [v{version}] - {Bee Ecosystem Name} - {YYYY-MM-DD}
+## [v{version}] - {Adjective Animal} - {YYYY-MM-DD}
 
 ### Added
 - description (#PR-number)
@@ -89,7 +89,7 @@ After updating `pyproject.toml`, regenerate the lockfile — CI runs `uv sync --
 ```bash
 uv lock
 git add pyproject.toml <package>/__init__.py CHANGELOG.md uv.lock
-git commit -m "chore(release): bump version to v{version} - {Bee Ecosystem Name}"
+git commit -m "chore(release): bump version to v{version} - {Adjective Animal}"
 ```
 
 ### 6. Create GitHub release
@@ -99,8 +99,8 @@ Assign the SHA first so it expands correctly inside the notes string:
 ```bash
 SHA=$(git rev-parse --short HEAD)
 gh release create "v{version}" \
-  --title "v{version} - {Bee Ecosystem Name}" \
-  --notes "# v{version} - {Bee Ecosystem Name}
+  --title "v{version} - {Adjective Animal}" \
+  --notes "# v{version} - {Adjective Animal}
 
 > *\"{one-line tagline matching the release theme}\"*
 
