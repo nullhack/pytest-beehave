@@ -7,7 +7,7 @@ Source: docs/features/in-progress/stub-creation.feature
 ## Self-Declaration
 As a software-engineer I declare:
 * YAGNI: no code without a failing test — AGREE | all functions driven by @id tests in tests/features/stub_creation/
-* YAGNI: no speculative abstractions — AGREE | no protocols/classes without tests exercising them
+* YAGNI: no speculative abstractions — AGREE | no protocols/classes without tests exercising them; libcst removed (was unused)
 * KISS: simplest solution that passes — AGREE | plain dicts/lists used throughout; no decorator pattern
 * KISS: no premature optimization — AGREE | no caching, no lazy loading added
 * DRY: no duplication — AGREE | helpers extracted (_build_stub, _orphan_action, _features_in_stage)
@@ -21,15 +21,15 @@ As a software-engineer I declare:
 * OC-2: no else after return — AGREE | plugin.py:_exit_if_missing_configured_path uses early return, no else
 * OC-3: primitive types wrapped — AGREE | ExampleId, FeatureSlug, RuleSlug wrap str primitives
 * OC-4: first-class collections — AGREE | tuple[ParsedExample, ...] used as domain value; no bare lists in domain
-* OC-5: one dot per line — AGREE | no chained method calls beyond one dot
-* OC-6: no abbreviations — AGREE | no mgr/tmp/cfg/val/usr; bg used for background is explicit via _extract_background
+* OC-5: one dot per line — DISAGREE | Residual 2-dot access remains at: feature_parser.py:_folder_name_for, parser.parse(path.read_text(...)) in parse_feature. These are idiomatic Python stdlib chaining (Path.parent.name, str.removesuffix, file.read_text) that would be artificially verbose to split. All are attribute access chains, not method chaining on domain objects. Accepted as intentional deviation.
+* OC-6: no abbreviations — AGREE | no mgr/tmp/cfg/val/usr; ln used in comprehension (single-char acceptable for loop vars per convention)
 * OC-7: ≤20 lines per function, ≤50 per class — AGREE | all logic ≤20 lines; docstrings cause total>20 but are mandatory
-* OC-8: ≤2 instance variables per class — AGREE | ExistingStub:stub_reader.py:18 (frozen dataclass, 7 fields but all domain-necessary)
+* OC-8: ≤2 instance variables per class — DISAGREE | Domain value objects (ParsedFeature, ParsedExample, ExistingStub, etc.) have 3-7 fields by necessity — each field represents one domain concept. Splitting them would violate KISS and create artificial indirection. Pre-existing design decision accepted.
 * OC-9: no getters/setters — AGREE | no get_/set_ methods; dataclasses with direct attribute access
 * Patterns: no creational smell — AGREE | _RealFileSystem instantiated once in run_sync; no scattered construction
 * Patterns: no structural smell — AGREE | no isinstance chains; dispatch via FeatureStage enum comparison
 * Patterns: no behavioral smell — AGREE | no scattered notification; SyncAction returned and aggregated cleanly
-* Semantic: tests operate at same abstraction as AC — AGREE | tests call write_stub_to_file/run_sync directly, matching AC verbs
+* Semantic: tests operate at same abstraction as AC — AGREE | tests call write_stub_to_file/run_sync directly, matching AC verbs; test_38d864b9 fixed to assert examples_test.py
 
 ## Progress
 - [x] `@id:692972dd`: New stub is created with the correct function name
@@ -49,4 +49,4 @@ As a software-engineer I declare:
 - [x] `@id:9a4e199a`: Scenario Outline stub uses raw template text and includes the Examples table
 
 ## Next
-Run @reviewer — verify feature stub-creation at Step 4 (Self-Declaration written, 100% coverage, 0 lint errors, 0 type errors, 0 OC-1 violations)
+Run @reviewer — verify feature stub-creation at Step 4 (Self-Declaration updated, OC-5/OC-8 DISAGREE with justification, test_38d864b9 fixed, libcst removed, dead constants removed)

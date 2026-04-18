@@ -38,7 +38,8 @@ class _PytestTerminalWriter:
             s: The line to write.
         """
         try:
-            writer = self._config.get_terminal_writer()
+            config = self._config
+            writer = config.get_terminal_writer()
             writer.line(s)
         except (AssertionError, AttributeError):
             sys.stdout.write(s + "\n")

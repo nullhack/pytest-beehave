@@ -519,9 +519,10 @@ def _folder_name_for(feature_path: Path, stage_dir: Path) -> str:
     Returns:
         Folder name string used as the feature slug source.
     """
-    if feature_path.parent == stage_dir:
+    feature_parent = feature_path.parent
+    if feature_parent == stage_dir:
         return feature_path.stem
-    return feature_path.parent.name
+    return feature_parent.name
 
 
 def _features_in_stage(

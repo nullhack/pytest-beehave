@@ -17,7 +17,6 @@ classifiers = [
 dependencies = [
     "fire>=0.7.1",
     "gherkin-official>=39.0.0",
-    "libcst>=1.0.0",
 ]
 
 [project.urls]

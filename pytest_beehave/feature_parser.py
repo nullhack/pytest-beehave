@@ -495,7 +495,8 @@ def parse_feature(
         A ParsedFeature with all examples.
     """
     if folder_name is None:
-        folder_name = path.parent.name
+        parent = path.parent
+        folder_name = parent.name
     if parser is None:
         parser = GherkinParser()
     doc = parser.parse(path.read_text(encoding="utf-8"))

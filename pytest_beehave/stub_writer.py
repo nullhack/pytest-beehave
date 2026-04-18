@@ -14,14 +14,6 @@ from pytest_beehave.feature_parser import (
 )
 from pytest_beehave.models import ExampleId, FeatureSlug, RuleSlug
 
-_SKIP_MARKER = 'pytest.mark.skip(reason="not yet implemented")'
-_ORPHAN_MARKER = 'pytest.mark.skip(reason="orphan: no matching @id in .feature files")'
-_DEPRECATED_MARKER = "pytest.mark.deprecated"
-
-_FUNC_DEF_RE: re.Pattern[str] = re.compile(
-    r"^def (?P<name>\w+)\([^)]*\) -> None:",
-    re.MULTILINE,
-)
 _DECORATOR_RE: re.Pattern[str] = re.compile(
     r"^( *)((?:@pytest\.mark\.\w+(?:\(.*?\))?\n\1)*)def test_\w+_([a-f0-9]{8})\b",
     re.MULTILINE,
@@ -106,11 +98,11 @@ def _render_step(step: ParsedStep) -> str:
     """
     rendered = f"    {step.keyword}: {step.text}"
     if step.doc_string is not None:
-        indented = "\n".join(f"      {line}" for line in step.doc_string.splitlines())
-        rendered = f"{rendered}\n{indented}"
+        lines = step.doc_string.splitlines()
+        rendered = f"{rendered}\n" + "\n".join(f"      {ln}" for ln in lines)
     if step.data_table is not None:
-        indented = "\n".join(f"      {line}" for line in step.data_table.splitlines())
-        rendered = f"{rendered}\n{indented}"
+        lines = step.data_table.splitlines()
+        rendered = f"{rendered}\n" + "\n".join(f"      {ln}" for ln in lines)
     return rendered
 
 
@@ -241,8 +233,10 @@ def _write_top_level_stub(path: Path, function_source: str) -> SyncAction:
         SyncAction describing what was done.
     """
     if not path.exists():
-        story_slug = path.stem.removesuffix("_test")
-        path.parent.mkdir(parents=True, exist_ok=True)
+        stem = path.stem
+        story_slug = stem.removesuffix("_test")
+        parent = path.parent
+        parent.mkdir(parents=True, exist_ok=True)
         path.write_text(
             _build_file_header(story_slug) + function_source + "\n",
             encoding="utf-8",
@@ -265,11 +259,12 @@ def write_stub_to_file(path: Path, spec: StubSpec) -> SyncAction:
     Returns:
         A SyncAction describing what was done.
     """
-    function_name = build_function_name(spec.feature_slug, spec.example.example_id)
+    example = spec.example
+    function_name = build_function_name(spec.feature_slug, example.example_id)
     rule = _find_rule(spec.feature, spec.rule_slug) if spec.rule_slug else None
-    docstring_body = build_docstring(spec.feature, rule, spec.example)
+    docstring_body = build_docstring(spec.feature, rule, example)
     function_source = _stub_function_source(
-        function_name, docstring_body, spec.example.is_deprecated
+        function_name, docstring_body, example.is_deprecated
     )
     if spec.rule_slug is not None:
         return _write_class_based_stub(path, spec, function_name, function_source)
@@ -284,8 +279,10 @@ def _create_class_file(path: Path, class_name: str, method_source: str) -> None:
         class_name: The test class name.
         method_source: Indented method source.
     """
-    story_slug = path.stem.removesuffix("_test")
-    path.parent.mkdir(parents=True, exist_ok=True)
+    stem = path.stem
+    story_slug = stem.removesuffix("_test")
+    parent = path.parent
+    parent.mkdir(parents=True, exist_ok=True)
     class_block = f"class {class_name}:\n{method_source}\n"
     path.write_text(
         _build_file_header(story_slug) + class_block + "\n", encoding="utf-8"

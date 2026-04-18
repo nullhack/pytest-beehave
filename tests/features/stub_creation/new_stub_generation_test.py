@@ -317,5 +317,7 @@ Feature: Done feature
 """,
         )
         sync_stubs(features_dir, tests_dir)
-        test_file = tests_dir / "done_feature" / "done_story_test.py"
+        # For a feature with no Rule blocks, the sync engine would create examples_test.py
+        # For a completed feature, no new stubs are created at all
+        test_file = tests_dir / "done_feature" / "examples_test.py"
         assert not test_file.exists()
