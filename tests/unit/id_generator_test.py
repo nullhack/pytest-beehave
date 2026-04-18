@@ -2,8 +2,6 @@
 
 from pathlib import Path
 
-import pytest
-
 from pytest_beehave.id_generator import _check_readonly_file, _id_tag_precedes
 
 

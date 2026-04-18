@@ -1,12 +1,8 @@
 # Current Work
 
 Feature: auto-id-generation
-Step: 3 (TDD Loop — all @id tests green)
-Source: docs/features/in-progress/auto-id-generation.feature
-
-## Cycle State
-Test: all @id complete
-Phase: REFACTOR (complete)
+Step: 5 (ACCEPT — complete)
+Source: docs/features/completed/auto-id-generation.feature
 
 ## Self-Declaration
 As a software-engineer I declare:
@@ -43,4 +39,4 @@ As a software-engineer I declare:
 - [x] `@id:8b9230d4`: Error message names the file and Example title
 
 ## Next
-Run @reviewer — verify feature auto-id-generation at Step 4 (fixes applied: removed orphan test 09a986e7, renamed test functions to rule_slug format, fixed OC-1 nesting in id_generator.py)
+Run @product-owner — load skill feature-selection and pick the next BASELINED feature from backlog (stub-updates or features-dir-bootstrap)
