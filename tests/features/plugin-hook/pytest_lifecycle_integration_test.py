@@ -29,7 +29,7 @@ def test_plugin_hook_bde8de30(pytester: pytest.Pytester) -> None:
         "def pytest_collectstart(collector):\n"
         "    stub = (\n"
         "        collector.config.rootpath\n"
-        "        / 'tests' / 'features' / 'my_feature' / 'my_story_test.py'\n"
+        "        / 'tests' / 'features' / 'my_feature' / 'examples_test.py'\n"
         "    )\n"
         "    assert stub.exists(), f'Stub not found before collection: {stub}'\n"
     )
@@ -43,6 +43,7 @@ def test_plugin_hook_bde8de30(pytester: pytest.Pytester) -> None:
 @pytest.mark.deprecated
 @pytest.mark.integration
 @pytest.mark.slow
+@pytest.mark.skip(reason="orphan: no matching @id in .feature files")
 def test_plugin_hook_e3a13b58() -> None:
     """
     Given: a project where the configured features directory does not exist
@@ -83,7 +84,7 @@ def test_plugin_hook_d5824c75(pytester: pytest.Pytester) -> None:
     # When
     result = pytester.runpytest()
     # Then
-    result.stdout.fnmatch_lines(["*CREATE*my_story_test.py*"])
+    result.stdout.fnmatch_lines(["*CREATE*examples_test.py*"])
 
 
 @pytest.mark.integration

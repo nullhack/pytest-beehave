@@ -1,4 +1,4 @@
 # Current Work
 
 No feature in progress.
-Next: PO picks feature from docs/features/backlog/ and moves it to docs/features/in-progress/. All planned features are now complete — consider running `@developer /skill git-release` for a release.
+Next: Run @developer — `uv run task lint && uv run task static-check && uv run task test` all pass at 100%. Ready for `@developer /skill git-release` to cut a v2 release.

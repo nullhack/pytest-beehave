@@ -7,7 +7,7 @@ from typing import Callable
 
 import pytest
 
-from pytest_beehave.syncer import sync_stubs
+from pytest_beehave.sync_engine import run_sync as sync_stubs
 
 
 @pytest.mark.unit
@@ -38,13 +38,13 @@ Feature: My feature
     Then the new result appears
 """,
     )
-    # Existing stub has stale docstring
+    # Existing stub has stale docstring in examples_test.py
     make_test_file(
         tests_dir,
         "my_feature",
-        "my_story",
+        "examples",
         '''\
-"""Tests for my story."""
+"""Tests for examples story."""
 
 import pytest
 
@@ -61,7 +61,7 @@ def test_my_feature_aabbccdd() -> None:
     # When
     sync_stubs(features_dir, tests_dir)
     # Then
-    test_file = tests_dir / "my_feature" / "my_story_test.py"
+    test_file = tests_dir / "my_feature" / "examples_test.py"
     content = test_file.read_text(encoding="utf-8")
     assert "Given: the new condition" in content
     assert "When: the new action runs" in content
@@ -101,9 +101,9 @@ Feature: My feature
     make_test_file(
         tests_dir,
         "my_feature",
-        "my_story",
+        "examples",
         f'''\
-"""Tests for my story."""
+"""Tests for examples story."""
 
 import pytest
 
@@ -119,7 +119,7 @@ def test_my_feature_aabbccdd() -> None:
     # When
     sync_stubs(features_dir, tests_dir)
     # Then
-    test_file = tests_dir / "my_feature" / "my_story_test.py"
+    test_file = tests_dir / "my_feature" / "examples_test.py"
     content = test_file.read_text(encoding="utf-8")
     # The docstring must have been updated to the new step text
     assert "Given: the new condition" in content
@@ -161,9 +161,9 @@ Feature: New feature
     make_test_file(
         tests_dir,
         "new_feature",
-        "my_story",
+        "examples",
         '''\
-"""Tests for my story."""
+"""Tests for examples story."""
 
 import pytest
 
@@ -180,7 +180,7 @@ def test_old_feature_aabbccdd() -> None:
     # When
     sync_stubs(features_dir, tests_dir)
     # Then
-    test_file = tests_dir / "new_feature" / "my_story_test.py"
+    test_file = tests_dir / "new_feature" / "examples_test.py"
     content = test_file.read_text(encoding="utf-8")
     assert "def test_new_feature_aabbccdd() -> None:" in content
     assert "def test_old_feature_aabbccdd" not in content
@@ -216,7 +216,7 @@ Feature: Done feature
 """,
     )
     original_content = '''\
-"""Tests for done story."""
+"""Tests for done examples story."""
 
 import pytest
 
@@ -229,7 +229,7 @@ def test_done_feature_aabbccdd() -> None:
     """
     raise NotImplementedError
 '''
-    make_test_file(tests_dir, "done_feature", "done_story", original_content)
+    make_test_file(tests_dir, "done_feature", "examples", original_content)
     # In-progress feature — to confirm the sync mechanism works for active features
     make_feature(
         features_dir,
@@ -248,9 +248,9 @@ Feature: Active feature
     make_test_file(
         tests_dir,
         "active_feature",
-        "active_story",
+        "examples",
         '''\
-"""Tests for active story."""
+"""Tests for examples story."""
 
 import pytest
 
@@ -267,12 +267,12 @@ def test_active_feature_11223344() -> None:
     # When
     sync_stubs(features_dir, tests_dir)
     # Then — in-progress stub was updated (proves sync works)
-    active_content = (tests_dir / "active_feature" / "active_story_test.py").read_text(
+    active_content = (tests_dir / "active_feature" / "examples_test.py").read_text(
         encoding="utf-8"
     )
     assert "Given: the active condition" in active_content
     # Completed stub was NOT updated
-    done_content = (tests_dir / "done_feature" / "done_story_test.py").read_text(
+    done_content = (tests_dir / "done_feature" / "examples_test.py").read_text(
         encoding="utf-8"
     )
     assert done_content == original_content

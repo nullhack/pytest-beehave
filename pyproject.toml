@@ -14,6 +14,7 @@ maintainers = [
 dependencies = [
     "fire>=0.7.1",
     "gherkin-official>=39.0.0",
+    "libcst>=1.0.0",
 ]
 
 [project.urls]
@@ -94,6 +95,7 @@ addopts = """
 --tb=short \
 -q \
 --html=docs/tests/report.html \
+-p no:beehave \
 """
 testpaths = ["tests"]
 python_files = ["*_test.py"]

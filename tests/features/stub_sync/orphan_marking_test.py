@@ -7,7 +7,7 @@ from typing import Callable
 
 import pytest
 
-from pytest_beehave.syncer import sync_stubs
+from pytest_beehave.sync_engine import run_sync as sync_stubs
 
 
 @pytest.mark.unit

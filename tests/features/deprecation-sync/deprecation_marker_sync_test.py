@@ -6,7 +6,7 @@ from pathlib import Path
 
 import pytest
 
-from pytest_beehave.syncer import sync_stubs
+from pytest_beehave.sync_engine import run_sync as sync_stubs
 
 
 def _make_feature(
@@ -60,12 +60,13 @@ Feature: My feature
     Then it works
 """,
     )
+    # Pre-create stub in examples_test.py (no-Rule feature → examples_test.py)
     test_file = _make_test_file(
         tests_dir,
         "my_feature",
-        "my_story",
+        "examples",
         """\
-\"\"\"Tests for my story.\"\"\"
+\"\"\"Tests for my feature examples.\"\"\"
 
 import pytest
 
@@ -113,12 +114,13 @@ Feature: Done feature
     Then it passes
 """,
     )
+    # Pre-create stub in examples_test.py (no-Rule feature → examples_test.py)
     test_file = _make_test_file(
         tests_dir,
         "done_feature",
-        "done_story",
+        "examples",
         """\
-\"\"\"Tests for done story.\"\"\"
+\"\"\"Tests for done feature examples.\"\"\"
 
 import pytest
 
@@ -166,12 +168,13 @@ Feature: My feature
     Then it works
 """,
     )
+    # Pre-create stub with @pytest.mark.deprecated in examples_test.py
     test_file = _make_test_file(
         tests_dir,
         "my_feature",
-        "my_story",
+        "examples",
         """\
-\"\"\"Tests for my story.\"\"\"
+\"\"\"Tests for my feature examples.\"\"\"
 
 import pytest
 

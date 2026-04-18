@@ -7,7 +7,7 @@ from typing import Callable
 
 import pytest
 
-from pytest_beehave.syncer import sync_stubs
+from pytest_beehave.sync_engine import run_sync as sync_stubs
 
 
 @pytest.mark.unit
@@ -40,12 +40,13 @@ Feature: My feature
     # When
     sync_stubs(features_dir, tests_dir)
     # Then
-    test_file = tests_dir / "my_feature" / "my_story_test.py"
+    test_file = tests_dir / "my_feature" / "examples_test.py"
     assert test_file.exists()
     content = test_file.read_text(encoding="utf-8")
     assert "def test_my_feature_aabbccdd() -> None:" in content
 
 
+@pytest.mark.deprecated
 @pytest.mark.unit
 def test_stub_sync_d14d975f(
     tmp_path: Path,
@@ -77,7 +78,7 @@ Feature: My feature
     # When
     sync_stubs(features_dir, tests_dir)
     # Then
-    content = read_test_file(tests_dir, "my_feature", "my_story")
+    content = read_test_file(tests_dir, "my_feature", "examples")
     assert "def test_my_feature_aabbccdd() -> None:" in content
     # All lines before the def must not contain a @pytest.mark decorator
     func_idx = content.index("def test_my_feature_aabbccdd")
@@ -119,7 +120,7 @@ Feature: My feature
     # When
     sync_stubs(features_dir, tests_dir)
     # Then
-    content = read_test_file(tests_dir, "my_feature", "my_story")
+    content = read_test_file(tests_dir, "my_feature", "examples")
     assert "And: an additional condition" in content
     assert "But: not this other thing" in content
 
@@ -156,7 +157,7 @@ Feature: My feature
     # When
     sync_stubs(features_dir, tests_dir)
     # Then
-    content = read_test_file(tests_dir, "my_feature", "my_story")
+    content = read_test_file(tests_dir, "my_feature", "examples")
     assert "*: a bullet step" in content
 
 
@@ -195,7 +196,7 @@ Feature: My feature
     # When
     sync_stubs(features_dir, tests_dir)
     # Then
-    content = read_test_file(tests_dir, "my_feature", "my_story")
+    content = read_test_file(tests_dir, "my_feature", "examples")
     assert "line one" in content
     assert "line two" in content
     # The doc string content must appear indented below the step line
@@ -249,7 +250,7 @@ Feature: My feature
     # When
     sync_stubs(features_dir, tests_dir)
     # Then
-    content = read_test_file(tests_dir, "my_feature", "my_story")
+    content = read_test_file(tests_dir, "my_feature", "examples")
     assert "| col1 | col2 |" in content
     assert "| a    | b    |" in content
     # Table rows must appear indented below the step line
@@ -302,7 +303,7 @@ Feature: My feature
     # When
     sync_stubs(features_dir, tests_dir)
     # Then
-    content = read_test_file(tests_dir, "my_feature", "my_story")
+    content = read_test_file(tests_dir, "my_feature", "premium-customers")
     assert content.count("Background:") == 2
     first_bg = content.find("Background:")
     second_bg = content.find("Background:", first_bg + 1)
@@ -348,7 +349,7 @@ Feature: My feature
     # When
     sync_stubs(features_dir, tests_dir)
     # Then
-    content = read_test_file(tests_dir, "my_feature", "my_story")
+    content = read_test_file(tests_dir, "my_feature", "examples")
     assert "Given: a <thing>" in content
     assert "When: it <action>" in content
     assert "| thing | action | result |" in content
@@ -386,7 +387,7 @@ Feature: My feature
     # When
     sync_stubs(features_dir, tests_dir)
     # Then
-    content = read_test_file(tests_dir, "my_feature", "my_story")
+    content = read_test_file(tests_dir, "my_feature", "examples")
     assert "raise NotImplementedError" in content
     non_empty_lines = [ln for ln in content.splitlines() if ln.strip()]
     assert non_empty_lines[-1].strip() == "raise NotImplementedError"
@@ -457,7 +458,7 @@ Feature: My feature
     # When
     sync_stubs(features_dir, tests_dir)
     # Then
-    content = read_test_file(tests_dir, "my_feature", "my_story")
+    content = read_test_file(tests_dir, "my_feature", "examples")
     assert "def test_my_feature_aabbccdd() -> None:" in content
     # Extract the function body (after the closing triple-quote of the docstring)
     func_start = content.index("def test_my_feature_aabbccdd")
@@ -499,5 +500,123 @@ Feature: My feature
     # When
     sync_stubs(features_dir, tests_dir)
     # Then
-    assert (tests_dir / "my_feature" / "my_story_test.py").exists()
+    assert (tests_dir / "my_feature" / "examples_test.py").exists()
     assert not (tests_dir / "my-feature").exists()
+
+
+@pytest.mark.unit
+def test_stub_sync_a4c781f2(
+    tmp_path: Path,
+    make_feature: Callable[..., None],
+    read_test_file: Callable[..., str],
+) -> None:
+    """
+    Given: a backlog feature folder containing a .feature file with a new @id-tagged Example
+    When: pytest is invoked
+    Then: the generated test function has @pytest.mark.skip(reason="not yet implemented") applied
+    """
+    # Given
+    features_dir = tmp_path / "features"
+    tests_dir = tmp_path / "tests"
+    make_feature(
+        features_dir,
+        "backlog",
+        "my-feature",
+        "my-story.feature",
+        """\
+Feature: My feature
+  @id:aabbccdd
+  Example: Something happens
+    Given a thing
+    When it runs
+    Then it works
+""",
+    )
+    # When
+    sync_stubs(features_dir, tests_dir)
+    # Then
+    content = read_test_file(tests_dir, "my_feature", "examples")
+    assert '@pytest.mark.skip(reason="not yet implemented")' in content
+    skip_idx = content.index("@pytest.mark.skip")
+    def_idx = content.index("def test_my_feature_aabbccdd")
+    assert skip_idx < def_idx
+
+
+@pytest.mark.unit
+def test_stub_sync_e2b093d1(
+    tmp_path: Path,
+    make_feature: Callable[..., None],
+    read_test_file: Callable[..., str],
+) -> None:
+    """
+    Given: a backlog feature file with a Rule block containing a new @id-tagged Example
+    When: pytest is invoked
+    Then: the generated stub is a method inside class Test<RuleSlug> in <rule-slug>_test.py
+    """
+    # Given
+    features_dir = tmp_path / "features"
+    tests_dir = tmp_path / "tests"
+    make_feature(
+        features_dir,
+        "backlog",
+        "my-feature",
+        "my-story.feature",
+        """\
+Feature: My feature
+  Rule: Premium customers
+    @id:aabbccdd
+    Example: Premium order
+      Given a premium customer
+      When an order is placed
+      Then a discount is applied
+""",
+    )
+    # When
+    sync_stubs(features_dir, tests_dir)
+    # Then
+    content = read_test_file(tests_dir, "my_feature", "premium-customers")
+    assert "class TestPremiumCustomers:" in content
+    assert "def test_my_feature_aabbccdd" in content
+    # Method must appear indented (inside the class)
+    lines = content.splitlines()
+    def_line = next((ln for ln in lines if "def test_my_feature_aabbccdd" in ln), "")
+    assert def_line.startswith("    ")
+
+
+@pytest.mark.unit
+def test_stub_sync_f1a5c823(
+    tmp_path: Path,
+    make_feature: Callable[..., None],
+    read_test_file: Callable[..., str],
+) -> None:
+    """
+    Given: a backlog feature file with no Rule blocks containing a new @id-tagged Example
+    When: pytest is invoked
+    Then: the generated stub is a module-level function in examples_test.py
+    """
+    # Given
+    features_dir = tmp_path / "features"
+    tests_dir = tmp_path / "tests"
+    make_feature(
+        features_dir,
+        "backlog",
+        "my-feature",
+        "my-story.feature",
+        """\
+Feature: My feature
+  @id:aabbccdd
+  Example: Something happens
+    Given a thing
+    When it runs
+    Then it works
+""",
+    )
+    # When
+    sync_stubs(features_dir, tests_dir)
+    # Then
+    content = read_test_file(tests_dir, "my_feature", "examples")
+    assert "def test_my_feature_aabbccdd() -> None:" in content
+    # Must be a module-level function (not indented)
+    lines = content.splitlines()
+    def_line = next((ln for ln in lines if "def test_my_feature_aabbccdd" in ln), "")
+    assert def_line.startswith("def ")
