@@ -159,7 +159,7 @@ Commit: `feat(<feature-name>): add architecture stubs`
 
 ### Write Test Stubs (if not present)
 
-For each `Rule:` block in the in-progress `.feature` file, create `tests/features/<feature-name>/<rule-slug>_test.py` if it does not already exist. Write one function per `@id` Example, all skipped:
+For each `Rule:` block in the in-progress `.feature` file, create `tests/features/<feature-name>/<rule_slug>_test.py` if it does not already exist. Write one function per `@id` Example, all skipped:
 
 ```python
 @pytest.mark.skip(reason="not yet implemented")
@@ -278,11 +278,11 @@ Signal completion to the reviewer. Provide:
 ### Test File Layout
 
 ```
-tests/features/<feature-name>/<rule-slug>_test.py
+tests/features/<feature-name>/<rule_slug>_test.py
 ```
 
-- `<feature-name>` = the `.feature` file stem
-- `<rule-slug>` = the `Rule:` title slugified
+- `<feature_name>` = the `.feature` file stem
+- `<rule_slug>` = the `Rule:` title slugified
 
 ### Function Naming
 

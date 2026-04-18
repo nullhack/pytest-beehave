@@ -45,6 +45,36 @@ class _PytestTerminalWriter:
             sys.stdout.flush()
 
 
+def _exit_if_missing_configured_path(rootdir: Path, path: Path) -> None:
+    """Exit pytest if features_path is explicitly configured but missing.
+
+    Args:
+        rootdir: Project root directory.
+        path: Resolved features path.
+    """
+    if not path.exists() and is_explicitly_configured(rootdir):
+        msg = f"[beehave] features_path not found: {path}"
+        sys.stderr.write(msg + "\n")
+        sys.stderr.flush()
+        pytest.exit(msg, returncode=1)
+
+
+def _run_beehave_sync(config: pytest.Config, path: Path) -> None:
+    """Bootstrap, assign IDs, and sync stubs for the features directory.
+
+    Args:
+        config: The pytest Config object.
+        path: The resolved features directory path.
+    """
+    writer = _PytestTerminalWriter(config)
+    report_bootstrap(writer, bootstrap_features_directory(path))
+    errors = assign_ids(path)
+    report_id_write_back(writer, errors)
+    if errors:
+        pytest.exit("[beehave] untagged Examples in read-only files", returncode=1)
+    report_sync_actions(writer, run_sync(path, config.rootpath / "tests" / "features"))
+
+
 def pytest_configure(config: pytest.Config) -> None:
     """Read beehave configuration, bootstrap directory, sync stubs.
 
@@ -58,21 +88,7 @@ def pytest_configure(config: pytest.Config) -> None:
     """
     rootdir = config.rootpath
     path = resolve_features_path(rootdir)
-    if not path.exists() and is_explicitly_configured(rootdir):
-        msg = f"[beehave] features_path not found: {path}"
-        sys.stderr.write(msg + "\n")
-        sys.stderr.flush()
-        pytest.exit(msg, returncode=1)
+    _exit_if_missing_configured_path(rootdir, path)
     config.stash[features_path_key] = path
-    if not path.exists():
-        return
-    writer = _PytestTerminalWriter(config)
-    bootstrap_result = bootstrap_features_directory(path)
-    report_bootstrap(writer, bootstrap_result)
-    errors = assign_ids(path)
-    report_id_write_back(writer, errors)
-    if errors:
-        pytest.exit("[beehave] untagged Examples in read-only files", returncode=1)
-    tests_dir = rootdir / "tests" / "features"
-    actions = run_sync(path, tests_dir)
-    report_sync_actions(writer, actions)
+    if path.exists():
+        _run_beehave_sync(config, path)

@@ -162,6 +162,53 @@ def _extract_docstring(content: str, func_start: int) -> str:
     return after_def[open_pos + 3 : close_pos]
 
 
+def _is_decorator_line(stripped: str) -> bool:
+    """Return True if a stripped line is a decorator.
+
+    Args:
+        stripped: A stripped source line.
+
+    Returns:
+        True if the line starts with '@'.
+    """
+    return stripped.startswith("@")
+
+
+def _is_blank_or_comment(stripped: str) -> bool:
+    """Return True if a stripped line is blank or a comment.
+
+    Args:
+        stripped: A stripped source line.
+
+    Returns:
+        True if the line is blank or starts with '#'.
+    """
+    return stripped == "" or stripped.startswith("#")
+
+
+def _collect_markers_reversed(lines: list[str]) -> list[str]:
+    """Collect decorator strings in reverse order from a list of source lines.
+
+    Scans backwards, accumulating decorator lines until a non-decorator,
+    non-blank, non-comment line is found.
+
+    Args:
+        lines: Source lines before a function definition.
+
+    Returns:
+        Decorator strings in reverse order (innermost first).
+    """
+    markers: list[str] = []
+    for line in reversed(lines):
+        stripped = line.strip()
+        if _is_decorator_line(stripped):
+            markers.append(stripped[1:])
+            continue
+        if not _is_blank_or_comment(stripped):
+            break
+    return markers
+
+
 def _extract_markers(content: str, func_start: int) -> tuple[str, ...]:
     """Extract decorator strings before a function.
 
@@ -172,19 +219,36 @@ def _extract_markers(content: str, func_start: int) -> tuple[str, ...]:
     Returns:
         Tuple of decorator strings (without @ prefix).
     """
-    # Walk backward through lines to find decorators
-    before = content[:func_start]
-    lines = before.splitlines()
-    markers: list[str] = []
-    for line in reversed(lines):
-        stripped = line.strip()
-        if stripped.startswith("@"):
-            markers.append(stripped[1:])
-        elif stripped == "" or stripped.startswith("#"):
-            continue
-        else:
-            break
-    return tuple(reversed(markers))
+    lines = content[:func_start].splitlines()
+    return tuple(reversed(_collect_markers_reversed(lines)))
+
+
+def _build_stub(
+    content: str,
+    match: re.Match[str],
+    path: Path,
+) -> ExistingStub:
+    """Build an ExistingStub from a regex match in file content.
+
+    Args:
+        content: Full file content.
+        match: Regex match for the function definition.
+        path: Path to the file.
+
+    Returns:
+        ExistingStub for the matched function.
+    """
+    func_name = match.group(1)
+    example_id = ExampleId(match.group(2))
+    return ExistingStub(
+        function_name=func_name,
+        example_id=example_id,
+        feature_slug=_extract_feature_slug_from_name(func_name),
+        class_name=None,
+        file_path=path,
+        markers=_extract_markers(content, match.start()),
+        docstring=_extract_docstring(content, match.start()),
+    )
 
 
 def read_stubs_from_file(path: Path) -> list[ExistingStub]:
@@ -200,25 +264,8 @@ def read_stubs_from_file(path: Path) -> list[ExistingStub]:
         return []
     content = path.read_text(encoding="utf-8")
     string_ranges = _find_string_ranges(content)
-    stubs: list[ExistingStub] = []
-    for match in _FUNC_RE.finditer(content):
-        if _in_string(match.start(), string_ranges):
-            continue
-        func_name = match.group(1)
-        id_hex = match.group(2)
-        example_id = ExampleId(id_hex)
-        feature_slug = _extract_feature_slug_from_name(func_name)
-        markers = _extract_markers(content, match.start())
-        docstring = _extract_docstring(content, match.start())
-        stubs.append(
-            ExistingStub(
-                function_name=func_name,
-                example_id=example_id,
-                feature_slug=feature_slug,
-                class_name=None,
-                file_path=path,
-                markers=markers,
-                docstring=docstring,
-            )
-        )
-    return stubs
+    return [
+        _build_stub(content, match, path)
+        for match in _FUNC_RE.finditer(content)
+        if not _in_string(match.start(), string_ranges)
+    ]

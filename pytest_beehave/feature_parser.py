@@ -285,6 +285,23 @@ def _has_deprecated_tag(tags: list[dict[str, Any]]) -> bool:
     return any(t["name"] == "@deprecated" for t in tags)
 
 
+def _collect_background_sections(
+    feature_bg: tuple[ParsedStep, ...] | None,
+    rule_bg: tuple[ParsedStep, ...] | None,
+) -> tuple[tuple[ParsedStep, ...], ...]:
+    """Collect non-None background step tuples in order.
+
+    Args:
+        feature_bg: Feature-level background steps.
+        rule_bg: Rule-level background steps.
+
+    Returns:
+        Tuple of background step tuples.
+    """
+    sections = [bg for bg in (feature_bg, rule_bg) if bg is not None]
+    return tuple(sections)
+
+
 def _build_example(
     scenario: dict[str, Any],
     feature_bg: tuple[ParsedStep, ...] | None,
@@ -306,21 +323,63 @@ def _build_example(
     id_str = _extract_id_from_tags(tags)
     if id_str is None:
         return None
-    bg_sections: list[tuple[ParsedStep, ...]] = []
-    if feature_bg is not None:
-        bg_sections.append(feature_bg)
-    if rule_bg is not None:
-        bg_sections.append(rule_bg)
     outline_examples = scenario.get("examples", [])
     return ParsedExample(
         example_id=ExampleId(id_str),
         steps=_build_steps(scenario.get("steps", [])),
-        background_sections=tuple(bg_sections),
+        background_sections=_collect_background_sections(feature_bg, rule_bg),
         outline_examples=(
             _render_examples_table(outline_examples) if outline_examples else None
         ),
         is_deprecated=parent_deprecated or _has_deprecated_tag(tags),
     )
+
+
+def _example_from_child(
+    child: dict[str, Any],
+    feature_bg: tuple[ParsedStep, ...] | None,
+    rule_bg: tuple[ParsedStep, ...] | None,
+    rule_deprecated: bool,
+) -> ParsedExample | None:
+    """Return a ParsedExample from a rule child dict, or None if not a scenario.
+
+    Args:
+        child: A child dict from the rule's Gherkin AST.
+        feature_bg: Feature-level background steps.
+        rule_bg: Rule-level background steps.
+        rule_deprecated: True if the rule is deprecated.
+
+    Returns:
+        ParsedExample or None.
+    """
+    scenario = child.get("scenario")
+    if scenario is None:
+        return None
+    return _build_example(scenario, feature_bg, rule_bg, rule_deprecated)
+
+
+def _parse_rule_examples(
+    rule_children: list[dict[str, Any]],
+    feature_bg: tuple[ParsedStep, ...] | None,
+    rule_bg: tuple[ParsedStep, ...] | None,
+    rule_deprecated: bool,
+) -> tuple[ParsedExample, ...]:
+    """Parse all examples from rule children.
+
+    Args:
+        rule_children: Child dicts from the rule's Gherkin AST.
+        feature_bg: Feature-level background steps.
+        rule_bg: Rule-level background steps.
+        rule_deprecated: True if the rule is deprecated.
+
+    Returns:
+        Tuple of ParsedExample.
+    """
+    candidates = (
+        _example_from_child(child, feature_bg, rule_bg, rule_deprecated)
+        for child in rule_children
+    )
+    return tuple(ex for ex in candidates if ex is not None)
 
 
 def _parse_rule(
@@ -340,21 +399,84 @@ def _parse_rule(
     """
     title = rule.get("name", "")
     rule_children = rule.get("children", [])
-    rule_bg = _extract_background(rule_children)
     rule_deprecated = feature_deprecated or _has_deprecated_tag(rule.get("tags", []))
-    examples: list[ParsedExample] = []
-    for child in rule_children:
-        scenario = child.get("scenario")
-        if scenario is not None:
-            ex = _build_example(scenario, feature_bg, rule_bg, rule_deprecated)
-            if ex is not None:
-                examples.append(ex)
+    rule_bg = _extract_background(rule_children)
+    examples = _parse_rule_examples(rule_children, feature_bg, rule_bg, rule_deprecated)
     return ParsedRule(
         title=title,
         rule_slug=RuleSlug.from_rule_title(title),
-        examples=tuple(examples),
+        examples=examples,
         is_deprecated=rule_deprecated,
     )
+
+
+def _empty_feature(path: Path, feature_slug: FeatureSlug) -> ParsedFeature:
+    """Return an empty ParsedFeature for a file with no feature block.
+
+    Args:
+        path: Path to the .feature file.
+        feature_slug: The feature slug.
+
+    Returns:
+        ParsedFeature with no rules or examples.
+    """
+    return ParsedFeature(
+        path=path,
+        feature_slug=feature_slug,
+        rules=(),
+        top_level_examples=(),
+        is_deprecated=False,
+    )
+
+
+def _parse_child(
+    child: dict[str, Any],
+    feature_bg: tuple[ParsedStep, ...] | None,
+    feature_deprecated: bool,
+    rules: list[ParsedRule],
+    top_level: list[ParsedExample],
+) -> None:
+    """Parse one feature child into rules or top-level examples.
+
+    Args:
+        child: A child dict from the Gherkin AST.
+        feature_bg: Feature-level background steps.
+        feature_deprecated: True if the feature is deprecated.
+        rules: List to append ParsedRule to.
+        top_level: List to append ParsedExample to.
+    """
+    rule_node = child.get("rule")
+    if rule_node is not None:
+        rules.append(_parse_rule(rule_node, feature_bg, feature_deprecated))
+        return
+    scenario = child.get("scenario")
+    if scenario is None:
+        return
+    ex = _build_example(scenario, feature_bg, None, feature_deprecated)
+    if ex is not None:
+        top_level.append(ex)
+
+
+def _parse_children(
+    children: list[dict[str, Any]],
+    feature_bg: tuple[ParsedStep, ...] | None,
+    feature_deprecated: bool,
+) -> tuple[tuple[ParsedRule, ...], tuple[ParsedExample, ...]]:
+    """Parse the children of a feature block into rules and top-level examples.
+
+    Args:
+        children: Child dicts from the Gherkin AST.
+        feature_bg: Feature-level background steps.
+        feature_deprecated: True if the feature is deprecated.
+
+    Returns:
+        Tuple of (rules, top_level_examples).
+    """
+    rules: list[ParsedRule] = []
+    top_level: list[ParsedExample] = []
+    for child in children:
+        _parse_child(child, feature_bg, feature_deprecated, rules, top_level)
+    return tuple(rules), tuple(top_level)
 
 
 def parse_feature(
@@ -376,38 +498,20 @@ def parse_feature(
         folder_name = path.parent.name
     if parser is None:
         parser = GherkinParser()
-    text = path.read_text(encoding="utf-8")
-    doc = parser.parse(text)
+    doc = parser.parse(path.read_text(encoding="utf-8"))
     feature = cast(dict[str, Any] | None, doc.get("feature"))
     feature_slug = FeatureSlug.from_folder_name(folder_name)
     if not feature:
-        return ParsedFeature(
-            path=path,
-            feature_slug=feature_slug,
-            rules=(),
-            top_level_examples=(),
-            is_deprecated=False,
-        )
+        return _empty_feature(path, feature_slug)
     children = feature.get("children", [])
-    feature_bg = _extract_background(children)
     feature_deprecated = _has_deprecated_tag(feature.get("tags", []))
-    rules: list[ParsedRule] = []
-    top_level: list[ParsedExample] = []
-    for child in children:
-        rule = child.get("rule")
-        if rule is not None:
-            rules.append(_parse_rule(rule, feature_bg, feature_deprecated))
-            continue
-        scenario = child.get("scenario")
-        if scenario is not None:
-            ex = _build_example(scenario, feature_bg, None, feature_deprecated)
-            if ex is not None:
-                top_level.append(ex)
+    feature_bg = _extract_background(children)
+    rules, top_level = _parse_children(children, feature_bg, feature_deprecated)
     return ParsedFeature(
         path=path,
         feature_slug=feature_slug,
-        rules=tuple(rules),
-        top_level_examples=tuple(top_level),
+        rules=rules,
+        top_level_examples=top_level,
         is_deprecated=feature_deprecated,
     )
 

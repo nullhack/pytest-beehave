@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import re
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -16,6 +17,18 @@ from pytest_beehave.models import ExampleId, FeatureSlug, RuleSlug
 _SKIP_MARKER = 'pytest.mark.skip(reason="not yet implemented")'
 _ORPHAN_MARKER = 'pytest.mark.skip(reason="orphan: no matching @id in .feature files")'
 _DEPRECATED_MARKER = "pytest.mark.deprecated"
+
+_FUNC_DEF_RE: re.Pattern[str] = re.compile(
+    r"^def (?P<name>\w+)\([^)]*\) -> None:",
+    re.MULTILINE,
+)
+_DECORATOR_RE: re.Pattern[str] = re.compile(
+    r"^( *)((?:@pytest\.mark\.\w+(?:\(.*?\))?\n\1)*)def test_\w+_([a-f0-9]{8})\b",
+    re.MULTILINE,
+)
+_ORPHAN_MARKER_LINE = (
+    '@pytest.mark.skip(reason="orphan: no matching @id in .feature files")\n'
+)
 
 
 @dataclass(frozen=True, slots=True)
@@ -101,6 +114,20 @@ def _render_step(step: ParsedStep) -> str:
     return rendered
 
 
+def _render_background_section(steps: tuple[ParsedStep, ...]) -> list[str]:
+    """Render a single background section as docstring lines.
+
+    Args:
+        steps: The background steps.
+
+    Returns:
+        List of rendered lines.
+    """
+    lines = ["    Background:"]
+    lines.extend(_render_step(step) for step in steps)
+    return lines
+
+
 def build_docstring(
     feature: ParsedFeature,
     rule: ParsedRule | None,
@@ -118,14 +145,25 @@ def build_docstring(
     """
     lines: list[str] = []
     for bg_steps in example.background_sections:
-        lines.append("    Background:")
-        for step in bg_steps:
-            lines.append(_render_step(step))
-    for step in example.steps:
-        lines.append(_render_step(step))
+        lines.extend(_render_background_section(bg_steps))
+    lines.extend(_render_step(step) for step in example.steps)
     if example.outline_examples is not None:
         lines.append(f"    {example.outline_examples}")
     return "\n".join(lines)
+
+
+def _stub_decorator(is_deprecated: bool) -> str:
+    """Return the decorator line for a new stub.
+
+    Args:
+        is_deprecated: If True, return deprecated marker; else skip marker.
+
+    Returns:
+        Decorator line string.
+    """
+    if is_deprecated:
+        return "@pytest.mark.deprecated\n"
+    return '@pytest.mark.skip(reason="not yet implemented")\n'
 
 
 def _stub_function_source(
@@ -143,11 +181,7 @@ def _stub_function_source(
     Returns:
         Full function source as a string.
     """
-    decorator = (
-        '@pytest.mark.skip(reason="not yet implemented")\n'
-        if not is_deprecated
-        else "@pytest.mark.deprecated\n"
-    )
+    decorator = _stub_decorator(is_deprecated)
     return (
         f"{decorator}"
         f"def {function_name}() -> None:\n"
@@ -196,6 +230,28 @@ def _append_stub_to_file(path: Path, function_source: str) -> None:
     path.write_text(updated, encoding="utf-8")
 
 
+def _write_top_level_stub(path: Path, function_source: str) -> SyncAction:
+    """Write a top-level (no Rule) stub to file.
+
+    Args:
+        path: Path to the test file.
+        function_source: Full function source code.
+
+    Returns:
+        SyncAction describing what was done.
+    """
+    if not path.exists():
+        story_slug = path.stem.removesuffix("_test")
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(
+            _build_file_header(story_slug) + function_source + "\n",
+            encoding="utf-8",
+        )
+        return SyncAction(action="CREATE", path=path)
+    _append_stub_to_file(path, function_source)
+    return SyncAction(action="UPDATE", path=path)
+
+
 def write_stub_to_file(path: Path, spec: StubSpec) -> SyncAction:
     """Write a test stub for a single example to a test file.
 
@@ -217,16 +273,40 @@ def write_stub_to_file(path: Path, spec: StubSpec) -> SyncAction:
     )
     if spec.rule_slug is not None:
         return _write_class_based_stub(path, spec, function_name, function_source)
-    if not path.exists():
-        story_slug = path.stem.removesuffix("_test")
-        path.parent.mkdir(parents=True, exist_ok=True)
-        path.write_text(
-            _build_file_header(story_slug) + function_source + "\n",
-            encoding="utf-8",
-        )
-        return SyncAction(action="CREATE", path=path)
-    _append_stub_to_file(path, function_source)
-    return SyncAction(action="UPDATE", path=path)
+    return _write_top_level_stub(path, function_source)
+
+
+def _create_class_file(path: Path, class_name: str, method_source: str) -> None:
+    """Create a new test file with a class containing a method stub.
+
+    Args:
+        path: Path to create.
+        class_name: The test class name.
+        method_source: Indented method source.
+    """
+    story_slug = path.stem.removesuffix("_test")
+    path.parent.mkdir(parents=True, exist_ok=True)
+    class_block = f"class {class_name}:\n{method_source}\n"
+    path.write_text(
+        _build_file_header(story_slug) + class_block + "\n", encoding="utf-8"
+    )
+
+
+def _append_to_class_file(path: Path, class_name: str, method_source: str) -> None:
+    """Append a method stub to an existing test file with a class.
+
+    Args:
+        path: Path to the test file.
+        class_name: The test class name.
+        method_source: Indented method source.
+    """
+    content = path.read_text(encoding="utf-8")
+    if f"class {class_name}:" not in content:
+        class_block = f"class {class_name}:\n{method_source}\n"
+        updated = content.rstrip("\n") + "\n\n\n" + class_block + "\n"
+    else:
+        updated = content.rstrip("\n") + "\n\n" + method_source + "\n"
+    path.write_text(updated, encoding="utf-8")
 
 
 def _write_class_based_stub(
@@ -251,22 +331,9 @@ def _write_class_based_stub(
     class_name = build_class_name(spec.rule_slug)
     method_source = _indent_stub(function_source)
     if not path.exists():
-        story_slug = path.stem.removesuffix("_test")
-        path.parent.mkdir(parents=True, exist_ok=True)
-        class_block = f"class {class_name}:\n{method_source}\n"
-        path.write_text(
-            _build_file_header(story_slug) + class_block + "\n",
-            encoding="utf-8",
-        )
+        _create_class_file(path, class_name, method_source)
         return SyncAction(action="CREATE", path=path)
-    content = path.read_text(encoding="utf-8")
-    if f"class {class_name}:" not in content:
-        class_block = f"class {class_name}:\n{method_source}\n"
-        updated = content.rstrip("\n") + "\n\n\n" + class_block + "\n"
-        path.write_text(updated, encoding="utf-8")
-    else:
-        updated = content.rstrip("\n") + "\n\n" + method_source + "\n"
-        path.write_text(updated, encoding="utf-8")
+    _append_to_class_file(path, class_name, method_source)
     return SyncAction(action="UPDATE", path=path)
 
 
@@ -286,6 +353,21 @@ def _find_rule(feature: ParsedFeature, rule_slug: RuleSlug) -> ParsedRule | None
     return None
 
 
+def _docstring_pattern(function_name: str) -> re.Pattern[str]:
+    """Build a compiled docstring-replacement regex for a named function.
+
+    Args:
+        function_name: The test function name.
+
+    Returns:
+        Compiled regex pattern matching def line + docstring.
+    """
+    return re.compile(
+        rf'(def {re.escape(function_name)}\([^)]*\) -> None:\n    """).*?(""")',
+        re.DOTALL,
+    )
+
+
 def _update_docstring_in_content(
     content: str,
     function_name: str,
@@ -301,15 +383,11 @@ def _update_docstring_in_content(
     Returns:
         Updated file content.
     """
-    import re
-
-    pattern = re.compile(
-        rf'(def {re.escape(function_name)}\([^)]*\) -> None:\n    """).*?(""")',
-        re.DOTALL,
-    )
+    pattern = _docstring_pattern(function_name)
+    replace_with = new_docstring_body
 
     def replacer(m: re.Match[str]) -> str:
-        return f"{m.group(1)}\n{new_docstring_body}\n    {m.group(2)}"
+        return f"{m.group(1)}\n{replace_with}\n    {m.group(2)}"
 
     return pattern.sub(replacer, content, count=1)
 
@@ -325,8 +403,6 @@ def _rename_function_in_content(content: str, old_name: str, new_name: str) -> s
     Returns:
         Updated file content.
     """
-    import re
-
     pattern = re.compile(
         rf"^def {re.escape(old_name)}\(([^)]*)\) -> None:",
         re.MULTILINE,
@@ -369,6 +445,37 @@ def update_docstring(
     return SyncAction(action="UPDATE", path=path)
 
 
+def _find_function_match(content: str, function_name: str) -> re.Match[str] | None:
+    """Find the def line for a named function in content.
+
+    Args:
+        content: Full file content.
+        function_name: The function name to find.
+
+    Returns:
+        Match object or None.
+    """
+    return re.search(
+        rf"^def {re.escape(function_name)}\([^)]*\) -> None:",
+        content,
+        re.MULTILINE,
+    )
+
+
+def _insert_marker_before(content: str, match: re.Match[str], marker_line: str) -> str:
+    """Insert a marker line before the match position in content.
+
+    Args:
+        content: Full file content.
+        match: Match for the def line.
+        marker_line: The marker line to insert.
+
+    Returns:
+        Updated file content.
+    """
+    return content[: match.start()] + marker_line + content[match.start() :]
+
+
 def mark_orphan(path: Path, function_name: str) -> SyncAction | None:
     """Add an orphan skip marker before a function if not already present.
 
@@ -379,21 +486,13 @@ def mark_orphan(path: Path, function_name: str) -> SyncAction | None:
     Returns:
         SyncAction if file was changed, else None.
     """
-    import re
-
     content = path.read_text(encoding="utf-8")
-    orphan_reason = "orphan: no matching @id in .feature files"
-    marker_line = f'@pytest.mark.skip(reason="{orphan_reason}")\n'
-    match = re.search(
-        rf"^def {re.escape(function_name)}\([^)]*\) -> None:",
-        content,
-        re.MULTILINE,
-    )
+    match = _find_function_match(content, function_name)
     if not match:
         return None
-    if content[: match.start()].endswith(marker_line):
+    if content[: match.start()].endswith(_ORPHAN_MARKER_LINE):
         return None
-    updated = content[: match.start()] + marker_line + content[match.start() :]
+    updated = _insert_marker_before(content, match, _ORPHAN_MARKER_LINE)
     path.write_text(updated, encoding="utf-8")
     return SyncAction(action="ORPHAN", path=path)
 
@@ -408,15 +507,10 @@ def remove_orphan_marker(path: Path, function_name: str) -> SyncAction | None:
     Returns:
         SyncAction if file was changed, else None.
     """
-    import re
-
     content = path.read_text(encoding="utf-8")
-    escaped_marker = re.escape(
-        '@pytest.mark.skip(reason="orphan: no matching @id in .feature files")'
-    )
-    escaped_name = re.escape(function_name)
+    escaped_marker = re.escape(_ORPHAN_MARKER_LINE.rstrip("\n"))
     pattern = re.compile(
-        rf"^{escaped_marker}\n(def {escaped_name}\([^)]*\) -> None:)",
+        rf"^{escaped_marker}\n(def {re.escape(function_name)}\([^)]*\) -> None:)",
         re.MULTILINE,
     )
     updated = pattern.sub(r"\1", content, count=1)
@@ -424,6 +518,22 @@ def remove_orphan_marker(path: Path, function_name: str) -> SyncAction | None:
         return None
     path.write_text(updated, encoding="utf-8")
     return SyncAction(action="ORPHAN", path=path)
+
+
+def _build_non_conforming_marker(correct_file: Path, correct_class: str | None) -> str:
+    """Build the non-conforming skip marker line.
+
+    Args:
+        correct_file: Where the stub should be.
+        correct_class: The correct class name, if applicable.
+
+    Returns:
+        Marker line string.
+    """
+    detail = f"should be in {correct_file}"
+    if correct_class:
+        detail += f" class {correct_class}"
+    return f'@pytest.mark.skip(reason="non-conforming: {detail}")\n'
 
 
 def mark_non_conforming(
@@ -446,25 +556,69 @@ def mark_non_conforming(
     Returns:
         SyncAction if file was changed, else None.
     """
-    import re
-
-    detail = f"should be in {correct_file}"
-    if correct_class:
-        detail += f" class {correct_class}"
-    marker_line = f'@pytest.mark.skip(reason="non-conforming: {detail}")\n'
+    marker_line = _build_non_conforming_marker(correct_file, correct_class)
     content = path.read_text(encoding="utf-8")
-    match = re.search(
-        rf"^def {re.escape(function_name)}\([^)]*\) -> None:",
-        content,
-        re.MULTILINE,
-    )
+    match = _find_function_match(content, function_name)
     if not match:
         return None
     if content[: match.start()].endswith(marker_line):
         return None
-    updated = content[: match.start()] + marker_line + content[match.start() :]
+    updated = _insert_marker_before(content, match, marker_line)
     path.write_text(updated, encoding="utf-8")
     return SyncAction(action="NON_CONFORMING", path=path)
+
+
+def _rewrite_decorators(
+    path: Path,
+    content: str,
+    match: re.Match[str],
+    new_decorators: str,
+) -> SyncAction:
+    """Rewrite the decorator block for a match and save.
+
+    Args:
+        path: Path to the test file.
+        content: Full file content.
+        match: Regex match for the decorator block.
+        new_decorators: Updated decorator block.
+
+    Returns:
+        SyncAction with DEPRECATED action.
+    """
+    indent = match.group(1)
+    def_start = match.start() + len(indent) + len(match.group(2))
+    new_content = content[: match.start()] + new_decorators + content[def_start:]
+    path.write_text(new_content, encoding="utf-8")
+    return SyncAction(action="DEPRECATED", path=path)
+
+
+def _apply_deprecated_toggle(
+    path: Path,
+    content: str,
+    match: re.Match[str],
+    should_be_deprecated: bool,
+) -> SyncAction | None:
+    """Apply deprecated marker add/remove for a single decorator match.
+
+    Args:
+        path: Path to the test file.
+        content: Full file content.
+        match: Regex match for the decorator block.
+        should_be_deprecated: Whether to add or remove the marker.
+
+    Returns:
+        SyncAction if changed, else None.
+    """
+    indent = match.group(1)
+    full_decorators = indent + match.group(2)
+    marker_line = f"{indent}@pytest.mark.deprecated\n"
+    has_marker = marker_line in full_decorators
+    if should_be_deprecated and not has_marker:
+        return _rewrite_decorators(path, content, match, marker_line + full_decorators)
+    if not should_be_deprecated and has_marker:
+        stripped = full_decorators.replace(marker_line, "")
+        return _rewrite_decorators(path, content, match, stripped)
+    return None
 
 
 def toggle_deprecated_marker(
@@ -483,35 +637,13 @@ def toggle_deprecated_marker(
     Returns:
         SyncAction if file was changed, else None.
     """
-    import re
-
     if not path.exists():
         return None
     content = path.read_text(encoding="utf-8")
-    decorator_pattern = re.compile(
-        r"^( *)((?:@pytest\.mark\.\w+(?:\(.*?\))?\n\1)*)def test_\w+_([a-f0-9]{8})\b",
-        re.MULTILINE,
-    )
-    for match in decorator_pattern.finditer(content):
-        hex_suffix = match.group(3)
-        if not function_name.endswith(f"_{hex_suffix}"):
+    for match in _DECORATOR_RE.finditer(content):
+        if not function_name.endswith(f"_{match.group(3)}"):
             continue
-        indent = match.group(1)
-        decorators_block = match.group(2)
-        # Region from match.start() to def_start is: indent + decorators_block
-        def_start = match.start() + len(indent) + len(decorators_block)
-        full_decorators = indent + decorators_block
-        # Each decorator line is "{indent}@pytest.mark.xxx(...)\n"
-        marker_line = f"{indent}@pytest.mark.deprecated\n"
-        has_marker = marker_line in full_decorators
-        if should_be_deprecated and not has_marker:
-            new_decorators = marker_line + full_decorators
-            updated = content[: match.start()] + new_decorators + content[def_start:]
-            path.write_text(updated, encoding="utf-8")
-            return SyncAction(action="DEPRECATED", path=path)
-        if not should_be_deprecated and has_marker:
-            new_decorators = full_decorators.replace(marker_line, "")
-            updated = content[: match.start()] + new_decorators + content[def_start:]
-            path.write_text(updated, encoding="utf-8")
-            return SyncAction(action="DEPRECATED", path=path)
+        result = _apply_deprecated_toggle(path, content, match, should_be_deprecated)
+        if result is not None:
+            return result
     return None

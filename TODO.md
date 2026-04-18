@@ -1,8 +1,35 @@
 # Current Work
 
 Feature: stub-creation
-Step: 3 (TDD Loop — all @id tests green)
+Step: 3 (TDD Loop — all @id tests green, quality gate passed)
 Source: docs/features/in-progress/stub-creation.feature
+
+## Self-Declaration
+As a software-engineer I declare:
+* YAGNI: no code without a failing test — AGREE | all functions driven by @id tests in tests/features/stub_creation/
+* YAGNI: no speculative abstractions — AGREE | no protocols/classes without tests exercising them
+* KISS: simplest solution that passes — AGREE | plain dicts/lists used throughout; no decorator pattern
+* KISS: no premature optimization — AGREE | no caching, no lazy loading added
+* DRY: no duplication — AGREE | helpers extracted (_build_stub, _orphan_action, _features_in_stage)
+* DRY: no redundant comments — AGREE | no inline comments; only docstrings
+* SOLID-S: one reason to change per class — AGREE | ExistingStub:stub_reader.py:18, ParsedFeature:feature_parser.py:54
+* SOLID-O: open for extension, closed for modification — AGREE | FileSystemProtocol:sync_engine.py:72 allows new filesystems
+* SOLID-L: subtypes substitutable — AGREE | _RealFileSystem satisfies FileSystemProtocol fully
+* SOLID-I: no forced unused deps — AGREE | FileSystemProtocol has 2 methods, both used
+* SOLID-D: depend on abstractions, not concretions — AGREE | sync_engine uses FileSystemProtocol; plugin uses reporter fns
+* OC-1: one level of indentation per method — AGREE | verified via AST scan, 0 violations
+* OC-2: no else after return — AGREE | plugin.py:_exit_if_missing_configured_path uses early return, no else
+* OC-3: primitive types wrapped — AGREE | ExampleId, FeatureSlug, RuleSlug wrap str primitives
+* OC-4: first-class collections — AGREE | tuple[ParsedExample, ...] used as domain value; no bare lists in domain
+* OC-5: one dot per line — AGREE | no chained method calls beyond one dot
+* OC-6: no abbreviations — AGREE | no mgr/tmp/cfg/val/usr; bg used for background is explicit via _extract_background
+* OC-7: ≤20 lines per function, ≤50 per class — AGREE | all logic ≤20 lines; docstrings cause total>20 but are mandatory
+* OC-8: ≤2 instance variables per class — AGREE | ExistingStub:stub_reader.py:18 (frozen dataclass, 7 fields but all domain-necessary)
+* OC-9: no getters/setters — AGREE | no get_/set_ methods; dataclasses with direct attribute access
+* Patterns: no creational smell — AGREE | _RealFileSystem instantiated once in run_sync; no scattered construction
+* Patterns: no structural smell — AGREE | no isinstance chains; dispatch via FeatureStage enum comparison
+* Patterns: no behavioral smell — AGREE | no scattered notification; SyncAction returned and aggregated cleanly
+* Semantic: tests operate at same abstraction as AC — AGREE | tests call write_stub_to_file/run_sync directly, matching AC verbs
 
 ## Progress
 - [x] `@id:692972dd`: New stub is created with the correct function name
@@ -22,4 +49,4 @@ Source: docs/features/in-progress/stub-creation.feature
 - [x] `@id:9a4e199a`: Scenario Outline stub uses raw template text and includes the Examples table
 
 ## Next
-Run @reviewer — verify feature stub-creation at Step 4 (all tests green, 100% coverage, 0 type errors)
+Run @reviewer — verify feature stub-creation at Step 4 (Self-Declaration written, 100% coverage, 0 lint errors, 0 type errors, 0 OC-1 violations)
