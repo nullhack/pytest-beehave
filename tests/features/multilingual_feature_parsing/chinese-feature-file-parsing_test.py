@@ -1,4 +1,4 @@
-"""Tests for multilingual feature parsing Chinese feature file parsing story."""
+"""Tests for multilingual feature parsing — Chinese feature file parsing rule."""
 
 from pathlib import Path
 
@@ -24,19 +24,20 @@ def _write_chinese_feature(directory: Path) -> Path:
     return path
 
 
-@pytest.mark.unit
-def test_multilingual_feature_parsing_55e4d669(tmp_path: Path) -> None:
-    """
-    Given: a valid Chinese Gherkin feature file
-    When: parse_feature is called on that file
-    Then: a ParsedFeature is returned with the correct number of examples
-    """
-    feature_dir = tmp_path / "zhong-wen-gong-neng"
-    feature_dir.mkdir()
-    feature_file = _write_chinese_feature(feature_dir)
+class TestChineseFeatureFileParsing:
+    """Tests for the Chinese feature file parsing Rule."""
 
-    result = parse_feature(feature_file, folder_name="zhong-wen-gong-neng")
-
-    assert isinstance(result, ParsedFeature)
-    assert len(result.top_level_examples) == 1
-    assert ExampleId("e5f6a7b8") in result.all_example_ids()
+    @pytest.mark.unit
+    def test_multilingual_feature_parsing_55e4d669(self, tmp_path: Path) -> None:
+        """
+        Given: a valid Chinese Gherkin feature file
+        When: parse_feature is called on that file
+        Then: a ParsedFeature is returned with the correct number of examples
+        """
+        feature_dir = tmp_path / "zhong-wen-gong-neng"
+        feature_dir.mkdir()
+        feature_file = _write_chinese_feature(feature_dir)
+        result = parse_feature(feature_file, folder_name="zhong-wen-gong-neng")
+        assert isinstance(result, ParsedFeature)
+        assert len(result.top_level_examples) == 1
+        assert ExampleId("e5f6a7b8") in result.all_example_ids()

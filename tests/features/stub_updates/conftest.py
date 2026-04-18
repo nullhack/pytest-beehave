@@ -1,4 +1,4 @@
-"""Shared fixtures for stub-sync feature tests."""
+"""Shared fixtures for stub-updates feature tests."""
 
 from __future__ import annotations
 
