@@ -3,7 +3,7 @@
 
   <br><br>
 
-  <p><strong>Stop writing test scaffolding by hand. Beehave does it for you — every time you run pytest.</strong></p>
+  <p><strong>Bridge the gap between living docs and runnable tests. Beehave does it — every time you run pytest.</strong></p>
 
   [![Contributors][contributors-shield]][contributors-url]
   [![Forks][forks-shield]][forks-url]
@@ -21,17 +21,19 @@
 
 You write a Gherkin acceptance criterion. Then you write a test stub. Then you rename the feature. Now you have a stale stub, a broken docstring, and an orphaned test — and you only find out three sprints later.
 
+Living documentation is supposed to keep specs and code in sync. In practice, the sync is always manual — and always falls behind.
+
 **Beehave closes that gap.**
 
 It is a pytest plugin that keeps your test suite in perfect sync with your `.feature` files — automatically, every time you invoke `pytest`. No scripts to remember. No CI step to add. No drift.
 
 ---
 
-## What it does
+## Features
 
 | Capability | Detail |
 |---|---|
-| **Auto stub generation** | Sees a new `@id`-tagged `Example:` → writes a typed, skipped test stub before collection runs |
+| **Auto stub generation** | New `@id`-tagged `Example:` → typed, skipped test stub written before collection runs |
 | **Docstring sync** | Steps change in your `.feature`? Docstrings update. Test bodies are never touched. |
 | **Auto ID assignment** | Missing `@id` on an `Example:`? Beehave generates one and writes it back in-place |
 | **CI enforcement** | Read-only filesystem (CI)? Beehave fails loudly and names every untagged Example |
@@ -42,19 +44,19 @@ It is a pytest plugin that keeps your test suite in perfect sync with your `.fea
 
 ---
 
-## Install
+## Installation
 
 ```bash
 pip install pytest-beehave
 ```
 
-That's it. The plugin registers itself via pytest's entry point system — no `conftest.py` changes needed.
+The plugin registers itself via pytest's entry point system — no `conftest.py` changes needed.
 
 ---
 
 ## Quick start
 
-**1. Write a feature file with an acceptance criterion:**
+**1. Write a feature file:**
 
 ```gherkin
 # docs/features/backlog/checkout.feature
@@ -93,9 +95,9 @@ class TestTaxCalculation:
         raise NotImplementedError
 ```
 
-The `@id` is also written back to your `.feature` file automatically.
+The `@id` tag is also written back to your `.feature` file automatically.
 
-**4. Implement and ship.**
+**4. Implement the test body and ship.**
 
 ---
 
@@ -126,11 +128,11 @@ pytest invoked
 features_path = "docs/features"   # default — omit if this is your layout
 ```
 
-If `features_path` is set but the directory does not exist, Beehave fails with a clear error message naming the missing path.
+If `features_path` is set but the directory does not exist, Beehave exits with a clear error message naming the missing path.
 
 ---
 
-## Stub anatomy
+## Test file layout
 
 ```
 tests/
@@ -141,25 +143,27 @@ tests/
       conftest.py               ← autouse fixture from feature-level Background
 ```
 
-Function names encode the acceptance criterion ID:
+Test function names encode the acceptance criterion ID:
 
 ```
 test_<feature_slug>_<8char_hex>
 ```
 
-This makes every test traceable back to its exact `Example:` block — by ID, not by fragile name matching.
+Every test is traceable back to its exact `Example:` block by ID — not by fragile name matching.
 
 ---
 
 ## Marker semantics
 
+Beehave manages four skip-based markers. User-owned markers (`slow`, `unit`, `integration`) are never touched.
+
 | Marker | Set by | Meaning |
 |---|---|---|
-| `skip(reason="not yet implemented")` | Beehave | Stub exists, test not written yet |
+| `skip(reason="not yet implemented")` | Beehave | Stub exists, test body not written yet |
 | `skip(reason="orphan: ...")` | Beehave | `@id` no longer in any `.feature` file |
 | `skip(reason="non-conforming: moved to ...")` | Beehave | `@id` found but test is in the wrong location |
 | `deprecated` | Beehave | Mirrors `@deprecated` Gherkin tag |
-| `slow` | You | Opt-in for Hypothesis / long-running tests — Beehave never touches it |
+| `slow` | You | Opt-in for Hypothesis / long-running tests |
 
 ---
 
@@ -180,6 +184,8 @@ cd pytest-beehave
 uv sync --all-extras
 uv run task test && uv run task lint && uv run task static-check
 ```
+
+Bug reports and pull requests are welcome on [GitHub](https://github.com/nullhack/pytest-beehave/issues).
 
 ---
 
