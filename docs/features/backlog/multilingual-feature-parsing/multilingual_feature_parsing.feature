@@ -21,7 +21,6 @@ Feature: Multilingual feature parsing
   Rules (Business):
   - The `# language: xx` comment is the sole mechanism for non-English parsing; no beehave config needed.
   - Function names and class names are derived from the feature folder name, never from Gherkin keywords.
-  - Docstrings preserve the original keyword exactly as it appears in the .feature file.
   - Each .feature file is parsed independently; mixed-language projects work transparently.
 
   Constraints:
@@ -75,12 +74,6 @@ Feature: Multilingual feature parsing
       When parse_feature is called on that file
       Then a ParsedFeature is returned with the correct number of examples
 
-    @deprecated @id:ee932be9
-    Example: Spanish step keywords are preserved verbatim in the parsed step objects
-      Given a .feature file starting with # language: es with steps using Dado, Cuando, and Entonces
-      When parse_feature is called on that file
-      Then each ParsedStep keyword matches the original Spanish keyword from the file
-
   Rule: Chinese feature file parsing
     As a developer working on a Chinese-language project
     I want a .feature file with # language: zh-CN to be parsed correctly
@@ -91,12 +84,6 @@ Feature: Multilingual feature parsing
       Given a .feature file starting with # language: zh-CN using Chinese Gherkin keywords
       When parse_feature is called on that file
       Then a ParsedFeature is returned with the correct number of examples
-
-    @deprecated @id:23c2b59b
-    Example: Chinese step keywords are preserved verbatim in the parsed step objects
-      Given a .feature file starting with # language: zh-CN with steps using Chinese keywords
-      When parse_feature is called on that file
-      Then each ParsedStep keyword matches the original Chinese keyword from the file
 
   Rule: Mixed-language project compatibility
     As a developer on a project with feature files in multiple languages
