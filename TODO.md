@@ -1,7 +1,7 @@
 # Current Work
 
 Feature: report-steps
-Step: 3 (TDD Loop — complete, ready for Step 4)
+Step: 4 (Verify)
 Source: docs/features/in-progress/report-steps.feature
 
 ## Cycle State
@@ -46,4 +46,4 @@ As a software-engineer I declare:
 - [x] `@id:6c592c81`: HTML column absent when pytest-html not installed
 
 ## Next
-Run @reviewer — verify feature report-steps at Step 4
+Run @reviewer — verify feature report-steps at Step 4 (naming convention fixes applied, all gates pass)
