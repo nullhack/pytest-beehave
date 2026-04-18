@@ -14,14 +14,14 @@ As a software-engineer I declare:
 * YAGNI: no speculative abstractions — AGREE | toggle_deprecated_marker:stub_writer.py:621 is directly called by sync_engine with no unused paths
 * KISS: simplest solution that passes — AGREE | toggle_deprecated_marker reads existing decorators and rewrites them; no AST library needed
 * KISS: no premature optimization — AGREE | no caching or lazy evaluation
-* DRY: no duplication — AGREE | _apply_deprecated_toggle:stub_writer.py:592 used for both add and remove paths
+* DRY: no duplication — AGREE | _apply_deprecated_toggle:stub_writer.py:592 used for both add and remove paths; _sync_top_level_stubs now calls _sync_deprecated_top_level instead of duplicating the loop
 * DRY: no redundant comments — AGREE | only docstrings; no inline comments in deprecation sync functions
 * SOLID-S: one reason to change per class — AGREE | ParsedExample:feature_parser.py:62 changes only if example model changes; toggle_deprecated_marker:stub_writer.py:621 changes only if deprecated marker format changes
 * SOLID-O: open for extension, closed for modification — AGREE | FileSystemProtocol:sync_engine.py:38 allows new filesystem without modifying sync logic
 * SOLID-L: subtypes substitutable — AGREE | _RealFileSystem satisfies FileSystemProtocol fully
 * SOLID-I: no forced unused deps — AGREE | FileSystemProtocol has 2 methods, both used
 * SOLID-D: depend on abstractions, not concretions — AGREE | sync_engine depends on FileSystemProtocol; no concrete I/O in domain
-* OC-1: one level of indentation per method — AGREE | _sync_deprecated_in_rule:sync_engine.py:409 uses early return; _apply_deprecated_toggle:stub_writer.py:592 uses guard clauses
+* OC-1: one level of indentation per method — AGREE | _sync_deprecated_in_rule:sync_engine.py:409 uses list comprehension (no nested for/if); _apply_deprecated_toggle:stub_writer.py:592 uses guard clauses; _sync_deprecated_rules:sync_engine.py added to avoid if+for nesting in _sync_completed_feature
 * OC-2: no else after return — AGREE | toggle_deprecated_marker:stub_writer.py:621 uses early return, no else
 * OC-3: primitive types wrapped — AGREE | ExampleId, FeatureSlug, RuleSlug wrap str primitives
 * OC-4: first-class collections — AGREE | tuple[ParsedExample, ...] used as domain value

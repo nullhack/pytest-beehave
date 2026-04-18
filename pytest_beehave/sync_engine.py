@@ -421,15 +421,18 @@ def _sync_deprecated_in_rule(
     Returns:
         List of SyncAction objects.
     """
-    actions: list[SyncAction] = []
-    for example in rule.examples:
-        func_name = build_function_name(feature.feature_slug, example.example_id)
-        action = toggle_deprecated_marker(
-            test_file, func_name, should_be_deprecated=example.is_deprecated
-        )
-        if action is not None:
-            actions.append(action)
-    return actions
+    return [
+        action
+        for example in rule.examples
+        for action in [
+            toggle_deprecated_marker(
+                test_file,
+                build_function_name(feature.feature_slug, example.example_id),
+                should_be_deprecated=example.is_deprecated,
+            )
+        ]
+        if action is not None
+    ]
 
 
 def _sync_top_level_stubs(
@@ -452,13 +455,7 @@ def _sync_top_level_stubs(
         action = _sync_one_example(feature, None, example, test_file, existing)
         if action is not None:
             actions.append(action)
-    for example in feature.top_level_examples:
-        func_name = build_function_name(feature.feature_slug, example.example_id)
-        action = toggle_deprecated_marker(
-            test_file, func_name, should_be_deprecated=example.is_deprecated
-        )
-        if action is not None:
-            actions.append(action)
+    actions.extend(_sync_deprecated_top_level(feature, test_file))
     return actions
 
 
@@ -475,14 +472,37 @@ def _sync_deprecated_top_level(
     Returns:
         List of SyncAction objects.
     """
+    return [
+        action
+        for example in feature.top_level_examples
+        for action in [
+            toggle_deprecated_marker(
+                test_file,
+                build_function_name(feature.feature_slug, example.example_id),
+                should_be_deprecated=example.is_deprecated,
+            )
+        ]
+        if action is not None
+    ]
+
+
+def _sync_deprecated_rules(
+    feature: ParsedFeature,
+    feature_test_dir: Path,
+) -> list[SyncAction]:
+    """Sync deprecated markers for all rules in a feature.
+
+    Args:
+        feature: The parsed feature.
+        feature_test_dir: Directory for this feature's tests.
+
+    Returns:
+        List of SyncAction objects.
+    """
     actions: list[SyncAction] = []
-    for example in feature.top_level_examples:
-        func_name = build_function_name(feature.feature_slug, example.example_id)
-        action = toggle_deprecated_marker(
-            test_file, func_name, should_be_deprecated=example.is_deprecated
-        )
-        if action is not None:
-            actions.append(action)
+    for rule in feature.rules:
+        test_file = feature_test_dir / f"{rule.rule_slug}_test.py"
+        actions.extend(_sync_deprecated_in_rule(feature, rule, test_file))
     return actions
 
 
@@ -501,11 +521,7 @@ def _sync_completed_feature(
     """
     feature_test_dir = tests_dir / str(feature.feature_slug)
     if feature.rules:
-        actions: list[SyncAction] = []
-        for rule in feature.rules:
-            test_file = feature_test_dir / f"{rule.rule_slug}_test.py"
-            actions.extend(_sync_deprecated_in_rule(feature, rule, test_file))
-        return actions
+        return _sync_deprecated_rules(feature, feature_test_dir)
     return _sync_deprecated_top_level(feature, feature_test_dir / "examples_test.py")
 
 
