@@ -144,6 +144,36 @@ def test_done_feature_aabbccdd() -> None:
     assert deprecated_idx < def_idx
 
 
+@pytest.mark.skip(reason="not yet implemented")
+def test_deprecation_sync_b3d7f942(tmp_path: Path) -> None:
+    """
+    Given: a backlog feature with a Rule tagged @deprecated containing multiple Examples
+    When: pytest is invoked
+    Then: all test stubs for Examples in that Rule have @pytest.mark.deprecated applied
+    """
+    raise NotImplementedError
+
+
+@pytest.mark.skip(reason="not yet implemented")
+def test_deprecation_sync_a9e1c504(tmp_path: Path) -> None:
+    """
+    Given: a backlog feature tagged @deprecated at the Feature level containing multiple Rules and Examples
+    When: pytest is invoked
+    Then: all test stubs for all Examples in that feature have @pytest.mark.deprecated applied
+    """
+    raise NotImplementedError
+
+
+@pytest.mark.skip(reason="not yet implemented")
+def test_deprecation_sync_d6f8b231(tmp_path: Path) -> None:
+    """
+    Given: a Rule whose @deprecated tag has been removed but whose child test stubs all have @pytest.mark.deprecated
+    When: pytest is invoked
+    Then: @pytest.mark.deprecated is removed from all child test stubs of that Rule
+    """
+    raise NotImplementedError
+
+
 @pytest.mark.unit
 def test_deprecation_sync_7fcee92a(tmp_path: Path) -> None:
     """

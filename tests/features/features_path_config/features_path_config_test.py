@@ -8,7 +8,7 @@ from pytest_beehave.config import resolve_features_path
 
 
 @pytest.mark.unit
-def test_plugin_configuration_acf12157(tmp_path: Path) -> None:
+def test_features_path_config_acf12157(tmp_path: Path) -> None:
     """
     Given: pyproject.toml contains [tool.beehave] with features_path set to a custom directory
     When: pytest is invoked
@@ -24,7 +24,7 @@ def test_plugin_configuration_acf12157(tmp_path: Path) -> None:
 
 
 @pytest.mark.unit
-def test_plugin_configuration_ce8a95e7(tmp_path: Path) -> None:
+def test_features_path_config_ce8a95e7(tmp_path: Path) -> None:
     """
     Given: pyproject.toml contains no [tool.beehave] section
     When: pytest is invoked
@@ -41,7 +41,7 @@ def test_plugin_configuration_ce8a95e7(tmp_path: Path) -> None:
 
 @pytest.mark.integration
 @pytest.mark.slow
-def test_plugin_configuration_124f65e7(pytester: pytest.Pytester) -> None:
+def test_features_path_config_124f65e7(pytester: pytest.Pytester) -> None:
     """
     Given: pyproject.toml contains [tool.beehave] with features_path pointing to a non-existent directory
     When: pytest is invoked
@@ -58,7 +58,7 @@ def test_plugin_configuration_124f65e7(pytester: pytest.Pytester) -> None:
 
 
 @pytest.mark.unit
-def test_plugin_configuration_aaeda817(tmp_path: Path) -> None:
+def test_features_path_config_aaeda817(tmp_path: Path) -> None:
     """
     Given: no pyproject.toml exists in the project root
     When: pytest is invoked

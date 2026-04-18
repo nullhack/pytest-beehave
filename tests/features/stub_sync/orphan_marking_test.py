@@ -10,6 +10,46 @@ import pytest
 from pytest_beehave.sync_engine import run_sync as sync_stubs
 
 
+@pytest.mark.skip(reason="not yet implemented")
+def test_stub_sync_4a7c2e81(tmp_path: Path) -> None:
+    """
+    Given: a test function whose @id matches a current Example but is in the wrong file or class
+    When: pytest is invoked
+    Then: stub-sync creates a conforming stub in the correct location and marks the original with @pytest.mark.skip(reason="non-conforming: moved to <file>::<Class>")
+    """
+    raise NotImplementedError
+
+
+@pytest.mark.skip(reason="not yet implemented")
+def test_stub_sync_3f9d1b56(tmp_path: Path) -> None:
+    """
+    Given: a non-conforming test already marked and a conforming stub already present in the correct location
+    When: pytest is invoked
+    Then: the non-conforming marker remains on the original test and the conforming stub is unchanged
+    """
+    raise NotImplementedError
+
+
+@pytest.mark.skip(reason="not yet implemented")
+def test_stub_sync_8b2e4f17(tmp_path: Path) -> None:
+    """
+    Given: a completed feature test file containing a test function whose @id no longer exists in the feature file
+    When: pytest is invoked
+    Then: that test function receives @pytest.mark.skip(reason="orphan: no matching @id in .feature files")
+    """
+    raise NotImplementedError
+
+
+@pytest.mark.skip(reason="not yet implemented")
+def test_stub_sync_c9a30d52(tmp_path: Path) -> None:
+    """
+    Given: a test function with @pytest.mark.slow already applied by the software-engineer
+    When: pytest is invoked and stub-sync processes the feature
+    Then: @pytest.mark.slow is unchanged and no other software-engineer marker is added or removed
+    """
+    raise NotImplementedError
+
+
 @pytest.mark.unit
 def test_stub_sync_9d7a0b34(
     tmp_path: Path,

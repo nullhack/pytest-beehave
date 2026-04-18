@@ -40,7 +40,6 @@ def test_plugin_hook_bde8de30(pytester: pytest.Pytester) -> None:
     assert result.ret == 0
 
 
-@pytest.mark.deprecated
 @pytest.mark.integration
 @pytest.mark.slow
 @pytest.mark.skip(reason="orphan: no matching @id in .feature files")

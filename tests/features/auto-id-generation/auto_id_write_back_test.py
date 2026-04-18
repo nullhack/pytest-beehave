@@ -36,7 +36,6 @@ def test_auto_id_generation_cd98877d(tmp_path: Path) -> None:
 
 
 @pytest.mark.unit
-@pytest.mark.deprecated
 @pytest.mark.skip(reason="orphan: no matching @id in .feature files")
 def test_auto_id_generation_09a986e7(tmp_path: Path) -> None:
     """
