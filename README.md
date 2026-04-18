@@ -3,7 +3,7 @@
 
   <br><br>
 
-  <p><strong>Bridge the gap between living docs and runnable tests. Beehave does it — every time you run pytest.</strong></p>
+  <p><strong>Your acceptance criteria and your test stubs — always in sync. Every time you run pytest.</strong></p>
 
   [![Contributors][contributors-shield]][contributors-url]
   [![Forks][forks-shield]][forks-url]
@@ -17,29 +17,30 @@
 
 ---
 
-## The problem
+## The drift problem
 
-You write a Gherkin acceptance criterion. Then you write a test stub. Then you rename the feature. Now you have a stale stub, a broken docstring, and an orphaned test — and you only find out three sprints later.
+A healthy hive is one where every bee knows its role. A healthy codebase is one where every test knows its criterion.
 
-Living documentation is supposed to keep specs and code in sync. In practice, the sync is always manual — and always falls behind.
+In practice: you write a Gherkin `Example:`. You write a test stub. Three weeks later you rename the feature. The stub is stale. The docstring is wrong. The `@id` is missing from CI. And you find out at the worst possible moment.
 
-**Beehave closes that gap.**
+Living documentation is supposed to keep specs and code in sync. In practice, that sync is always manual — and always falls behind.
 
-It is a pytest plugin that keeps your test suite in perfect sync with your `.feature` files — automatically, every time you invoke `pytest`. No scripts to remember. No CI step to add. No drift.
+**Beehave is the colony's memory.** A pytest plugin that tends your test stubs the way a hive tends its cells: precisely, automatically, and before any other work begins. Every time you invoke `pytest`, the colony is in order.
 
 ---
 
-## Features
+## What the colony does
 
-| Capability | Detail |
+| Capability | How Beehave tends the hive |
 |---|---|
-| **Auto stub generation** | New `@id`-tagged `Example:` → typed, skipped test stub written before collection runs |
-| **Docstring sync** | Steps change in your `.feature`? Docstrings update. Test bodies are never touched. |
-| **Auto ID assignment** | Missing `@id` on an `Example:`? Beehave generates one and writes it back in-place |
-| **CI enforcement** | Read-only filesystem (CI)? Beehave fails loudly and names every untagged Example |
-| **Orphan detection** | `@id` disappears from the feature file? The test is marked `skip(reason="orphan")` — not deleted, not silently run |
-| **Non-conforming redirect** | Test in the wrong file or class? Beehave creates the canonical stub and marks the original as moved |
-| **Deprecation sync** | `@deprecated` tag on an `Example:`, `Rule:`, or `Feature:`? The pytest marker propagates automatically |
+| **Stub generation** | New `@id`-tagged `Example:` → a typed, skipped test stub is built before collection runs |
+| **Docstring sync** | Steps change in your `.feature`? Docstrings are resealed to match. Test bodies are never touched. |
+| **Auto ID assignment** | Missing `@id` on an `Example:`? Beehave generates one and writes it back in-place — like a worker bee capping an open cell |
+| **CI enforcement** | Read-only filesystem (CI)? Beehave fails loudly and names every untagged Example — no silent drift escapes the hive |
+| **Orphan detection** | `@id` disappears from the feature file? The test is marked `skip(reason="orphan")` — preserved, not deleted, not silently executed |
+| **Non-conforming redirect** | Test in the wrong file or class? Beehave builds the canonical stub in the correct cell and marks the original as relocated |
+| **Deprecation sync** | `@deprecated` tag on an `Example:`, `Rule:`, or `Feature:`? The pytest marker propagates — inheritance flows down the comb |
+| **Bootstrap** | No `docs/features/` yet? Beehave creates the canonical subfolder structure and migrates any loose `.feature` files into the right cells |
 | **Zero config** | Works out of the box. Optionally configure `features_path` in `pyproject.toml` |
 
 ---
@@ -50,7 +51,7 @@ It is a pytest plugin that keeps your test suite in perfect sync with your `.fea
 pip install pytest-beehave
 ```
 
-The plugin registers itself via pytest's entry point system — no `conftest.py` changes needed.
+The plugin registers itself via pytest's entry-point system — no `conftest.py` changes needed. The hive is self-organizing.
 
 ---
 
@@ -59,7 +60,7 @@ The plugin registers itself via pytest's entry point system — no `conftest.py`
 **1. Write a feature file:**
 
 ```gherkin
-# docs/features/backlog/checkout.feature
+# docs/features/in-progress/checkout.feature
 Feature: Checkout
 
   Rule: Tax calculation
@@ -79,10 +80,10 @@ Feature: Checkout
 pytest
 ```
 
-**3. Beehave generates this before any test is collected:**
+**3. Beehave has already built the cell:**
 
 ```python
-# tests/features/checkout/tax-calculation_test.py
+# tests/features/checkout/tax_calculation_test.py
 
 class TestTaxCalculation:
     @pytest.mark.skip(reason="not yet implemented")
@@ -95,28 +96,34 @@ class TestTaxCalculation:
         raise NotImplementedError
 ```
 
-The `@id` tag is also written back to your `.feature` file automatically.
+The `@id` tag was also written back into your `.feature` file automatically — the cell is capped.
 
-**4. Implement the test body and ship.**
+**4. Fill the cell with real implementation and ship.**
 
 ---
 
-## How it works
+## The waggle dance — how it works
 
-Beehave hooks into `pytest_configure` — the earliest possible hook — so stubs exist before collection begins. The same `pytest` invocation that generates a stub also discovers and runs it.
+Beehave hooks into `pytest_configure`, the earliest possible hook. By the time pytest begins collecting tests, every stub already exists on disk. The same `pytest` invocation that encounters a new criterion also generates its stub.
 
 ```
 pytest invoked
-    └─ pytest_configure fires
-         └─ Beehave reads docs/features/backlog/ + in-progress/
-              ├─ assigns missing @id tags (or fails in CI)
-              ├─ creates missing test stubs
-              ├─ updates outdated docstrings
-              ├─ marks orphans and non-conforming stubs
-              └─ syncs @deprecated markers across all stages
-    └─ Collection begins (stubs are already on disk)
-    └─ Tests run
+  └─ pytest_configure fires  ← Beehave enters here, before any test is seen
+       ├─ Bootstrap: ensure docs/features/{backlog,in-progress,completed}/ exist
+       ├─ Assign IDs: write @id tags to untagged Examples (or fail loudly in CI)
+       ├─ Sync stubs:
+       │    ├─ Create missing stubs for new Examples
+       │    ├─ Update outdated docstrings to match current steps
+       │    ├─ Rename functions whose feature slug changed
+       │    ├─ Mark orphaned tests (no matching @id anywhere)
+       │    ├─ Redirect non-conforming tests to canonical locations
+       │    └─ Propagate @deprecated markers from Feature/Rule/Example
+       └─ Hands control back to pytest
+  └─ Collection begins — every stub is already present
+  └─ Tests run
 ```
+
+The colony always knows where to find the honey.
 
 ---
 
@@ -128,42 +135,52 @@ pytest invoked
 features_path = "docs/features"   # default — omit if this is your layout
 ```
 
-If `features_path` is set but the directory does not exist, Beehave exits with a clear error message naming the missing path.
+If `features_path` is set but the directory does not exist, Beehave exits immediately with a clear error naming the missing path. A hive without a location is not a hive.
 
 ---
 
-## Test file layout
+## The comb structure
+
+Beehave expects (and will create) this feature directory layout:
+
+```
+docs/features/
+  backlog/        ← criteria waiting to be built
+  in-progress/    ← criteria actively being implemented
+  completed/      ← shipped criteria (orphan detection only; no stub updates)
+```
+
+Test files follow the hexagonal grid — uniform, predictable, traceable:
 
 ```
 tests/
   features/
     <feature-name>/
-      <rule-slug>_test.py       ← one file per Rule: block
-      examples_test.py          ← when the feature has no Rule: blocks
-      conftest.py               ← autouse fixture from feature-level Background
+      <rule-slug>_test.py     ← one file per Rule: block
+      examples_test.py        ← when the feature has no Rule: blocks
 ```
 
-Test function names encode the acceptance criterion ID:
+Every test function name encodes its criterion:
 
 ```
 test_<feature_slug>_<8char_hex>
 ```
 
-Every test is traceable back to its exact `Example:` block by ID — not by fragile name matching.
+No fragile name matching. No guessing. Every stub traces back to its exact `Example:` by ID — like a cell number in the comb.
 
 ---
 
 ## Marker semantics
 
-Beehave manages four skip-based markers. User-owned markers (`slow`, `unit`, `integration`) are never touched.
+Beehave tends four markers. Your markers — `slow`, `unit`, `integration` — are never touched.
 
-| Marker | Set by | Meaning |
+| Marker | Applied by | Meaning |
 |---|---|---|
-| `skip(reason="not yet implemented")` | Beehave | Stub exists, test body not written yet |
-| `skip(reason="orphan: ...")` | Beehave | `@id` no longer in any `.feature` file |
-| `skip(reason="non-conforming: moved to ...")` | Beehave | `@id` found but test is in the wrong location |
-| `deprecated` | Beehave | Mirrors `@deprecated` Gherkin tag |
-| `slow` | You | Opt-in for Hypothesis / long-running tests |
+| `skip(reason="not yet implemented")` | Beehave | Cell built, not yet filled |
+| `skip(reason="orphan: ...")` | Beehave | Cell's criterion no longer exists |
+| `skip(reason="non-conforming: moved to ...")` | Beehave | Cell is in the wrong part of the comb |
+| `deprecated` | Beehave | Criterion retired — marker inherited from `@deprecated` Gherkin tag |
+| `slow` | You | Opt-in for Hypothesis and long-running tests |
 
 ---
 
