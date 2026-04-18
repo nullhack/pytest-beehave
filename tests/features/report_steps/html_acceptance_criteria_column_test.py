@@ -3,9 +3,7 @@
 import pytest
 
 
-def test_report_steps_88d58f5c(
-    pytester: pytest.Pytester,
-) -> None:
+def test_report_steps_88d58f5c(pytester: pytest.Pytester) -> None:
     """
     Given: pytest-html is installed and show_steps_in_html = true
     And: a test in tests/features/ with a docstring
@@ -40,9 +38,7 @@ def test_report_steps_88d58f5c(
     assert "Given: a condition" in html_content
 
 
-def test_report_steps_73c4a71a(
-    pytester: pytest.Pytester,
-) -> None:
+def test_report_steps_73c4a71a(pytester: pytest.Pytester) -> None:
     """
     Given: pytest-html is installed and show_steps_in_html = true
     And: a test outside tests/features/
@@ -75,9 +71,7 @@ def test_report_steps_73c4a71a(
     assert "Given: a unit condition" not in html_content
 
 
-def test_report_steps_6c592c81(
-    pytester: pytest.Pytester,
-) -> None:
+def test_report_steps_6c592c81(pytester: pytest.Pytester) -> None:
     """
     Given: pytest-html is not installed
     When: pytest runs and generates output

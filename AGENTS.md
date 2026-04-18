@@ -108,24 +108,30 @@ Tests in `tests/unit/` are software-engineer-authored extras not covered by any 
 ## Test File Layout
 
 ```
-tests/features/<feature-name>/<rule_slug>_test.py
+tests/features/<feature-name>/<rule_slug>_test.py   ← one per Rule: block
+tests/features/<feature-name>/examples_test.py      ← when no Rule: blocks
 ```
 
 ### Function Naming
 
-```python
-# When the test is inside a Rule: block (most common):
-def test_<feature_slug>_<rule_slug>_<8char_hex>() -> None:
+All tests are top-level functions — no classes, no `self`.
 
-# When there is no Rule: block (flat feature, Examples directly under Feature:):
-def test_<feature_slug>_<8char_hex>() -> None:
+```python
+# Rule block → top-level functions in <rule_slug>_test.py
+def test_ball_game_a3f2b1c4() -> None: ...
+def test_ball_game_c4d5e6f7() -> None: ...
+
+# No Rule block → top-level functions in examples_test.py
+def test_ball_game_a3f2b1c4() -> None: ...
 ```
+
+Function naming in all cases: `test_<feature_slug>_<8char_hex>`
 
 ### Docstring Format (mandatory)
 
 ```python
 @pytest.mark.skip(reason="not yet implemented")
-def test_ball_game_wall_bounce_a3f2b1c4() -> None:
+def test_ball_game_a3f2b1c4() -> None:
     """
     Given: A ball moving upward reaches y=0
     When: The physics engine processes the next frame
