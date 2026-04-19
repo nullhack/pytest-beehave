@@ -1,8 +1,8 @@
 # Current Work
 
 Feature: stub-format-config
-Step: 1 (SCOPE) — COMPLETE
-Source: docs/features/backlog/stub-format-config.feature
+Step: 2 (Architecture)
+Source: docs/features/in-progress/stub-format-config.feature
 
 ## Progress
 - [x] Stage 1 Discovery: stub-format-config scoped and baselined
