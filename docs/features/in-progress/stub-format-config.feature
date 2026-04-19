@@ -42,7 +42,7 @@ Feature: Stub format configuration
     I want to explicitly set stub_format = "functions" in pyproject.toml
     So that I can document my format choice and ensure top-level function stubs are generated
 
-    @id:c3d4e5f6
+    @id:f1e2d3c4
     Example: Stub is a top-level function when stub_format = "functions"
       Given a pyproject.toml with stub_format = "functions" under [tool.beehave]
       When pytest generates a stub for a Rule-block Example
@@ -53,13 +53,13 @@ Feature: Stub format configuration
     I want to set stub_format = "classes" in pyproject.toml
     So that I can restore the class-wrapped stub output for projects that prefer that style
 
-    @id:d4e5f6a7
+    @id:a2b3c4d5
     Example: Stub is a class method when stub_format = "classes"
       Given a pyproject.toml with stub_format = "classes" under [tool.beehave]
       When pytest generates a stub for a Rule-block Example
       Then the stub is a method inside class Test<RuleSlug> in <rule_slug>_test.py
 
-    @id:e5f6a7b8
+    @id:b3c4d5e6
     Example: Class name is derived from the Rule title slug
       Given a pyproject.toml with stub_format = "classes" and a Rule titled "Wall bounce"
       When pytest generates a stub for an Example under that Rule

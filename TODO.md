@@ -10,15 +10,12 @@ Source: docs/features/in-progress/stub-format-config.feature
 - [x] Stage 2B Criteria: 7 Examples written with @id tags
 - [x] `@id:a1b2c3d4`: Stub is a top-level function when stub_format is absent
 - [x] `@id:b2c3d4e5`: Absent stub_format does not raise an error
-- [x] `@id:c3d4e5f6`: Stub is a top-level function when stub_format = "functions"
-- [x] `@id:d4e5f6a7`: Stub is a class method when stub_format = "classes"
-- [x] `@id:e5f6a7b8`: Class name is derived from the Rule title slug
+- [x] `@id:f1e2d3c4`: Stub is a top-level function when stub_format = "functions"
+- [x] `@id:a2b3c4d5`: Stub is a class method when stub_format = "classes"
+- [x] `@id:b3c4d5e6`: Class name is derived from the Rule title slug
 - [x] `@id:f6a7b8c9`: Pytest fails at startup when stub_format has an unrecognised value
 - [x] `@id:a7b8c9d0`: No-Rule feature produces module-level functions regardless of stub_format = "classes"
 - [x] Step 4 Verify: APPROVED (reviewer)
 
-## Spec Gap (flagged for PO)
-IDs `c3d4e5f6`, `d4e5f6a7`, and `e5f6a7b8` in `stub-format-config.feature` collide with IDs in the completed `example-hatch.feature`. The beehave plugin marks the corresponding tests as non-conforming (skipped). Tests are correctly implemented but skipped at runtime. PO must assign unique IDs to resolve.
-
 ## Next
-Run @product-owner — accept feature stub-format-config at Step 5, then assign unique @id values to c3d4e5f6, d4e5f6a7, and e5f6a7b8 in stub-format-config.feature to unblock the 3 skipped tests
+Run @software-engineer — rename test functions in tests/features/stub_format_config/explicit_functions_format_test.py (c3d4e5f6 → f1e2d3c4) and tests/features/stub_format_config/classes_format_selection_test.py (d4e5f6a7 → a2b3c4d5, e5f6a7b8 → b3c4d5e6), remove the non-conforming skip reasons, then re-run the quality gate (uv run task test) before handing back to @product-owner for Step 5 acceptance
