@@ -31,6 +31,14 @@ All of this happens in `pytest_configure` — before pytest collects a single te
 
 ---
 
+## Why pytest-beehave?
+
+BDD frameworks sold a compelling promise: human-readable specifications that live alongside your tests, kept honest by the test suite itself. The promise is real. The implementation is the problem. Every scenario explodes into a constellation of `@given`, `@when`, and `@then` step functions scattered across multiple files, wired together by fragile string matching. Refactor one step and you're hunting across the codebase. Add a new scenario and you're registering glue code. The ceremony grows with every feature, and the spec drifts from reality anyway — silently in unused step definitions, loudly in broken ones, always painfully. Plain pytest, on the other hand, is refreshingly direct. But there's no business-readable layer: acceptance criteria live in tickets or comments, never in code, and nothing machine-enforces that what the stakeholder approved is what the test exercises.
+
+pytest-beehave is the middle ground. Write your acceptance criteria in plain Gherkin — business-readable, version-controlled, owned by the team. The plugin does the worker-bee work: generating test stubs, keeping docstrings in sync with your steps, assigning stable IDs, and flagging drift before it silently rots. You implement the test body however you like, in plain pytest, with no step files and no glue. The hive stays in order automatically — that tedious, thankless, essential synchronisation work is handled so you never have to think about it again.
+
+---
+
 ## Installation
 
 ```bash
@@ -89,6 +97,117 @@ def test_checkout_a3f2b1c4() -> None:
 **4. Implement the test and ship.**
 
 The stub is already in the right place with the right name. Fill in the body and remove the `skip`.
+
+---
+
+## See it in 2 minutes
+
+No feature files yet? Generate a working example project in one command:
+
+```
+$ pytest --beehave-hatch
+
+[beehave] HATCH backlog/forager-journey.feature
+[beehave] HATCH in-progress/waggle-dance.feature
+[beehave] HATCH completed/winter-preparation.feature
+[beehave] hatch complete
+```
+
+Three bee-themed `.feature` files land under `docs/features/`, covering every Gherkin construct the plugin supports: `Background`, `Rule`, `Example`, `Scenario Outline` with an `Examples` table, data tables, untagged scenarios (to trigger auto-ID), and `@deprecated`.
+
+The `in-progress/waggle-dance.feature` file looks like this:
+
+```gherkin
+# language: en
+Feature: Waggle Dance Communication
+
+  Background:
+    Given the hive is in active foraging mode
+    And the dance floor is clear of obstacles
+
+  Rule: Direction encoding
+
+    @id:hatch003
+    Example: Scout encodes flower direction in waggle run angle
+      Given a scout has located flowers 200 metres to the north-east
+      When the scout performs the waggle dance
+      Then the waggle run angle matches the sun-relative bearing to the flowers
+
+  Rule: Distance encoding
+
+    @id:hatch004
+    Scenario Outline: Scout encodes distance via waggle run duration
+      Given a scout has located flowers at <distance> metres
+      When the scout performs the waggle dance
+      Then the waggle run lasts approximately <duration> milliseconds
+
+      Examples:
+        | distance | duration |
+        | 100      | 250      |
+        | 500      | 875      |
+        | 1000     | 1500     |
+
+    @id:hatch005
+    Example: Scout provides a data table of visited flower patches
+      Given the scout returns from a multi-patch forage
+      When the scout performs the waggle dance
+      Then the flower patch register contains the following entries:
+        | patch_id | species       | quality |
+        | P-001    | Lavender      | 0.92    |
+        | P-002    | Clover        | 0.85    |
+        | P-003    | Sunflower     | 0.78    |
+```
+
+Now run pytest:
+
+```
+$ pytest
+
+[beehave] CREATE tests/features/forager_journey/forager_readiness_test.py
+[beehave] CREATE tests/features/forager_journey/nectar_quality_control_test.py
+[beehave] CREATE tests/features/waggle_dance/direction_encoding_test.py
+[beehave] CREATE tests/features/waggle_dance/distance_encoding_test.py
+```
+
+The untagged `Example:` in `forager-journey.feature` got an `@id` written back in-place. Every stub is already in the right file with the right name:
+
+```python
+# tests/features/waggle_dance/distance_encoding_test.py
+
+import pytest
+
+
+class TestDistanceEncoding:
+    @pytest.mark.skip(reason="not yet implemented")
+    def test_waggle_dance_hatch004() -> None:
+        """
+        Background:
+        Given: the hive is in active foraging mode
+        And: the dance floor is clear of obstacles
+        Given: a scout has located flowers at <distance> metres
+        When: the scout performs the waggle dance
+        Then: the waggle run lasts approximately <duration> milliseconds
+        """
+        raise NotImplementedError
+
+    @pytest.mark.skip(reason="not yet implemented")
+    def test_waggle_dance_hatch005() -> None:
+        """
+        Background:
+        Given: the hive is in active foraging mode
+        And: the dance floor is clear of obstacles
+        Given: the scout returns from a multi-patch forage
+        When: the scout performs the waggle dance
+        Then: the flower patch register contains the following entries:
+          | patch_id | species   | quality |
+          | P-001    | Lavender  | 0.92    |
+          | P-002    | Clover    | 0.85    |
+          | P-003    | Sunflower | 0.78    |
+        """
+        raise NotImplementedError
+```
+
+Remove the `skip`, implement the test body, run `pytest` again. The hive stays in sync from here on automatically.
 
 ---
 
