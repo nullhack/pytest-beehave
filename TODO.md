@@ -1,7 +1,7 @@
 # Current Work
 
 Feature: stub-format-config
-Step: 4 (Verify)
+Step: 5 (Accept)
 Source: docs/features/in-progress/stub-format-config.feature
 
 ## Progress
@@ -15,9 +15,10 @@ Source: docs/features/in-progress/stub-format-config.feature
 - [x] `@id:e5f6a7b8`: Class name is derived from the Rule title slug
 - [x] `@id:f6a7b8c9`: Pytest fails at startup when stub_format has an unrecognised value
 - [x] `@id:a7b8c9d0`: No-Rule feature produces module-level functions regardless of stub_format = "classes"
+- [x] Step 4 Verify: APPROVED (reviewer)
 
 ## Spec Gap (flagged for PO)
 IDs `c3d4e5f6`, `d4e5f6a7`, and `e5f6a7b8` in `stub-format-config.feature` collide with IDs in the completed `example-hatch.feature`. The beehave plugin marks the corresponding tests as non-conforming (skipped). Tests are correctly implemented but skipped at runtime. PO must assign unique IDs to resolve.
 
 ## Next
-Run @reviewer — verify feature stub-format-config at Step 4
+Run @product-owner — accept feature stub-format-config at Step 5, then assign unique @id values to c3d4e5f6, d4e5f6a7, and e5f6a7b8 in stub-format-config.feature to unblock the 3 skipped tests
