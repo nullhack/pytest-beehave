@@ -1,7 +1,7 @@
 # Current Work
 
 Feature: stub-format-config
-Step: 4 (Verify)
+Step: 5 (Accept)
 Source: docs/features/in-progress/stub-format-config.feature
 
 ## Progress
@@ -15,7 +15,7 @@ Source: docs/features/in-progress/stub-format-config.feature
 - [x] `@id:b3c4d5e6`: Class name is derived from the Rule title slug
 - [x] `@id:f6a7b8c9`: Pytest fails at startup when stub_format has an unrecognised value
 - [x] `@id:a7b8c9d0`: No-Rule feature produces module-level functions regardless of stub_format = "classes"
-- [x] Step 4 Verify: re-verification required (SE fixed self param + renamed tests)
+- [x] Step 4 Verify: APPROVED — all 7 @id tests pass, 100% coverage, 0 lint/type errors
 
 ## Next
-Run @reviewer — verify feature stub-format-config at Step 4
+Run @product-owner — accept feature stub-format-config at Step 5
