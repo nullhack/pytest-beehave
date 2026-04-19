@@ -115,6 +115,7 @@ Feature: My feature
         def_idx = content.index("def test_my_feature_aabbccdd")
         assert skip_idx < def_idx
 
+    @pytest.mark.deprecated
     def test_stub_creation_e2b093d1(
         self,
         tmp_path: Path,

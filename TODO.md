@@ -25,7 +25,7 @@ As a software-engineer I declare:
 * OC-2: no else after return — AGREE | steps_reporter.py uses early returns
 * OC-3: primitive types wrapped — DISAGREE | nodeid is a raw str; wrapping would be over-engineering for a single string check (YAGNI wins)
 * OC-4: first-class collections — AGREE | no bare list/dict passed around
-* OC-5: one dot per line — AGREE | steps_reporter.py:29-30: option = self._config.option; verbose = option.verbose (two-step extraction)
+* OC-5: one dot per line — AGREE | plugin.py:120 pm = config.pluginmanager then pm.register(...); steps_reporter.py:48 config = self._config then config.get_terminal_writer()
 * OC-6: no abbreviations — AGREE | all names are full words
 * OC-7: ≤20 lines per function, ≤50 per class — AGREE | longest function: StepsReporter.pytest_runtest_logreport at 19 lines (steps_reporter.py:21-39); longest class: StepsReporter at 47 lines
 * OC-8: ≤2 instance variables per class — AGREE | StepsReporter: 1 (_config); HtmlStepsPlugin: 0 (no instance variables after removing _tests_root)
@@ -46,4 +46,4 @@ As a software-engineer I declare:
 - [x] `@id:6c592c81`: HTML column absent when pytest-html not installed
 
 ## Next
-Run @software-engineer — fix OC-5 violations in plugin.py and steps_reporter.py for report-steps, then re-run Step 4
+Run @reviewer — verify feature report-steps at Step 4

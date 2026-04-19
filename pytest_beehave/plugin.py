@@ -116,10 +116,11 @@ def _register_output_plugins(config: pytest.Config, rootdir: Path) -> None:
         config: The pytest Config object.
         rootdir: Project root directory.
     """
+    pm = config.pluginmanager
     if show_steps_in_terminal(rootdir):
-        config.pluginmanager.register(StepsReporter(config), "beehave-steps-reporter")
+        pm.register(StepsReporter(config), "beehave-steps-reporter")
     if show_steps_in_html(rootdir) and _html_available():
-        config.pluginmanager.register(HtmlStepsPlugin(), "beehave-html-steps")
+        pm.register(HtmlStepsPlugin(), "beehave-html-steps")
 
 
 def pytest_configure(config: pytest.Config) -> None:

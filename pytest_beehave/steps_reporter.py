@@ -45,7 +45,8 @@ class StepsReporter:
             steps: The stripped docstring content to write.
         """
         try:
-            writer = self._config.get_terminal_writer()
+            config = self._config
+            writer = config.get_terminal_writer()
             writer.write("\n" + steps + "\n")
         except (AssertionError, AttributeError):
             sys.stdout.write("\n" + steps + "\n")
