@@ -106,13 +106,13 @@ Feature: Example hatch generation
       When pytest is invoked with --beehave-hatch
       Then at least one generated .feature file contains a Scenario Outline with an Examples: table
 
-    @id:2f3a4b5c
+    @id:a1f2e3d4
     Example: Generated content includes a step with an attached data table
       Given no features directory exists at the configured path
       When pytest is invoked with --beehave-hatch
       Then at least one generated .feature file contains a step followed by a data table
 
-    @id:3a4b5c6d
+    @id:b2e3d4c5
     Example: Generated content includes a feature placed in the completed subfolder
       Given no features directory exists at the configured path
       When pytest is invoked with --beehave-hatch
@@ -123,7 +123,7 @@ Feature: Example hatch generation
     I want the hatch to write to my configured path
     So that the generated example integrates with my project layout
 
-    @id:2f3a4b5c
+    @id:c3d4e5f6
     Example: Hatch writes to the custom path when features_path is configured
       Given pyproject.toml contains [tool.beehave] with features_path set to a custom directory
       When pytest is invoked with --beehave-hatch
@@ -134,14 +134,14 @@ Feature: Example hatch generation
     I want the generated content to vary slightly between runs
     So that the example does not feel like a static copy-paste template
 
-    @id:3a4b5c6d
-    Example: Hatch produces different bee-themed content on successive runs
+    @id:d4e5f6a7
+    Example: Hatch produces a different Feature name on successive runs
       Given no features directory exists at the configured path
-      When pytest is invoked with --beehave-hatch on two separate occasions
-      Then the generated .feature file content differs between the two runs in at least one field
+      When pytest is invoked with --beehave-hatch on two separate occasions with the directory removed between runs
+      Then the Feature name in the generated .feature file differs between the two runs
 
-    @id:4b5c6d7e
-    Example: Hatch generation does not require any dependency beyond Python stdlib
-      Given a clean Python environment with only pytest-beehave installed
+    @id:e5f6a7b8
+    Example: Hatch completes without requiring any additional package installation
+      Given a clean environment with only pytest-beehave installed and no other packages
       When pytest is invoked with --beehave-hatch
-      Then the hatch completes successfully without importing any third-party library for randomisation
+      Then the hatch completes successfully and no import error or missing-module error is raised
