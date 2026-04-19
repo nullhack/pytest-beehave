@@ -1,26 +1,20 @@
 # Current Work
 
-Feature: example-hatch
-Step: 5 (Accept) — ACCEPTED
-Source: docs/features/completed/example-hatch.feature
+Feature: stub-format-config
+Step: 1 (SCOPE) — COMPLETE
+Source: docs/features/backlog/stub-format-config.feature
 
 ## Progress
-- [x] `@id:1a2b3c4d`: Hatch creates the features directory tree when it does not exist
-- [x] `@id:2b3c4d5e`: Hatch writes bee-themed .feature files into the correct subfolders
-- [x] `@id:3c4d5e6f`: Hatch emits a terminal summary of files written
-- [x] `@id:4d5e6f7a`: pytest exits immediately after hatch without running tests
-- [x] `@id:5e6f7a8b`: Hatch fails when the features directory already contains .feature files
-- [x] `@id:6f7a8b9c`: Hatch overwrites existing content when --beehave-hatch-force is passed
-- [x] `@id:7a8b9c0d`: Generated content includes an untagged Example to trigger auto-ID generation
-- [x] `@id:8b9c0d1e`: Generated content includes a @deprecated-tagged Example
-- [x] `@id:9c0d1e2f`: Generated content includes a multilingual feature file
-- [x] `@id:0d1e2f3a`: Generated content includes a feature with a Background block
-- [x] `@id:1e2f3a4b`: Generated content includes a Scenario Outline with an Examples table
-- [x] `@id:a1f2e3d4`: Generated content includes a step with an attached data table
-- [x] `@id:b2e3d4c5`: Generated content includes a feature placed in the completed subfolder
-- [x] `@id:c3d4e5f6`: Hatch writes to the custom path when features_path is configured
-- [x] `@id:d4e5f6a7`: Hatch produces a different Feature name on successive runs
-- [x] `@id:e5f6a7b8`: Hatch completes without requiring any additional package installation
+- [x] Stage 1 Discovery: stub-format-config scoped and baselined
+- [x] Stage 2A Stories: 5 Rule blocks written and INVEST-gated
+- [x] Stage 2B Criteria: 7 Examples written with @id tags
+- [x] `@id:a1b2c3d4`: Stub is a top-level function when stub_format is absent
+- [x] `@id:b2c3d4e5`: Absent stub_format does not raise an error
+- [x] `@id:c3d4e5f6`: Stub is a top-level function when stub_format = "functions"
+- [x] `@id:d4e5f6a7`: Stub is a class method when stub_format = "classes"
+- [x] `@id:e5f6a7b8`: Class name is derived from the Rule title slug
+- [x] `@id:f6a7b8c9`: Pytest fails at startup when stub_format has an unrecognised value
+- [x] `@id:a7b8c9d0`: No-Rule feature produces module-level functions regardless of stub_format = "classes"
 
 ## Next
-Run @product-owner — load skill feature-selection and pick the next BASELINED feature from backlog
+Run @software-engineer — load skill implementation and begin Step 2 (Architecture) for stub-format-config
