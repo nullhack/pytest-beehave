@@ -2,6 +2,18 @@
 
 All notable changes to pytest-beehave will be documented in this file.
 
+## [v3.0.20260419] — Foundational Apis — 2026-04-19
+
+### Added
+- feat(report-steps): surface BDD acceptance criteria in terminal (at `-v`) and pytest-html "Acceptance Criteria" column; scoped to `tests/features/`; independently configurable via `show_steps_in_terminal` / `show_steps_in_html`
+- feat(living-docs): C4 Level 1 and Level 2 architecture diagrams (`docs/c4/`); living glossary (`docs/glossary.md`) derived from domain model and architectural decisions
+- docs: add `docs/scientific-research/documentation.md` — Diátaxis, docs-as-code, blameless post-mortems, developer information needs
+
+### Changed
+- chore(sync): merge upstream v6.1.20260419 — new `living-docs` skill; updated `implementation`, `verify`, `git-release`, `create-skill` skills; `docs/post-mortem/` and `docs/c4/` directory stubs
+- chore(workflow): restore and fix 10 damaged/missing files from v2 squash-merge gaps — `discovery.md`, `discovery_journal.md`, `architecture.md`, all agent files, scope/feature-selection/session-workflow skills, README `<@id>` format
+- ci(release): add PyPI publish workflow triggered on `v*` tags via OIDC trusted publisher
+
 ## [v2.0.20260418] - Industrious Bombus - 2026-04-18
 
 ### Added
