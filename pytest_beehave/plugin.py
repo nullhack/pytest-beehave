@@ -15,6 +15,7 @@ from pytest_beehave.config import (
     show_steps_in_html,
     show_steps_in_terminal,
 )
+from pytest_beehave.hatch import run_hatch
 from pytest_beehave.html_steps_plugin import HtmlStepsPlugin
 from pytest_beehave.id_generator import assign_ids
 from pytest_beehave.reporter import (
@@ -123,6 +124,27 @@ def _register_output_plugins(config: pytest.Config, rootdir: Path) -> None:
         pm.register(HtmlStepsPlugin(), "beehave-html-steps")
 
 
+def pytest_addoption(parser: pytest.Parser) -> None:
+    """Register --beehave-hatch and --beehave-hatch-force CLI options.
+
+    Args:
+        parser: The pytest argument parser.
+    """
+    group = parser.getgroup("beehave")
+    group.addoption(
+        "--beehave-hatch",
+        action="store_true",
+        default=False,
+        help="Generate bee-themed example features directory and exit.",
+    )
+    group.addoption(
+        "--beehave-hatch-force",
+        action="store_true",
+        default=False,
+        help="Overwrite existing content when using --beehave-hatch.",
+    )
+
+
 def pytest_configure(config: pytest.Config) -> None:
     """Read beehave configuration, bootstrap directory, sync stubs.
 
@@ -131,6 +153,13 @@ def pytest_configure(config: pytest.Config) -> None:
     """
     rootdir = config.rootpath
     path = resolve_features_path(rootdir)
+    if config.getoption("--beehave-hatch", default=False):
+        force = bool(config.getoption("--beehave-hatch-force", default=False))
+        written = run_hatch(path, force)
+        writer = _PytestTerminalWriter(config)
+        for entry in written:
+            writer.line(f"[beehave] HATCH {entry}")
+        pytest.exit("[beehave] hatch complete", returncode=0)
     _exit_if_missing_configured_path(rootdir, path)
     config.stash[features_path_key] = path
     if path.exists():
