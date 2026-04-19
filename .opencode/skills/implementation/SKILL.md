@@ -11,7 +11,7 @@ workflow: feature-lifecycle
 
 Steps 2 (Architecture) and 3 (TDD Loop) combined into a single skill. The software-engineer owns both.
 
-## Developer Quality Gate Priority Order
+## Software-Engineer Quality Gate Priority Order
 
 During implementation, correctness priorities are (in order):
 
@@ -46,10 +46,11 @@ Update `TODO.md` Source path to `docs/features/in-progress/<name>.feature`.
 ### Read Phase (all before writing anything)
 
 1. Read `docs/discovery.md` (project-level synthesis changelog)
-2. Read `docs/architecture.md` (all architectural decisions to date)
-3. Read **ALL** `.feature` files in `docs/features/backlog/` (feature descriptions + Rules)
-4. Read in-progress `.feature` file (full: Rules + Examples + @id)
-5. Read **ALL** existing `.py` files in `<package>/` — understand what already exists before adding anything
+2. Read `docs/glossary.md` if it exists — use existing domain terms when naming classes, methods, and modules; do not invent synonyms for terms already defined
+3. Read `docs/architecture.md` (all architectural decisions to date)
+4. Read **ALL** `.feature` files in `docs/features/backlog/` (feature descriptions + Rules)
+5. Read in-progress `.feature` file (full: Rules + Examples + @id)
+6. Read **ALL** existing `.py` files in `<package>/` — understand what already exists before adding anything
 
 ### Domain Analysis
 
@@ -152,6 +153,7 @@ Commit: `feat(<feature-name>): add architecture stubs`
 
 ### Prerequisites
 
+- [ ] Exactly one `.feature` file in `in-progress/`. If not present, load `skill feature-selection`
 - [ ] Architecture stubs present in `<package>/` (committed by Step 2)
 - [ ] Read `docs/architecture.md` — understand all architectural decisions before writing any test
 - [ ] Test stub files exist in `tests/features/<feature-name>/` — one file per `Rule:` block, all `@id` functions present with `@pytest.mark.skip`; if missing, write them now before entering RED
@@ -168,9 +170,6 @@ def test_<feature_slug>_<@id>() -> None:
     When: ...
     Then: ...
     """
-    # Given
-    # When
-    # Then
 ```
 
 Add `[ ]` rows to `## Progress` in `TODO.md` for each `@id` in the in-progress `.feature` file that is not already listed.
@@ -315,9 +314,6 @@ def test_ball_game_a3f2b1c4() -> None:
     When: The physics engine processes the next frame
     Then: The ball velocity y-component becomes positive
     """
-    # Given
-    # When
-    # Then
 ```
 
 **Rules**:

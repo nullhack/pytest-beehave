@@ -9,15 +9,9 @@ workflow: feature-lifecycle
 
 # Verify
 
-This skill guides the reviewer through Step 4: independent verification that the feature works correctly and meets quality standards. The output is a written report with a clear APPROVED or REJECTED decision.
+**You never move `.feature` files.** After producing an APPROVED report: update TODO.md `Next:` to `Run @product-owner — accept feature <name> at Step 5.` then stop. The PO accepts the feature and moves the file.
 
-**Your default hypothesis is that the code is broken despite passing automated checks. Your job is to find the failure mode. If you cannot find one after thorough investigation, APPROVE. If you find one, REJECTED.**
-
-**Every PASS/FAIL cell must have evidence.** Empty evidence = UNCHECKED = REJECTED.
-
-## When to Use (Step 4)
-
-After the software-engineer signals Step 3 is complete and all self-verification checks pass. Do not start verification until the software-engineer has committed all work and written the Self-Declaration.
+The reviewer produces one written report (see template below) that includes: all gate results, the SE Self-Declaration Audit, the **Reviewer Stance Declaration**, and the final APPROVED/REJECTED verdict. Do not start until the software-engineer has committed all work and communicated the Self-Declaration verbally in the handoff message.
 
 ## Step-by-Step
 
@@ -26,10 +20,8 @@ After the software-engineer signals Step 3 is complete and all self-verification
 Read `docs/features/in-progress/<name>.feature`. Extract:
 - All `@id` tags and their Example titles from `Rule:` blocks
 - The interaction model (if the feature involves user interaction)
-
-Also read:
 - `docs/architecture.md` — all architectural decisions relevant to this feature
-- The software-engineer's Self-Declaration from the conversation (produced before Step 4 handoff)
+- The software-engineer's Self-Declaration from the handoff message
 
 ### 2. pyproject.toml Gate
 
@@ -60,13 +52,26 @@ Run before code review. If any row is FAIL, stop immediately with REJECTED.
 | App exits cleanly | `timeout 10s uv run task run` | Exit 0 or non-124 | Exit 124 (timeout/hang) | Fix the hang |
 | Output changes when input changes | Run app, change an input or condition, observe output | Output changes accordingly | Output is static | Implement real logic |
 
-### 5. Code Review
+### 5. Self-Declaration Audit
+
+Read the software-engineer's Self-Declaration from the handoff message.
+
+For every **AGREE** claim:
+- Find the `file:line` — does it hold?
+
+For every **DISAGREE** claim:
+- If the constraint genuinely falls outside the SE's control (e.g. external library forces method chaining, dataclass/Pydantic/TypedDict exemption for ≤2 ivars): accept with a note in the report.
+- If the justification is weak or absent: REJECT — the software-engineer must fix before requesting review again.
+
+Undeclared violations → REJECT.
+
+### 6. Code Review
 
 Read the source files changed in this feature. **Do this before running lint/static-check/test** — if code review finds a design problem, commands will need to re-run after the fix anyway.
 
 **Stop on first failure category — do not accumulate issues.**
 
-#### 5a. Correctness — any FAIL → REJECTED
+#### 6a. Correctness — any FAIL → REJECTED
 
 | Check | How to check | PASS | FAIL | Fix |
 |---|---|---|---|---|
@@ -74,16 +79,16 @@ Read the source files changed in this feature. **Do this before running lint/sta
 | No duplicate logic (DRY) | Search for repeated blocks doing the same thing | None found | Duplication found | Extract to shared function |
 | No over-engineering (YAGNI) | Check for abstractions with no current use | None found | Unused abstraction | Remove unused code |
 
-#### 5b. Simplicity (KISS) — any FAIL → REJECTED
+#### 6b. Simplicity (KISS) — any FAIL → REJECTED
 
 | Check | How to check | PASS | FAIL | Fix |
 |---|---|---|---|---|
 | Functions do one thing | Read each function; can you describe it without `and`? | Yes | No | Split into focused functions |
 | Nesting ≤ 2 levels | Count indent levels in each function | ≤ 2 | > 2 | Extract inner block |
-| Functions ≤ 20 lines | Count code lines only (exclude docstrings) | ≤ 20 | > 20 | Extract helper |
-| Classes ≤ 50 lines | Count code lines only (exclude docstrings) | ≤ 50 | > 50 | Split class |
+| Functions ≤ 20 lines | Count lines | ≤ 20 | > 20 | Extract helper |
+| Classes ≤ 50 lines | Count lines | ≤ 50 | > 50 | Split class |
 
-#### 5c. SOLID — any FAIL → REJECTED
+#### 6c. SOLID — any FAIL → REJECTED
 
 | Principle | Why it matters | What to check | How to check |
 |---|---|---|---|
@@ -93,21 +98,11 @@ Read the source files changed in this feature. **Do this before running lint/sta
 | ISP | Fat interfaces force unused methods | No Protocol forces stub implementations | Check for NotImplementedError |
 | DIP | Concrete I/O makes unit testing impossible | High-level depends on abstractions | Check domain imports no I/O/DB |
 
-#### 5d. Object Calisthenics — any FAIL → REJECTED
+#### 6d. Object Calisthenics — any FAIL → REJECTED
 
-| # | Rule | How to check |
-|---|---|---|
-| 1 | One indent level per method | Count max nesting |
-| 2 | No `else` after `return` | Search for `else` after early returns |
-| 3 | Primitives wrapped | Bare `int`/`str` in domain signatures = FAIL |
-| 4 | Collections wrapped | `list[X]` as domain value = FAIL |
-| 5 | One dot per line | `a.b.c()` chains = FAIL |
-| 6 | No abbreviations | `mgr`, `tmp`, `calc` = FAIL |
-| 7 | Small entities | Functions > 20 lines or classes > 50 lines = FAIL |
-| 8 | ≤ 2 instance variables (behavioural classes only) | Count `self.x` in `__init__` — >2 = FAIL; dataclasses/Pydantic/value objects/TypedDicts exempt |
-| 9 | No getters/setters | `get_x()`/`set_x()` = FAIL |
+Load `skill design-patterns` and apply the full OC checklist (9 rules). Record a PASS/FAIL with `file:line` evidence for each rule. Rules 1 and 7 (nesting and entity size) share thresholds with 6b above.
 
-#### 5e. Design Patterns — any FAIL → REJECTED
+#### 6e. Design Patterns — any FAIL → REJECTED
 
 | Code smell | Pattern missed | How to check |
 |---|---|---|
@@ -117,7 +112,7 @@ Read the source files changed in this feature. **Do this before running lint/sta
 | External dep without Protocol | Repository/Adapter | Check dep injection |
 | 0 domain classes, many functions | Missing domain model | Count classes vs functions |
 
-#### 5f. Tests — any FAIL → REJECTED
+#### 6f. Tests — any FAIL → REJECTED
 
 | Check | How to check | PASS | FAIL |
 |---|---|---|---|
@@ -129,7 +124,7 @@ Read the source files changed in this feature. **Do this before running lint/sta
     | Function naming | Matches `test_<feature_slug>_<@id>` | All match | Mismatch |
 | Hypothesis tests have `@slow` | Read every `@given` for `@slow` marker | All present | Any missing |
 
-#### 5g. Code Quality — any FAIL → REJECTED
+#### 6g. Code Quality — any FAIL → REJECTED
 
 | Check | How to check | PASS | FAIL |
 |---|---|---|---|
@@ -138,7 +133,7 @@ Read the source files changed in this feature. **Do this before running lint/sta
 | Public functions have type hints | Read signatures | All annotated | Missing |
 | Public functions have docstrings | Read source | Google-style | Missing |
 
-### 6. Run Verification Commands
+### 7. Run Verification Commands
 
 ```bash
 uv run task lint
@@ -150,31 +145,16 @@ Expected for each: exit 0, no errors. Record exact output on failure.
 
 If a command fails, stop and REJECT immediately. Do not run subsequent commands.
 
-### 7. Interactive Verification
+### 8. Interactive Verification
 
 If the feature involves user interaction: run the app, provide real input, verify output changes.
 
 Record what input was given and what output was observed.
 
-### 8. Self-Declaration Audit
-
-Read the software-engineer's Self-Declaration from the conversation (produced as output before Step 4 handoff).
-
-For every **AGREE** claim:
-- Find the `file:line` — does it hold?
-
-For every **DISAGREE** claim:
-- REJECT — the software-engineer must fix before requesting review again.
-
-Undeclared violations → REJECT.
-
 ### 9. Write the Report
 
 ```markdown
 ## Step 4 Verification Report — <feature-name>
-
-### Reviewer Stance Declaration
-I am approaching this review adversarially. My default hypothesis is that the code is broken despite passing automated checks. I will APPROVE only if I cannot find a failure mode after thorough investigation.
 
 ### pyproject.toml Gate
 | Check | Result | Notes |
@@ -219,6 +199,10 @@ I am approaching this review adversarially. My default hypothesis is that the co
 | Patterns Behavioral | AGREE/DISAGREE | PASS/FAIL | |
 | Semantic | AGREE/DISAGREE | PASS/FAIL | |
 
+### Reviewer Stance Declaration
+
+[Write this block before the Decision — see template below]
+
 ### Decision
 **APPROVED** — all gates passed, no undeclared violations
 OR
@@ -226,34 +210,22 @@ OR
 1. `<file>:<line>` — <specific, actionable fix>
 
 ### Next Steps
-**If APPROVED**: Update `TODO.md` `## Next` line, then escalate to @product-owner. Output:
-> Step 4 APPROVED for `<feature-name>`. Escalating to @product-owner — please move `docs/features/in-progress/<feature-name>.feature` to `docs/features/completed/<feature-name>.feature` and pick the next feature from backlog.
+**If APPROVED**: Run `@product-owner` — accept the feature at Step 5.
 
-**If REJECTED**: Output:
-> Step 4 REJECTED for `<feature-name>`. Run @software-engineer — apply the fixes listed above, re-run quality gate, update Self-Declaration in TODO.md, then signal Step 4 again.
-
-**Note**: The reviewer never moves `.feature` files. Moving `in-progress/` to `completed/` is the PO's responsibility.
+**If REJECTED**: Run `@software-engineer` — apply the fixes listed above, re-run quality gate, update Self-Declaration, then signal Step 4 again.
 ```
 
-## Standards Summary
+### Reviewer Stance Declaration Template
 
-| Check | Standard |
-|---|---|
-| Test coverage | 100% |
-| Type errors | 0 |
-| Lint errors | 0 |
-| Function length | ≤ 20 code lines (excluding docstrings) |
-| Class length | ≤ 50 code lines (excluding docstrings) |
-| Max nesting | 2 levels |
-| Instance variables | ≤ 2 per class |
-| Uncovered `@id` tags | 0 |
-| `noqa` comments | 0 |
-| `type: ignore` | 0 |
-| Semantic alignment mismatches | 0 |
-| SOLID FAIL rows | 0 |
-| ObjCal FAIL rows | 0 |
-| Design pattern FAIL rows | 0 |
-| Duplicate `@id` in tests | 0 |
-| Empty evidence cells | 0 |
-| Orphaned tests | 0 |
-| Hypothesis tests missing `@pytest.mark.slow` | 0 |
+Write this block **before** the Decision. Every `DISAGREE` must include an inline explanation. A `DISAGREE` with no explanation auto-forces `REJECTED`.
+
+```markdown
+## Reviewer Stance Declaration
+As a reviewer I declare:
+* Adversarial: I actively tried to find a failure mode, not just confirm passing — AGREE/DISAGREE | note:
+* Manual trace: I traced at least one execution path manually beyond automated output — AGREE/DISAGREE | path:
+* Boundary check: I checked the boundary conditions and edge cases of every Rule — AGREE/DISAGREE | gaps:
+* Semantic read: I read each test against its AC and confirmed it tests the right observable behavior — AGREE/DISAGREE | mismatches:
+* Independence: my verdict was not influenced by how much effort has already been spent — AGREE/DISAGREE
+```
+

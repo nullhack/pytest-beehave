@@ -14,7 +14,7 @@ STEP 1: SCOPE          (product-owner)  → discovery + Gherkin stories + criter
 STEP 2: ARCH           (software-engineer)      → read all features + existing package files, write domain stubs (signatures only, no bodies); append decisions to docs/architecture.md
 STEP 3: TDD LOOP       (software-engineer)      → RED → GREEN → REFACTOR, one @id at a time
 STEP 4: VERIFY         (reviewer)       → run all commands, review code
-STEP 5: ACCEPT         (product-owner)  → demo, validate, move in-progress/ to completed/, pick next feature
+STEP 5: ACCEPT         (product-owner)  → demo, validate, move .feature to completed/ (PO only)
 ```
 
 **PO picks the next feature from backlog. Software-engineer never self-selects.**
@@ -26,7 +26,7 @@ STEP 5: ACCEPT         (product-owner)  → demo, validate, move in-progress/ to
 - **Product Owner (PO)** — AI agent. Interviews the stakeholder, writes discovery docs, Gherkin features, and acceptance criteria. Accepts or rejects deliveries.
 - **Stakeholder** — Human. Answers PO's questions, provides domain knowledge, approves PO syntheses to confirm discovery is complete.
 - **Software Engineer** — AI agent. Architecture, test bodies, implementation, git. Never moves or edits `.feature` files. Escalates spec gaps to PO. Escalates to PO if no feature is in progress.
-- **Reviewer** — AI agent. Adversarial verification. Never moves `.feature` files. Reports spec gaps to PO. Escalates to PO after APPROVED.
+- **Reviewer** — AI agent. Adversarial verification. Never moves `.feature` files. Reports spec gaps to PO. After APPROVED report, stops and escalates to PO for Step 5.
 
 ## Agents
 
@@ -49,6 +49,7 @@ STEP 5: ACCEPT         (product-owner)  → demo, validate, move in-progress/ to
 | `code-quality` | software-engineer | pre-handoff (redirects to `verify`) |
 | `pr-management` | software-engineer | 5 |
 | `git-release` | software-engineer | 5 |
+| `living-docs` | product-owner | 5 (after acceptance) + on stakeholder demand |
 | `create-skill` | software-engineer | meta |
 | `create-agent` | human-user | meta |
 
@@ -106,6 +107,11 @@ docs/
   discovery_journal.md                ← raw Q&A from all scope sessions (PO, append-only)
   discovery.md                        ← project scope synthesis changelog (PO, append-only)
   architecture.md                     ← all architectural decisions (SE, append-only)
+  glossary.md                         ← living glossary (living-docs skill, PO)
+  c4/
+    context.md                        ← C4 Level 1 context diagram (living-docs skill, PO)
+    container.md                      ← C4 Level 2 container diagram (living-docs skill, PO)
+  post-mortem/                        ← blameless post-mortem reports
   features/
     backlog/<feature-name>.feature    ← one per feature; feature description + Rules + Examples
     in-progress/<feature-name>.feature ← exactly one feature being built right now
@@ -233,9 +239,7 @@ Use `@software-engineer /skill git-release` for the full release process.
 
 Every session: load `skill session-workflow`. Read `TODO.md` first, update it at the end.
 
-`TODO.md` is a session bookmark — not a project journal. It contains: Feature/Step/Source header, `## Cycle State` (Step 3 only), `## Progress` rows (manually maintained, no script required), and `## Next`. The Self-Declaration is produced as conversation output before Step 4 handoff — it is never written into TODO.md.
-
-See `skill session-workflow` for the full structure including the Cycle State block used during Step 3.
+See `skill session-workflow` for the full `TODO.md` structure including the Cycle State block used during Step 3.
 
 ## Setup
 
