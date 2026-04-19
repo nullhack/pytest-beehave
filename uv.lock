@@ -672,7 +672,7 @@ wheels = [
 
 [[package]]
 name = "pytest-beehave"
-version = "2.0.20260418"
+version = "3.0.20260419"
 source = { editable = "." }
 dependencies = [
     { name = "fire" },
