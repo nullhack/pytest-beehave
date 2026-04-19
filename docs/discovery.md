@@ -65,3 +65,42 @@ All test stubs are top-level functions. The `class Test<RuleSlug>` wrapper descr
 | Type | Name | Description | Change |
 |------|------|-------------|--------|
 | Noun | conforming test | test with correct file name AND correct function name | Updated: was 3-part (file + class context + function name), now 2-part |
+
+---
+
+## Session: 2026-04-19 — Feature: report-steps
+
+### Scope
+`report-steps` surfaces BDD acceptance criteria in two independent output channels: the terminal (at `-v` or above) and pytest-html reports (when `pytest-html` is installed). Both channels are scoped exclusively to tests under `tests/features/` and are independently configurable via `pyproject.toml`. Steps are always rendered verbatim from the test docstring — no reformatting. Both channels are wired into the single existing `pytest_configure` entry point. `pytest-html` is an optional install extra (`pip install pytest-beehave[html]`); when it is absent the HTML channel is silently inactive with no error raised.
+
+Feature stages and marker state do not affect rendering — steps are shown regardless of test outcome (pass, fail, skip, error).
+
+Status: BASELINED (2026-04-18)
+
+### Behavior Groups
+- Terminal channel: print docstring verbatim below the test path line at `-v` or above; blank line separator; scoped to `tests/features/` only
+- HTML channel: add an "Acceptance Criteria" column to the pytest-html report; populate with verbatim docstring for feature tests; blank for non-feature tests
+- Configuration: `show_steps_in_terminal` (default `true`); `show_steps_in_html` (default `true`); both in `pyproject.toml`
+- Optional dependency: `pytest-html` guarded at runtime — absent means HTML channel is silently skipped
+
+### Feature List
+- `report-steps` — terminal steps display and HTML acceptance criteria column for `tests/features/` tests
+
+### Domain Model
+| Type | Name | Description | In Scope |
+|------|------|-------------|----------|
+| Noun | terminal channel | verbatim docstring printed below test path at -v or above | Yes |
+| Noun | HTML channel | "Acceptance Criteria" column in pytest-html report | Yes |
+| Noun | feature test | any test residing under `tests/features/` | Yes |
+| Noun | non-feature test | any test outside `tests/features/` (e.g. `tests/unit/`) | Yes — explicitly excluded from output |
+| Noun | verbatim steps | docstring content rendered with no reformatting | Yes |
+| Verb | render steps | print/inject docstring into the appropriate output channel | Yes |
+| Verb | suppress steps | omit output when channel is disabled or test is out of scope | Yes |
+
+### Out of Scope
+- Reformatting or parsing of step text
+- Rendering steps for tests outside `tests/features/`
+- Any output channel other than terminal and pytest-html
+- Making `pytest-html` a required dependency
+
+Template §3: CONFIRMED — stakeholder approved 2026-04-18
