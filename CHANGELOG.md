@@ -2,6 +2,32 @@
 
 All notable changes to pytest-beehave will be documented in this file.
 
+## [v3.2.20260419] — Mason Osmia — 2026-04-19
+
+### Added
+- feat(stub-format-config): add `stub_format` config key under `[tool.beehave]` — controls output format of generated test stubs for Rule-block features
+- feat(stub-format-config): support two formats: `"functions"` (default, top-level functions) and `"classes"` (class-wrapped methods for backward compatibility)
+
+### Fixed
+- fix(stub-format-config): add `self` parameter to class-method stubs when `stub_format = "classes"` — pytest requires `self` in class methods
+
+### Changed
+- ci(release): add auto-tag workflow (`.github/workflows/tag-release.yml`) — creates `v{version}` tag on merge when `pyproject.toml` version bumps
+- chore(skills): simplify test naming convention in `implementation` skill — uses `<feature_slug>_<@id>` directly without `Rule:` block routing documentation
+
+## [v3.1.20260419] — Generative Augochlora — 2026-04-19
+
+### Added
+- feat(example-hatch): add `--beehave-hatch` flag to generate bee-themed example `.feature` files and demonstrate the plugin in one command
+
+### Fixed
+- fix(example-hatch): wrap `run_hatch()` call in `pytest_configure` with `try/except SystemExit` to produce clean error exit instead of `INTERNALERROR` crash
+
+### Changed
+- docs: add "See it in 2 minutes" demo section to README showing `--beehave-hatch` output and generated stubs
+- chore: add `test-coverage` task to `pyproject.toml` for explicit coverage-only runs
+- chore(skills): number SE Self-Declaration items 1–25 and add completeness check to reviewer skill
+
 ## [v3.0.20260419] — Foundational Apis — 2026-04-19
 
 ### Added

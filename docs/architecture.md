@@ -209,9 +209,44 @@ Feature: features-dir-bootstrap
 
 ---
 
+## 2026-04-19 — example-hatch: single hatch.py module owns all generation logic
+
+Decision: All hatch content generation and writing lives in `pytest_beehave/hatch.py`; plugin.py only wires options and dispatches.
+Reason: Keeps the hatch feature self-contained and independently testable without a live pytest session.
+Alternatives considered: Inlining into plugin.py — rejected because it mixes lifecycle concerns with content generation.
+Feature: example-hatch
+
+---
+
+## 2026-04-19 — example-hatch: early-exit in pytest_configure via pytest.exit()
+
+Decision: When `--beehave-hatch` is detected, `pytest_configure` calls `run_hatch()`, prints the summary, then calls `pytest.exit(returncode=0)` before any stub-sync or test collection.
+Reason: Matches AC constraint "Must exit pytest immediately after hatch completes (no test collection)".
+Alternatives considered: Using a custom `pytest_collection_modifyitems` hook to abort collection — rejected because `pytest_configure` is earlier and cleaner.
+Feature: example-hatch
+
+---
+
+## 2026-04-19 — example-hatch: HatchFile dataclass carries relative_path + content
+
+Decision: `HatchFile(relative_path: str, content: str)` is a frozen dataclass; `generate_hatch_files()` returns `list[HatchFile]`; `write_hatch()` writes them to disk.
+Reason: Separates content generation (pure, testable) from filesystem writes (side effects).
+Alternatives considered: Passing raw dicts — rejected because typed dataclasses catch mistakes at static analysis time.
+Feature: example-hatch
+
+---
+
 ## 2026-04-19 — stub-creation, stub-updates: drop libcst in favour of direct string manipulation
 
 Decision: `stub_writer` and `stub_reader` use direct string parsing/formatting rather than `libcst`.
 Reason: The implementation does not need to round-trip arbitrary Python source with full formatting preservation. Direct string manipulation is simpler, has zero additional dependencies, and is sufficient for the structured output format (top-level functions with a docstring and `raise NotImplementedError`). `libcst` was never added as a runtime dependency.
 Supersedes: "2026-04-18 — stub-creation: test file writing library" and "2026-04-18 — stub-updates: stub_reader uses libcst"
 Feature: stub-creation, stub-updates
+
+---
+
+## 2026-04-19 — stub-format-config: StubFormat threaded through StubSpec
+
+Decision: add `stub_format: StubFormat` field to `StubSpec` (stub_writer.py) and thread it from `run_sync` down to `write_stub_to_file`.
+Reason: keeps the format decision co-located with the stub spec rather than using a global or module-level state.
+Alternatives considered: global config object passed via module — rejected (hidden coupling); separate `write_top_level_stub_to_file` / `write_class_stub_to_file` public functions — rejected (duplicate routing logic at call sites).

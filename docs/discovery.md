@@ -191,3 +191,43 @@ Feature stages and marker state do not affect rendering — steps are shown rega
 | Verb | suppress steps | omit output when channel is disabled or test is out of scope | Yes |
 
 Template §3: CONFIRMED — stakeholder approved 2026-04-18
+
+---
+
+## Session: 2026-04-19 — Feature: example-hatch
+
+### Feature List
+- `example-hatch` — generate a bee-themed `docs/features/` directory tree showcasing all plugin capabilities via `pytest --beehave-hatch`; stdlib-only randomisation; respects configured features path; fails loudly on existing content unless `--beehave-hatch-force` is passed
+
+### Domain Model
+| Type | Name | Description | In Scope |
+|------|------|-------------|----------|
+| Noun | hatch | generated `docs/features/` directory tree with example `.feature` files | Yes |
+| Noun | `--beehave-hatch` flag | pytest CLI flag that triggers hatch generation | Yes |
+| Noun | `--beehave-hatch-force` flag | pytest CLI flag that allows overwriting existing hatch content | Yes |
+| Noun | bee/hive-themed content | Feature names, Rule titles, Example titles, and step text using bee/hive metaphors | Yes |
+| Noun | capability showcase | set of generated `.feature` files that together exercise every plugin capability | Yes |
+| Noun | stdlib randomisation | use of `random` / `secrets` from Python stdlib to vary generated content | Yes |
+| Verb | hatch | write the example features directory tree to the configured path | Yes |
+| Verb | overwrite-protect | fail loudly when target directory already contains `.feature` files | Yes |
+| Verb | force-overwrite | replace existing hatch content when `--beehave-hatch-force` is passed | Yes |
+
+---
+
+## Session: 2026-04-19 — Feature: stub-format-config
+
+### Feature List
+- `stub-format-config` — new `stub_format` key under `[tool.beehave]`; `"functions"` (default, top-level functions) or `"classes"` (class-wrapped methods); hard error on invalid value; no-Rule features unaffected; project-wide setting; does not reformat existing stubs
+
+### Domain Model
+| Type | Name | Description | In Scope |
+|------|------|-------------|----------|
+| Noun | `stub_format` | config key under `[tool.beehave]` controlling stub output format | Yes |
+| Noun | `"functions"` format | top-level functions in `<rule_slug>_test.py`, no class wrapper (default) | Yes |
+| Noun | `"classes"` format | methods inside `class Test<RuleSlug>` in `<rule_slug>_test.py` | Yes |
+| Noun | invalid format value | any `stub_format` value other than `"functions"` or `"classes"` | Yes |
+| Verb | read stub_format | parse `stub_format` from `[tool.beehave]` at pytest startup | Yes |
+| Verb | default to functions | use `"functions"` when `stub_format` key is absent | Yes |
+| Verb | fail on invalid | abort pytest startup with descriptive error when value is unrecognised | Yes |
+| Verb | generate function stub | write top-level `def test_<feature_slug>_<@id>()` with no class wrapper | Yes |
+| Verb | generate class stub | write method inside `class Test<RuleSlug>:` | Yes |

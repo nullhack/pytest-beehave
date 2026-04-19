@@ -2,8 +2,12 @@
 
 import tomllib
 from pathlib import Path
+from typing import Literal, cast
 
 DEFAULT_FEATURES_PATH: str = "docs/features"
+type StubFormat = Literal["functions", "classes"]
+VALID_STUB_FORMATS: tuple[str, ...] = ("functions", "classes")
+DEFAULT_STUB_FORMAT: StubFormat = "functions"
 
 
 def _read_beehave_section(rootdir: Path) -> dict[str, object]:
@@ -96,3 +100,25 @@ def resolve_features_path(rootdir: Path) -> Path:
     if configured is None:
         return rootdir / DEFAULT_FEATURES_PATH
     return rootdir / configured
+
+
+def read_stub_format(rootdir: Path) -> StubFormat:
+    """Read stub_format from [tool.beehave] in pyproject.toml.
+
+    Args:
+        rootdir: Absolute path to the project root.
+
+    Returns:
+        The configured StubFormat, or DEFAULT_STUB_FORMAT if absent.
+
+    Raises:
+        SystemExit: If stub_format has an invalid value.
+    """
+    section = _read_beehave_section(rootdir)
+    value = section.get("stub_format", DEFAULT_STUB_FORMAT)
+    if value not in VALID_STUB_FORMATS:
+        raise SystemExit(
+            f"[beehave] invalid stub_format: {value!r}"
+            f" — valid values are {VALID_STUB_FORMATS}"
+        )
+    return cast(StubFormat, value)
