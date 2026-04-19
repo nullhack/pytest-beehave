@@ -3,22 +3,7 @@ Feature: Deprecation marker sync
   I want @pytest.mark.deprecated to be toggled on test functions whenever the @deprecated tag changes in the .feature file
   So that deprecated acceptance criteria are automatically skipped across all feature stages
 
-  Discovery:
-
-  Status: BASELINED
-
-  Entities:
-  | Type | Name | Candidate Class/Method | In Scope |
-  |------|------|----------------------|----------|
-  | Noun | `@deprecated` tag | Gherkin tag directly on an Example block | Yes |
-  | Noun | Gherkin tag inheritance | `@deprecated` on a `Rule:` or `Feature:` node applies to all child Examples | Yes |
-  | Noun | `@pytest.mark.deprecated` | pytest marker on a test function | Yes |
-  | Noun | backlog stage | `docs/features/backlog/` | Yes |
-  | Noun | in-progress stage | `docs/features/in-progress/` | Yes |
-  | Noun | completed stage | `docs/features/completed/` | Yes |
-  | Verb | detect deprecated | check Example tags for `@deprecated` (direct and inherited) | Yes |
-  | Verb | add marker | prepend `@pytest.mark.deprecated` to test function | Yes |
-  | Verb | remove marker | remove `@pytest.mark.deprecated` when tag is gone | Yes |
+  Status: BASELINED (2026-04-18)
 
   Rules (Business):
   - ALL 3 feature stages (backlog, in-progress, completed) are checked for `@deprecated` tag changes
@@ -31,39 +16,6 @@ Feature: Deprecation marker sync
   Constraints:
   - Must handle the case where the test function does not exist (skip — stub sync handles creation)
   - Must not add duplicate `@pytest.mark.deprecated` markers
-
-  Questions:
-  | ID | Question | Answer | Status |
-  |----|----------|--------|--------|
-  | Q1 | Should deprecation sync run even if stub sync is skipped for completed features? | Yes — deprecation sync always runs on all 3 stages regardless | ANSWERED |
-
-  All questions answered. Discovery frozen.
-
-  Architecture:
-
-  ### Module Structure
-  - `pytest_beehave/feature_parser.py` — `ParsedExample.is_deprecated` (bool, resolved including inheritance from Rule and Feature nodes); `ParsedRule.is_deprecated`; `ParsedFeature.is_deprecated`. Tag inheritance is resolved inside `parse_feature` so callers see a flat flag.
-  - `pytest_beehave/stub_writer.py` — `toggle_deprecated_marker(path, function_name, *, should_be_deprecated) -> SyncAction`. Adds `@pytest.mark.deprecated` when True, removes it when False, no-op if already in correct state.
-  - `pytest_beehave/sync_engine.py` — deprecation sync runs on ALL 3 stages (backlog, in-progress, completed); calls `toggle_deprecated_marker` for each Example whose stub exists.
-
-  ### Key Decisions
-  ADR-001: Tag inheritance resolved at parse time, not at sync time
-  Decision: `parse_feature` resolves `@deprecated` inheritance (Feature → Rule → Example) and sets `ParsedExample.is_deprecated` as a flat bool.
-  Reason: Keeps sync_engine simple — it only reads `example.is_deprecated`; no inheritance logic scattered across modules.
-  Alternatives considered: Resolving inheritance in sync_engine — rejected because it duplicates logic and couples sync_engine to Gherkin tag semantics.
-
-  ADR-002: Deprecation sync runs on completed/ features
-  Decision: `run_sync` calls deprecation sync for all three stages, including completed/.
-  Reason: Matches AC `@id:fc372f15` and discovery.md rule: "Deprecation sync is the ONLY operation performed on completed/ feature test files."
-  Alternatives considered: Skipping completed/ for deprecation sync — rejected per spec.
-
-  ADR-003: No duplicate @pytest.mark.deprecated markers
-  Decision: `toggle_deprecated_marker` reads existing markers via `stub_reader` before writing; skips if already in correct state.
-  Reason: Matches constraint "Must not add duplicate @pytest.mark.deprecated markers".
-  Alternatives considered: Always removing then re-adding — rejected because it causes unnecessary file writes.
-
-  ### Build Changes (needs PO approval: yes)
-  - New runtime dependency: `libcst>=1.0.0` — reason: read/write Python test files preserving formatting and comments. Already added for stub-creation.
 
   Rule: Mark deprecated Examples
     As a developer

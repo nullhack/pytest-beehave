@@ -37,3 +37,83 @@ Status: COMPLETE
 | Q20 | Lifecycle | How does the plugin handle the three feature stages (backlog, in-progress, completed) differently? | backlog + in-progress: full stub creation and updates; completed: orphan detection only — no new stubs, no updates | ANSWERED |
 | Q21 | Conformance | What is the conformance model — what makes a test "correctly placed"? | Two-part: correct file name and correct function name — both must match | ANSWERED |
 | Q22 | Marker ownership | How is marker ownership split between stub-sync and the developer? | Two non-overlapping domains: stub-sync owns skip markers and deprecated; developer owns slow — neither crosses into the other's territory | ANSWERED |
+
+---
+
+## 2026-04-18 — Feature: features-path-config — Session 1
+Status: COMPLETE
+
+| ID | Question | Answer | Status |
+|----|----------|--------|--------|
+| Q1 | What is the exact config key name? | `features_path` under `[tool.beehave]` | ANSWERED |
+| Q2 | Should an invalid/missing configured path be a hard error or a warning? | Hard error — if the user explicitly configured a path that doesn't exist, fail loudly | ANSWERED |
+
+---
+
+## 2026-04-18 — Feature: plugin-hook — Session 1
+Status: COMPLETE
+
+| ID | Question | Answer | Status |
+|----|----------|--------|--------|
+| Q1 | Which pytest hook runs before collection? | `pytest_configure` runs at startup before collection; `pytest_sessionstart` runs after collection starts — use `pytest_configure` or a custom `pytest_collection_start` hook | ANSWERED |
+| Q2 | Should the plugin emit any output to the pytest terminal during sync? | Yes — brief summary of actions taken (same style as current script) | ANSWERED |
+
+---
+
+## 2026-04-18 — Feature: deprecation-sync — Session 1
+Status: COMPLETE
+
+| ID | Question | Answer | Status |
+|----|----------|--------|--------|
+| Q1 | Should deprecation sync run even if stub sync is skipped for completed features? | Yes — deprecation sync always runs on all 3 stages regardless | ANSWERED |
+
+---
+
+## 2026-04-18 — Feature: auto-id-generation — Session 1
+Status: COMPLETE
+
+| ID | Question | Answer | Status |
+|----|----------|--------|--------|
+| Q1 | Should ID uniqueness be guaranteed globally (across all feature files) or just within a single file? | Within-file only — scan the current `.feature` file for existing `@id` values before generating new ones for that file; 8-char hex collision probability across files is negligible | ANSWERED (REVISED) |
+| Q2 | How is "CI / read-only" detected — by checking file writability or by checking a `CI` env var? | Check file writability — more reliable across different CI systems | ANSWERED |
+
+---
+
+## 2026-04-18 — Feature: multilingual-feature-parsing — Session 1
+Status: COMPLETE
+
+| ID | Question | Answer | Status |
+|----|----------|--------|--------|
+| Q1 | Should beehave support a project-level default language? | No — transparent; `# language: xx` is the only mechanism | ANSWERED |
+| Q2 | Which languages need verification? | Spanish (es) and Chinese Simplified (zh-CN) | ANSWERED |
+| Q3 | Custom error handling for bad language codes? | No — out of scope | ANSWERED |
+| Q4 | Mixed-language projects work transparently? | Yes — each file parsed independently | ANSWERED |
+| Q5 | Docstrings normalise non-English keywords to English? | No — preserve original keyword | ANSWERED |
+| Q6 | Scope? | Tests only — verify existing behaviour | ANSWERED |
+
+---
+
+## 2026-04-18 — Feature: features-dir-bootstrap — Session 1
+Status: COMPLETE
+
+| ID | Question | Answer | Status |
+|----|----------|--------|--------|
+| Q1 | What triggers the bootstrap — always on every run, or only when structure is missing? | Always run on every pytest invocation; it is a no-op when structure is already correct | ANSWERED |
+| Q2 | What constitutes "missing structure" — all three subfolders absent, or any one? | Any missing subfolder triggers creation of that subfolder; all three must exist | ANSWERED |
+| Q3 | What if only some subfolders exist? | Create only the missing ones; existing subfolders are not touched | ANSWERED |
+| Q4 | Are only .feature files migrated, or all files? | Only .feature files directly in the root features folder; other files are left in place | ANSWERED |
+| Q5 | What if a root-level .feature file has the same name as one already in backlog/? | Leave the root-level file in place and emit a warning; do not overwrite | ANSWERED |
+| Q6 | Should bootstrap emit terminal output? | Yes — report each action (subfolder created, file moved, collision warning); no output if no-op | ANSWERED |
+| Q7 | What if the root features directory does not exist at all? | Bootstrap is skipped; existing graceful handling in plugin-hook covers this case | ANSWERED |
+| Q8 | Does bootstrap run before or after stub sync? | Bootstrap runs first so migrated files are available for stub sync in the same run | ANSWERED |
+| Q9 | Are non-.feature files in the root features folder migrated? | No — only .feature files are migrated; discovery.md and other files stay in place | ANSWERED |
+
+---
+
+## 2026-04-18 — Feature: features-dir-bootstrap — Session 2
+Status: COMPLETE
+
+| ID | Question | Answer | Status |
+|----|----------|--------|--------|
+| Q10 | Are nested non-canonical subdirectories in the root features folder left alone? | Yes — only the three canonical subfolders are managed; any other subdirectory is ignored | ANSWERED |
+| Q11 | Is the bootstrap idempotent — safe to run multiple times? | Yes — creating an already-existing subfolder is a no-op; migration only moves files not already in a subfolder | ANSWERED |
