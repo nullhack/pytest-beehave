@@ -6,6 +6,49 @@ from pathlib import Path
 DEFAULT_FEATURES_PATH: str = "docs/features"
 
 
+def _read_beehave_section(rootdir: Path) -> dict[str, object]:
+    """Read the [tool.beehave] section from pyproject.toml.
+
+    Args:
+        rootdir: Absolute path to the project root.
+
+    Returns:
+        The [tool.beehave] dict, or empty dict if absent.
+    """
+    pyproject = rootdir / "pyproject.toml"
+    if not pyproject.exists():
+        return {}
+    with pyproject.open("rb") as f:
+        data = tomllib.load(f)
+    return data.get("tool", {}).get("beehave", {})
+
+
+def show_steps_in_terminal(rootdir: Path) -> bool:
+    """Return True if show_steps_in_terminal is enabled (default: True).
+
+    Args:
+        rootdir: Absolute path to the project root.
+
+    Returns:
+        True unless explicitly set to false in [tool.beehave].
+    """
+    section = _read_beehave_section(rootdir)
+    return bool(section.get("show_steps_in_terminal", True))
+
+
+def show_steps_in_html(rootdir: Path) -> bool:
+    """Return True if show_steps_in_html is enabled (default: True).
+
+    Args:
+        rootdir: Absolute path to the project root.
+
+    Returns:
+        True unless explicitly set to false in [tool.beehave].
+    """
+    section = _read_beehave_section(rootdir)
+    return bool(section.get("show_steps_in_html", True))
+
+
 def _read_configured_path(pyproject: Path) -> str | None:
     """Read features_path from [tool.beehave] in pyproject.toml.
 
@@ -38,15 +81,10 @@ def is_explicitly_configured(rootdir: Path) -> bool:
 
 
 def resolve_features_path(rootdir: Path) -> Path:
-    """Resolve the features directory path from pyproject.toml or use the default.
-
-    Reads [tool.beehave].features_path from pyproject.toml located at rootdir.
-    Falls back to docs/features/ if pyproject.toml is absent or has no
-    [tool.beehave] section. Does not validate existence.
+    """Resolve the features directory path from config or fall back to default.
 
     Args:
-        rootdir: Absolute path to the project root (directory containing
-            pyproject.toml).
+        rootdir: Absolute path to the project root.
 
     Returns:
         Resolved absolute Path to the features directory.

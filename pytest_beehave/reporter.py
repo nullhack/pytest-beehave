@@ -10,7 +10,7 @@ from pytest_beehave.bootstrap import BootstrapResult
 class TerminalWriterProtocol(Protocol):
     """Protocol for a terminal writer."""
 
-    def line(self, s: str = "") -> None:  # pragma: no cover
+    def line(self, text: str = "") -> None:  # pragma: no cover
         """Write a line to the terminal."""
         ...
 

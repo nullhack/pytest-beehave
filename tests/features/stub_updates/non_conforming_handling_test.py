@@ -13,6 +13,7 @@ from pytest_beehave.sync_engine import run_sync as sync_stubs
 class TestNonConformingHandling:
     """Tests for the Non-conforming handling Rule."""
 
+    @pytest.mark.deprecated
     @pytest.mark.unit
     def test_non_conforming_handling_4a7c2e81(
         self,
