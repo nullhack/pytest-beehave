@@ -25,22 +25,65 @@ Feature: Stub format configuration
     I want stub generation to default to top-level functions when no stub_format is configured
     So that new projects and existing projects without explicit configuration get the preferred format automatically
 
+    @id:a1b2c3d4
+    Example: Stub is a top-level function when stub_format is absent
+      Given a pyproject.toml with no stub_format key under [tool.beehave]
+      When pytest generates a stub for a Rule-block Example
+      Then the stub is a top-level function def test_<feature_slug>_<@id> with no class wrapper
+
+    @id:b2c3d4e5
+    Example: Absent stub_format does not raise an error
+      Given a pyproject.toml with no stub_format key under [tool.beehave]
+      When pytest starts up
+      Then pytest starts without any stub_format-related error
+
   Rule: Explicit functions format
     As a developer
     I want to explicitly set stub_format = "functions" in pyproject.toml
     So that I can document my format choice and ensure top-level function stubs are generated
+
+    @id:c3d4e5f6
+    Example: Stub is a top-level function when stub_format = "functions"
+      Given a pyproject.toml with stub_format = "functions" under [tool.beehave]
+      When pytest generates a stub for a Rule-block Example
+      Then the stub is a top-level function def test_<feature_slug>_<@id> with no class wrapper
 
   Rule: Classes format selection
     As a developer
     I want to set stub_format = "classes" in pyproject.toml
     So that I can restore the class-wrapped stub output for projects that prefer that style
 
+    @id:d4e5f6a7
+    Example: Stub is a class method when stub_format = "classes"
+      Given a pyproject.toml with stub_format = "classes" under [tool.beehave]
+      When pytest generates a stub for a Rule-block Example
+      Then the stub is a method inside class Test<RuleSlug> in <rule_slug>_test.py
+
+    @id:e5f6a7b8
+    Example: Class name is derived from the Rule title slug
+      Given a pyproject.toml with stub_format = "classes" and a Rule titled "Wall bounce"
+      When pytest generates a stub for an Example under that Rule
+      Then the stub is inside a class named TestWallBounce
+
   Rule: Invalid format rejection
     As a developer
     I want pytest to fail immediately with a clear error when stub_format has an unrecognised value
     So that misconfiguration is caught at startup rather than silently producing wrong output
 
+    @id:f6a7b8c9
+    Example: Pytest fails at startup when stub_format has an unrecognised value
+      Given a pyproject.toml with stub_format = "methods" under [tool.beehave]
+      When pytest starts up
+      Then pytest exits with a non-zero status and an error message naming the invalid value
+
   Rule: No-Rule feature unaffected
     As a developer
     I want features with no Rule blocks to always produce module-level functions in examples_test.py
     So that the stub_format setting does not change the behavior of no-Rule features
+
+    @id:a7b8c9d0
+    Example: No-Rule feature produces module-level functions regardless of stub_format = "classes"
+      Given a pyproject.toml with stub_format = "classes" under [tool.beehave]
+      And a feature file with no Rule blocks
+      When pytest generates stubs for that feature
+      Then the stubs are module-level functions in examples_test.py with no class wrapper
