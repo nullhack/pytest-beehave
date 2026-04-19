@@ -2,7 +2,7 @@
 
 Feature: stub-format-config
 Step: 5 (Accept)
-Source: docs/features/in-progress/stub-format-config.feature
+Source: docs/features/completed/stub-format-config.feature
 
 ## Progress
 - [x] Stage 1 Discovery: stub-format-config scoped and baselined
@@ -16,6 +16,7 @@ Source: docs/features/in-progress/stub-format-config.feature
 - [x] `@id:f6a7b8c9`: Pytest fails at startup when stub_format has an unrecognised value
 - [x] `@id:a7b8c9d0`: No-Rule feature produces module-level functions regardless of stub_format = "classes"
 - [x] Step 4 Verify: APPROVED — all 7 @id tests pass, 100% coverage, 0 lint/type errors
+- [x] Step 5 Accept: ACCEPTED — 149 passed, 4 skipped, clean run, feature moved to completed/
 
 ## Next
-Run @product-owner — accept feature stub-format-config at Step 5
+Run @product-owner — load skill feature-selection and pick the next BASELINED feature from backlog
