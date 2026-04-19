@@ -10,9 +10,6 @@ from pytest_beehave.sync_engine import run_sync
 @pytest.mark.skip(
     reason="non-conforming: should be in /home/user/Documents/projects/pytest-beehave/tests/features/example_hatch/configured_path_respect_test.py class TestConfiguredPathRespect"
 )
-@pytest.mark.skip(
-    reason="non-conforming: should be in /home/user/Documents/projects/pytest-beehave/tests/features/example_hatch/configured_path_respect_test.py class TestConfiguredPathRespect"
-)
 def test_stub_format_config_c3d4e5f6(tmp_path: Path) -> None:
     """
     Given: a pyproject.toml with stub_format = "functions" under [tool.beehave]

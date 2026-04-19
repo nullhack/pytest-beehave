@@ -10,9 +10,6 @@ from pytest_beehave.sync_engine import run_sync
 @pytest.mark.skip(
     reason="non-conforming: should be in /home/user/Documents/projects/pytest-beehave/tests/features/example_hatch/stdlib_only_randomisation_test.py class TestStdlibOnlyRandomisation"
 )
-@pytest.mark.skip(
-    reason="non-conforming: should be in /home/user/Documents/projects/pytest-beehave/tests/features/example_hatch/stdlib_only_randomisation_test.py class TestStdlibOnlyRandomisation"
-)
 def test_stub_format_config_d4e5f6a7(tmp_path: Path) -> None:
     """
     Given: a pyproject.toml with stub_format = "classes" under [tool.beehave]
@@ -42,9 +39,6 @@ def test_stub_format_config_d4e5f6a7(tmp_path: Path) -> None:
     assert def_line.startswith("    ")
 
 
-@pytest.mark.skip(
-    reason="non-conforming: should be in /home/user/Documents/projects/pytest-beehave/tests/features/example_hatch/stdlib_only_randomisation_test.py class TestStdlibOnlyRandomisation"
-)
 @pytest.mark.skip(
     reason="non-conforming: should be in /home/user/Documents/projects/pytest-beehave/tests/features/example_hatch/stdlib_only_randomisation_test.py class TestStdlibOnlyRandomisation"
 )

@@ -2,7 +2,7 @@
 
 import tomllib
 from pathlib import Path
-from typing import Literal
+from typing import Literal, cast
 
 DEFAULT_FEATURES_PATH: str = "docs/features"
 type StubFormat = Literal["functions", "classes"]
@@ -121,4 +121,4 @@ def read_stub_format(rootdir: Path) -> StubFormat:
             f"[beehave] invalid stub_format: {value!r}"
             f" — valid values are {VALID_STUB_FORMATS}"
         )
-    return value  # type: ignore[return-value]
+    return cast(StubFormat, value)

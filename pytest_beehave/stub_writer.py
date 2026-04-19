@@ -560,7 +560,8 @@ def mark_non_conforming(
     match = _find_function_match(content, function_name)
     if not match:
         return None
-    if content[: match.start()].endswith(marker_line):
+    before_def = content[: match.start()]
+    if f"non-conforming: should be in {correct_file}" in before_def:
         return None
     updated = _insert_marker_before(content, match, marker_line)
     path.write_text(updated, encoding="utf-8")
