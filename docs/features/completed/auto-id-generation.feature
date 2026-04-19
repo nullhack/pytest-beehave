@@ -1,24 +1,9 @@
 Feature: Auto ID generation and enforcement
-  As a developer
-  I want Examples without an @id tag to receive a generated ID written back to the .feature file (or fail in CI)
-  So that every Example is uniquely identified without manual intervention
+  Ensures every Example in a .feature file has a unique @id tag. When an untagged Example is found
+  in a writable environment, an ID is generated and written back in-place. In a read-only environment
+  (CI), the pytest run fails with a descriptive error naming the untagged Example.
 
-  Discovery:
-
-  Status: BASELINED
-
-  Entities:
-  | Type | Name | Candidate Class/Method | In Scope |
-  |------|------|----------------------|----------|
-  | Noun | Example block | Gherkin scenario | Yes |
-  | Noun | `@id` tag | `@id:<8-char-hex>` tag on Example | Yes |
-  | Noun | `.feature` file | Gherkin feature file on disk | Yes |
-  | Noun | hex ID | 8-character lowercase hex string | Yes |
-  | Noun | CI environment | read-only or automated environment | Yes |
-  | Verb | detect missing ID | scan Example tags for `@id` | Yes |
-  | Verb | generate ID | produce a unique 8-char hex string | Yes |
-  | Verb | write back | insert `@id` tag into `.feature` file in-place | Yes |
-  | Verb | fail run | abort pytest with a clear error message | Yes |
+  Status: BASELINED (2026-04-18)
 
   Rules (Business):
   - Every `Example:` block MUST have an `@id:<8-char-hex>` tag before the stub sync proceeds
@@ -31,39 +16,6 @@ Feature: Auto ID generation and enforcement
   - Must not corrupt the `.feature` file — only insert the `@id` tag line, leave all other content unchanged
   - Must detect read-only filesystem before attempting write (check file writability, not just `CI` env var)
   - The error message must name the specific `.feature` file(s) and Example title(s) that are missing IDs
-
-  Questions:
-  | ID | Question | Answer | Status |
-  |----|----------|--------|--------|
-  | Q1 | Should ID uniqueness be guaranteed globally (across all feature files) or just within a single file? | Within-file only — scan the current `.feature` file for existing `@id` values before generating new ones for that file; 8-char hex collision probability across files is negligible | ANSWERED (REVISED) |
-  | Q2 | How is "CI / read-only" detected — by checking file writability or by checking a `CI` env var? | Check file writability — more reliable across different CI systems | ANSWERED |
-
-  All questions answered. Discovery frozen.
-
-  Architecture:
-
-  ### Module Structure
-  - `pytest_beehave/id_generator.py` — `generate_unique_id(existing_ids: set[ExampleId]) -> ExampleId`; `find_untagged_examples(feature_text: str) -> list[UntaggedExample]`; `write_back_ids(path, filesystem) -> IdWriteBackResult`. `FileSystemProtocol` Protocol. `UntaggedExample` frozen dataclass (title, line_number). `IdWriteBackResult` frozen dataclass (path, assigned dict, skipped list).
-  - `pytest_beehave/models.py` — `ExampleId` frozen dataclass (value: str) — shared with stub_writer, stub_reader, feature_parser.
-
-  ### Key Decisions
-  ADR-001: Detect read-only by checking file writability, not CI env var
-  Decision: Use `os.access(path, os.W_OK)` via `FileSystemProtocol.is_writable` to determine if write-back is possible.
-  Reason: More reliable across different CI systems than checking `CI` env var; matches AC Q2 answer.
-  Alternatives considered: Checking `os.environ.get("CI")` — rejected per AC Q2.
-
-  ADR-002: ID uniqueness is within-file only
-  Decision: `generate_unique_id` takes `existing_ids: set[ExampleId]` scanned from the current file only.
-  Reason: Matches AC Q1 answer; cross-file collision probability with 8-char hex is negligible.
-  Alternatives considered: Global uniqueness across all feature files — rejected per AC Q1.
-
-  ADR-003: Write @id tag on the line immediately before the Example keyword
-  Decision: Insert the `@id:<hex>` tag line immediately before the `Example:` keyword line.
-  Reason: Matches the Gherkin tag convention and AC requirement.
-  Alternatives considered: Appending to existing tag lines — rejected because it may break gherkin-official parsing.
-
-  ### Build Changes (needs PO approval: no)
-  - No new runtime dependencies (uses stdlib `os`, `uuid`, and `re`).
 
   Rule: Auto ID write-back
     As a developer

@@ -83,7 +83,7 @@ class ParsedRule:
 
     Attributes:
         title: The Rule: title text.
-        rule_slug: Slugified rule title (hyphen-separated).
+        rule_slug: Slugified rule title (underscore-separated).
         examples: Tuple of parsed examples in this rule.
         is_deprecated: True if the rule itself is deprecated.
     """

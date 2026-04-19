@@ -61,7 +61,7 @@ class RuleSlug:
     """A file-safe slug derived from a Rule block title.
 
     Attributes:
-        value: Lowercase, hyphen-separated identifier.
+        value: Lowercase, underscore-separated identifier.
     """
 
     value: str
