@@ -46,4 +46,4 @@ As a software-engineer I declare:
 - [x] `@id:6c592c81`: HTML column absent when pytest-html not installed
 
 ## Next
-Run @reviewer — verify feature report-steps at Step 4 (naming convention fixes applied, all gates pass)
+Run @software-engineer — fix OC-5 violations in plugin.py and steps_reporter.py for report-steps, then re-run Step 4

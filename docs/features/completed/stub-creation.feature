@@ -53,6 +53,13 @@ Feature: Test stub creation
       When pytest is invoked
       Then the generated stub is a method inside class Test<RuleSlug> in <rule_slug>_test.py
 
+    @bug
+    @id:c3a8f291
+    Example: New stub for a Rule block is a top-level function (not a class method)
+      Given a backlog feature file with a Rule block containing a new @id-tagged Example
+      When pytest is invoked
+      Then the generated stub is a top-level function in <rule_slug>_test.py with no class wrapping
+
     @id:f1a5c823
     Example: New stub for a feature with no Rule blocks is a module-level function
       Given a backlog feature file with no Rule blocks containing a new @id-tagged Example
