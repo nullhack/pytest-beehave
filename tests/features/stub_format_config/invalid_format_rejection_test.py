@@ -33,8 +33,6 @@ def test_stub_format_config_f6a7b8c9(tmp_path: Path) -> None:
 def test_stub_format_config_f6a7b8c9_read_raises(tmp_path: Path) -> None:
     """Direct unit test: read_stub_format raises SystemExit on invalid value."""
     pyproject = tmp_path / "pyproject.toml"
-    pyproject.write_text(
-        '[tool.beehave]\nstub_format = "methods"\n', encoding="utf-8"
-    )
+    pyproject.write_text('[tool.beehave]\nstub_format = "methods"\n', encoding="utf-8")
     with pytest.raises(SystemExit, match="methods"):
         read_stub_format(tmp_path)

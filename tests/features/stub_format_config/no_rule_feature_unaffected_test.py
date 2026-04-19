@@ -2,8 +2,6 @@
 
 from pathlib import Path
 
-import pytest
-
 from pytest_beehave.sync_engine import run_sync
 
 

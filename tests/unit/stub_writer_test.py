@@ -379,3 +379,32 @@ def test_toggle_deprecated_marker_removes_when_not_deprecated(tmp_path: Path) ->
     assert result.action == "DEPRECATED"
     content = test_file.read_text(encoding="utf-8")
     assert "@pytest.mark.deprecated" not in content
+
+
+def test_write_class_based_stub_creates_new_file(tmp_path: Path) -> None:
+    """
+    Given: A non-existent test file and stub_format="classes"
+    When: write_stub_to_file is called for a rule-based example
+    Then: A new file is created with a class containing the method stub
+    """
+    test_file = tmp_path / "my_rule_test.py"
+    example = _make_example("aabbccdd")
+    rule = ParsedRule(
+        title="My Rule",
+        rule_slug=RuleSlug("my_rule"),
+        examples=(example,),
+        is_deprecated=False,
+    )
+    feature = _make_feature("my_feature", rules=(rule,))
+    spec = StubSpec(
+        feature_slug=FeatureSlug("my_feature"),
+        rule_slug=RuleSlug("my_rule"),
+        example=example,
+        feature=feature,
+        stub_format="classes",
+    )
+    action = write_stub_to_file(test_file, spec)
+    assert action.action == "CREATE"
+    content = test_file.read_text(encoding="utf-8")
+    assert "class TestMyRule:" in content
+    assert "test_my_feature_aabbccdd" in content
