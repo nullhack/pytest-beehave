@@ -1,13 +1,26 @@
 # Current Work
 
 Feature: example-hatch
-Step: 1 (SCOPE) — COMPLETE
-Source: docs/features/backlog/example-hatch.feature
+Step: 2 (Architecture)
+Source: docs/features/in-progress/example-hatch.feature
 
 ## Progress
-- [x] Stage 1 Discovery — Q&A session complete, journal updated, discovery.md updated
-- [x] Stage 2A Stories — 5 Rule blocks written and INVEST-gated
-- [x] Stage 2B Criteria — 16 @id-tagged Examples written, Self-Declaration all AGREE, IDs unique
+- [ ] `@id:1a2b3c4d`: Hatch creates the features directory tree when it does not exist
+- [ ] `@id:2b3c4d5e`: Hatch writes bee-themed .feature files into the correct subfolders
+- [ ] `@id:3c4d5e6f`: Hatch emits a terminal summary of files written
+- [ ] `@id:4d5e6f7a`: pytest exits immediately after hatch without running tests
+- [ ] `@id:5e6f7a8b`: Hatch fails when the features directory already contains .feature files
+- [ ] `@id:6f7a8b9c`: Hatch overwrites existing content when --beehave-hatch-force is passed
+- [ ] `@id:7a8b9c0d`: Generated content includes an untagged Example to trigger auto-ID generation
+- [ ] `@id:8b9c0d1e`: Generated content includes a @deprecated-tagged Example
+- [ ] `@id:9c0d1e2f`: Generated content includes a multilingual feature file
+- [ ] `@id:0d1e2f3a`: Generated content includes a feature with a Background block
+- [ ] `@id:1e2f3a4b`: Generated content includes a Scenario Outline with an Examples table
+- [ ] `@id:a1f2e3d4`: Generated content includes a step with an attached data table
+- [ ] `@id:b2e3d4c5`: Generated content includes a feature placed in the completed subfolder
+- [ ] `@id:c3d4e5f6`: Hatch writes to the custom path when features_path is configured
+- [ ] `@id:d4e5f6a7`: Hatch produces a different Feature name on successive runs
+- [ ] `@id:e5f6a7b8`: Hatch completes without requiring any additional package installation
 
 ## Next
-Run @software-engineer — load skill implementation and begin Step 2 (Architecture) for example-hatch
+Run @software-engineer — complete Step 2 (Architecture) stubs for example-hatch
