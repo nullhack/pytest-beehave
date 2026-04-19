@@ -1,7 +1,7 @@
 Feature: Auto ID generation and enforcement
-  As a developer
-  I want Examples without an @id tag to receive a generated ID written back to the .feature file (or fail in CI)
-  So that every Example is uniquely identified without manual intervention
+  Ensures every Example in a .feature file has a unique @id tag. When an untagged Example is found
+  in a writable environment, an ID is generated and written back in-place. In a read-only environment
+  (CI), the pytest run fails with a descriptive error naming the untagged Example.
 
   Status: BASELINED (2026-04-18)
 

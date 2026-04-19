@@ -1,7 +1,8 @@
 Feature: Deprecation marker sync
-  As a developer
-  I want @pytest.mark.deprecated to be toggled on test functions whenever the @deprecated tag changes in the .feature file
-  So that deprecated acceptance criteria are automatically skipped across all feature stages
+  Keeps @pytest.mark.deprecated in sync with the @deprecated Gherkin tag across all three feature
+  stages. Adds the marker when the tag appears (including via Rule or Feature-level inheritance) and
+  removes it when the tag is gone. Completed features receive only this deprecation sync — no other
+  stub operations run on them.
 
   Status: BASELINED (2026-04-18)
 

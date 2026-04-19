@@ -1,7 +1,8 @@
 Feature: Multilingual feature parsing
-  As a developer
-  I want pytest-beehave to parse .feature files written in any language supported by gherkin-official
-  So that non-English projects work transparently without any beehave configuration
+  Parses .feature files written in any language supported by gherkin-official. Non-English parsing
+  is triggered by the standard `# language: xx` comment in the feature file. Function names are
+  derived from the feature folder name, never from Gherkin keywords, so any language works
+  transparently without any beehave configuration.
 
   Status: BASELINED (2026-04-18)
 
