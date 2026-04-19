@@ -1,7 +1,7 @@
 ---
 name: feature-selection
 description: Score and select the next backlog feature by value, effort, and dependencies
-version: "1.0"
+version: "2.0"
 author: product-owner
 audience: product-owner
 workflow: feature-lifecycle
@@ -33,7 +33,7 @@ ls docs/features/in-progress/
 
 ### 2. List BASELINED Candidates
 
-Read each `.feature` file in `docs/features/backlog/`. Check its discovery section for `Status: BASELINED`.
+Read each `.feature` file in `docs/features/backlog/`. Check its feature description for `Status: BASELINED`.
 
 - Non-BASELINED features are not eligible — they need Step 1 (scope) first
 - If no BASELINED features exist: inform the stakeholder; run `@product-owner` with `skill scope` to baseline the most promising backlog item first
@@ -77,6 +77,8 @@ Ties: prefer higher Value (user impact matters more than effort optimization).
 If all BASELINED features have Dependency=1: stop and resolve the blocking dependency first — select and complete the depended-upon feature.
 
 ### 5. Move and Update TODO.md
+
+**The PO owns this move.** Move the selected feature file:
 
 ```bash
 mv docs/features/backlog/<name>.feature docs/features/in-progress/<name>.feature

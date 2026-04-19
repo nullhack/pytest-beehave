@@ -163,7 +163,7 @@ tests/
 Every test function name encodes its criterion:
 
 ```
-test_<feature_slug>_<8char_hex>
+test_<feature_slug>_<@id>
 ```
 
 No fragile name matching. No guessing. Every stub traces back to its exact `Example:` by ID — like a cell number in the comb.

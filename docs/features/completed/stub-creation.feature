@@ -1,28 +1,9 @@
 Feature: Test stub creation
-  As a developer
-  I want test stubs to be created for each new Example in backlog and in-progress features
-  So that I have failing tests ready to implement for every acceptance criterion
+  Creates top-level test functions for each new Example in backlog and in-progress features.
+  Stubs include a skip marker and a verbatim step docstring. Completed features are never touched
+  by stub sync.
 
-  Discovery:
-
-  Status: BASELINED
-
-  Entities:
-  | Type | Name | Candidate Class/Method | In Scope |
-  |------|------|----------------------|----------|
-  | Noun | test stub | generated `test_<feature_slug>_<hex>()` method or function | Yes |
-  | Noun | test file | `tests/features/<feature>/<rule_slug>_test.py` or `examples_test.py` | Yes |
-  | Noun | feature slug | underscored folder name used in function names | Yes |
-  | Noun | rule slug | `Rule:` title slugified (hyphens, lowercase); used as test file name | Yes |
-  | Noun | class Test<RuleSlug> | class wrapping all stubs for a Rule block | Yes |
-  | Noun | conftest.py | autouse fixture module for feature-level Background steps | Yes |
-  | Noun | docstring | step-by-step docstring in test stub | Yes |
-  | Noun | step | individual Gherkin step (Given/When/Then/And/But) | Yes |
-  | Noun | backlog stage | `docs/features/backlog/` | Yes |
-  | Noun | in-progress stage | `docs/features/in-progress/` | Yes |
-  | Noun | completed stage | `docs/features/completed/` — excluded from stub sync | Yes |
-  | Verb | create stub | write new test method/function for new Example | Yes |
-  | Verb | build all-steps docstring | include every step line (Given/When/Then/And/But) | Yes |
+  Status: BASELINED (2026-04-18)
 
   Rules (Business):
   - Feature files are parsed using gherkin-official AST — no regex/string manipulation
@@ -32,53 +13,14 @@ Feature: Test stub creation
   - The docstring includes EVERY step line in order, including `And` and `But` continuations
   - Docstring format per step: `<Keyword>: <step text>` (e.g., `Given: user is logged in`, `And: user has admin role`)
   - Test function bodies start with `raise NotImplementedError` — no section comments
-  - Features with `Rule:` blocks: stubs are methods inside `class Test<RuleSlug>` in `<rule_slug>_test.py`
+  - Features with `Rule:` blocks: stubs are top-level functions in `<rule_slug>_test.py`
   - Features with no `Rule:` blocks: stubs are module-level functions in `examples_test.py`
   - Feature-level `Background:` → `conftest.py` autouse fixture; Rule-level `Background:` → module-level autouse fixture in `<rule_slug>_test.py`
 
   Constraints:
   - Must handle the case where the test file does not yet exist (create it)
   - Must handle the case where a test file exists but is missing some stubs (add only the missing ones)
-  - Function naming: `test_<feature_slug>_<id_hex>` — always, whether the stub is a method (inside a class) or a top-level function
-
-  Questions:
-  | ID | Question | Answer | Status |
-  |----|----------|--------|--------|
-  | Q1 | What is the stub body for a newly created test? | `raise NotImplementedError` only — no `# Given`, `# When`, or `# Then` section comments | ANSWERED |
-  | Q2 | Should the test file header (module docstring, imports) be preserved on update? | Yes — only the function name, decorators, and docstring are touched; file header is preserved | ANSWERED |
-
-  All questions answered. Discovery frozen.
-
-  Architecture:
-
-  ### Module Structure
-  - `pytest_beehave/feature_parser.py` — `parse_feature(path: Path) -> ParsedFeature`; `collect_all_example_ids(feature) -> set[ExampleId]`. `ParsedFeature`, `ParsedRule`, `ParsedExample`, `ParsedStep` frozen dataclasses. `GherkinParserProtocol` Protocol.
-  - `pytest_beehave/stub_writer.py` — `build_docstring(feature, rule, example) -> str`; `build_function_name(feature_slug, example_id) -> str`; `build_class_name(rule_slug) -> str`; `write_stub_to_file(path, spec) -> SyncAction`. `StubSpec` frozen dataclass. `SyncAction` frozen dataclass.
-  - `pytest_beehave/models.py` — `FeatureSlug`, `RuleSlug`, `FeatureStage` — shared value objects.
-
-  ### Key Decisions
-  ADR-001: Use libcst for all test file writes
-  Decision: All stub creation and updates use `libcst` to parse and modify Python source trees.
-  Reason: Preserves formatting, comments, and existing function bodies; avoids string-template fragility.
-  Alternatives considered: String templates / `ast` module — rejected because `ast` cannot round-trip source code with formatting preserved; string templates are fragile.
-
-  ADR-002: Stub body is always `raise NotImplementedError` with no section comments
-  Decision: New stubs contain only `raise NotImplementedError` in the body — no `# Given`, `# When`, `# Then` comments.
-  Reason: Matches AC Q1 answer; section comments are redundant given the docstring.
-  Alternatives considered: Adding section comments — rejected per AC Q1.
-
-  ADR-003: Feature slug uses underscores; rule slug uses hyphens
-  Decision: `FeatureSlug` replaces hyphens with underscores (for Python identifiers); `RuleSlug` uses hyphens (for file names).
-  Reason: Python function/class names cannot contain hyphens; file names can.
-  Alternatives considered: Both using underscores — rejected because file names with underscores diverge from the spec.
-
-  ADR-004: completed/ features never receive new stubs
-  Decision: `write_stub_to_file` is never called for features in `FeatureStage.COMPLETED`.
-  Reason: Matches AC `@id:38d864b9` and the state machine in discovery.md.
-  Alternatives considered: Allowing stub creation for completed features — rejected per spec.
-
-  ### Build Changes (needs PO approval: yes)
-  - New runtime dependency: `libcst>=1.0.0` — reason: read/write Python test files preserving formatting and comments (Q19 in discovery.md).
+  - Function naming: `test_<feature_slug>_<@id>` — always
 
   Rule: New stub generation
     As a developer
@@ -89,7 +31,7 @@ Feature: Test stub creation
     Example: New stub is created with the correct function name
       Given a backlog feature folder containing a .feature file with a new @id-tagged Example
       When pytest is invoked
-      Then a test function named test_<feature_slug>_<id_hex> exists in the corresponding test file
+      Then a test function named test_<feature_slug>_<@id> exists in the corresponding test file
 
     @deprecated
     @id:d14d975f
@@ -104,6 +46,7 @@ Feature: Test stub creation
       When pytest is invoked
       Then the generated test function has @pytest.mark.skip(reason="not yet implemented") applied
 
+    @deprecated
     @id:e2b093d1
     Example: New stub for a Rule block is a method inside the rule class
       Given a backlog feature file with a Rule block containing a new @id-tagged Example

@@ -1,7 +1,7 @@
 ---
 name: scope
 description: Step 1 — discover requirements through stakeholder interviews and write Gherkin acceptance criteria
-version: "4.0"
+version: "5.0"
 author: product-owner
 audience: product-owner
 workflow: feature-lifecycle
@@ -15,18 +15,45 @@ This skill guides the PO through Step 1 of the feature lifecycle: interviewing t
 
 When the PO is starting a new project or a new feature. The output is a set of `.feature` files in `docs/features/backlog/`.
 
+## PO Responsibility: Feature File Moves
+
+**The PO is the sole owner of all `.feature` file moves.** Software-engineer and reviewer never move or rename feature files.
+
+| Move | When | Who |
+|---|---|---|
+| `backlog/` → `in-progress/` | Feature selected at Step 2 start | PO only |
+| `in-progress/` → `completed/` | After Step 4 APPROVED | PO only |
+
+When software-engineer or reviewer find no feature in `in-progress/`, they stop and escalate: output a message asking the PO to move a BASELINED feature from `backlog/` to `in-progress/`.
+
+## Document Model
+
+Discovery Q&A, synthesis, and architecture each live in separate append-only files. `.feature` files are lean specs — no Q&A tables, no session metadata.
+
+| File | Owner | Content |
+|---|---|---|
+| `docs/discovery_journal.md` | PO | Raw Q&A from every scope session — append-only |
+| `docs/discovery.md` | PO | Synthesis changelog — one dated block per session — append-only |
+| `docs/architecture.md` | SE | Architectural decisions — one dated block per decision — append-only |
+| `docs/features/backlog/<name>.feature` | PO | Feature description + Rules + Examples |
+| `docs/features/in-progress/<name>.feature` | PO moves here at Step 2 | Living spec during development |
+| `docs/features/completed/<name>.feature` | PO moves here after Step 4 | Frozen (only `@deprecated` additions allowed) |
+
+**Append-only rule**: never edit past content in `discovery_journal.md`, `discovery.md`, or `architecture.md`. Add a new dated block for every revision.
+
 ## Overview
 
-Step 1 has 4 phases:
+Step 1 has 4 phases plus an optional revision protocol:
 
 | Phase | Who | Output |
 |---|---|---|
-| 1. Project Discovery | PO + stakeholder | `docs/features/discovery.md` + feature list |
-| 2. Feature Discovery | PO + stakeholder | Discovery section embedded in `docs/features/backlog/<name>.feature` |
+| 1. Project Discovery | PO + stakeholder | `docs/discovery_journal.md` + `docs/discovery.md` + feature stubs in `backlog/` |
+| 2. Feature Discovery | PO + stakeholder | Q&A in `docs/discovery_journal.md`; synthesis in `docs/discovery.md`; feature description updated |
 | 3. Stories | PO alone | `Rule:` blocks in the `.feature` file (no Examples) |
 | 4. Criteria | PO alone | `Example:` blocks with `@id` tags under each `Rule:` |
+| 5. Revision | PO + stakeholder | New dated blocks appended to `discovery_journal.md` and `discovery.md`; `.feature` description and Rules (Business) rewritten |
 
-Each phase produces a template-gated deliverable. A section must be complete and confirmed before the next section unlocks. Template enforcement is the process discipline — not a "baseline" command.
+Each phase produces a template-gated deliverable. A section must be complete and confirmed before the next section unlocks.
 
 ---
 
@@ -72,11 +99,11 @@ Do not introduce topic labels or categories during active listening. The summary
 
 ## Phase 1 — Project Discovery
 
-**When**: Once per project, before any features are scoped. **Skip entirely if `discovery.md` Status is `BASELINED`.** Adding features to an existing project: append new questions to Session 1 and re-fill from there.
+**When**: Once per project, before any features are scoped. **Skip entirely if `docs/discovery.md` contains a BASELINED block.** Adding features to an existing project: open Phase 5 (Revision) instead.
 
 ### Session 1 — Individual Scope Elicitation
 
-**Before the session**: Create `docs/features/discovery.md` using the project-level discovery template. Open to the Session 1 section.
+**Before the session**: If `docs/discovery_journal.md` does not exist, create it with a header. Append a new dated session block.
 
 **Ask the 7 standard questions** (present all at once):
 
@@ -88,30 +115,32 @@ Do not introduce topic labels or categories during active listening. The summary
 6. **Failure** — what does failure look like? What must never happen?
 7. **Out-of-scope** — what are we explicitly not building?
 
-**During the session**: Apply Level 1 active listening (paraphrase each answer). Apply CIT, Laddering, and CI Perspective Change per answer to surface gaps. Add new questions to the Questions table as they arise — do not defer to a later session.
+**During the session**: Apply Level 1 active listening (paraphrase each answer). Apply CIT, Laddering, and CI Perspective Change per answer to surface gaps. Add new questions to the Q&A table as they arise — do not defer to a later session.
 
 **After the session**:
 
-1. Write the **Session 1 Synthesis** in `discovery.md`: a 3–5 sentence summary of who the users are, what the product does, why it exists, its success/failure conditions, and explicit out-of-scope boundaries.
-2. Present the synthesis to the stakeholder: "Here is my understanding of what you told me — please correct anything that is missing or wrong."
-3. Stakeholder confirms or corrects. PO refines until approved.
-4. Run a **silent pre-mortem** on the confirmed synthesis: "Imagine we build exactly what was described, ship it, and it fails. What was missing?" Add any discoveries as new questions to the Questions table.
-5. Mark `Template §1: CONFIRMED` in `discovery.md`. This unlocks Session 2.
+1. Append the Q&A to `docs/discovery_journal.md` under the session header.
+2. Write a **Session 1 Synthesis** block in `docs/discovery.md`: a 3–5 sentence summary of who the users are, what the product does, why it exists, its success/failure conditions, and explicit out-of-scope boundaries.
+3. Present the synthesis to the stakeholder: "Here is my understanding of what you told me — please correct anything that is missing or wrong."
+4. Stakeholder confirms or corrects. PO refines until approved.
+5. Run a **silent pre-mortem** on the confirmed synthesis: "Imagine we build exactly what was described, ship it, and it fails. What was missing?" Add any discoveries as new questions in `docs/discovery_journal.md`.
+6. Mark `Template §1: CONFIRMED` in `docs/discovery.md`. This unlocks Session 2.
 
 ### Session 2 — Behavior Groups / Big Picture
 
-**Before the session**: Review the confirmed Session 1 synthesis. Identify behavior groups (cross-cutting concerns, system-wide constraints, integration points, lifecycle questions). Prepare group-level questions.
+**Before the session**: Review the confirmed Session 1 synthesis. Identify behavior groups (cross-cutting concerns, system-wide constraints, integration points, lifecycle questions). Prepare group-level questions. Append a new dated session block to `docs/discovery_journal.md`.
 
 **During the session**: Apply Level 1 active listening per answer. Apply Level 2 active listening when transitioning between groups. Apply CIT, Laddering, and CI Perspective Change per group. Add new questions in the moment.
 
 **After the session**:
 
-1. For each group, write a **Group Summary** in `discovery.md`.
-2. Mark `Template §2: CONFIRMED` in `discovery.md`. This unlocks Session 3.
+1. Append the Q&A to `docs/discovery_journal.md`.
+2. Write **Group Summaries** as a new block in `docs/discovery.md`. Name each group.
+3. Mark `Template §2: CONFIRMED` in `docs/discovery.md`. This unlocks Session 3.
 
 ### Session 3 — Synthesis Approval + Feature Derivation
 
-**Before the session**: Produce a **Full Synthesis** across all behavior groups from Sessions 1 and 2. Write it to `discovery.md`.
+**Before the session**: Produce a **Full Synthesis** across all behavior groups from Sessions 1 and 2. Append it to `docs/discovery.md`.
 
 **During the session**: Present the full synthesis to the stakeholder. "This is my understanding of the full scope. Please correct anything that is missing or wrong." Stakeholder approves or corrects. PO refines until the stakeholder explicitly approves.
 
@@ -120,8 +149,9 @@ Do not introduce topic labels or categories during active listening. The summary
 1. Domain analysis: extract all nouns (candidate entities) and verbs (candidate operations) from the approved synthesis.
 2. Group nouns into subject areas (Bounded Contexts: where the same word means different things, a new context begins).
 3. Name each subject area as a feature using FDD "Action object" triples: "Calculate the total of a sale", "Validate the password of a user", "Enroll a student in a seminar".
-4. For each feature: create `docs/features/backlog/<name>.feature` using the feature file template (discovery section only — no Rules yet).
-5. Write `Status: BASELINED (YYYY-MM-DD)` to `discovery.md`.
+4. Append a **Domain Model** table to `docs/discovery.md` (Type, Name, Description, In Scope).
+5. For each feature: create `docs/features/backlog/<name>.feature` using the feature file template (feature description + empty Rules/Constraints — no Rules or Examples yet).
+6. Append `Status: BASELINED (YYYY-MM-DD)` and `Template §3: CONFIRMED` to `docs/discovery.md`.
 
 Commit: `feat(discovery): baseline project discovery`
 
@@ -129,51 +159,53 @@ Commit: `feat(discovery): baseline project discovery`
 
 ## Phase 2 — Feature Discovery
 
-**When**: Per feature, after project discovery is baselined. Each `.feature` file has its own 3-session discovery template in its description.
+**When**: Per feature, after project discovery is baselined.
 
 ### Session 1 — Individual Entity Elicitation
 
-**Before the session**: Open `docs/features/backlog/<name>.feature`.
+**Before the session**: Open `docs/features/backlog/<name>.feature`. Append a new dated feature-session block to `docs/discovery_journal.md`.
 
-1. **Populate the Entities table**: extract nouns (candidate classes) and verbs (candidate methods) from the project discovery synthesis that are relevant to this feature. Mark each as in-scope or not.
-2. **Generate questions from entity gaps**: for each in-scope entity, ask internally:
+1. **Generate questions from entity gaps**: from the project discovery synthesis, identify entities relevant to this feature. For each, ask internally:
    - What are its boundaries and edge cases?
    - What happens when it is missing, invalid, or at its limits?
-   - How does it interact with other in-scope entities?
-3. Add questions to the Session 1 Questions table.
-4. Run a **silent pre-mortem**: "Imagine the developer builds this feature exactly as described, all tests pass, but the feature doesn't work for the user. What would be missing?" Add any discoveries as new questions.
+   - How does it interact with other entities?
+2. Add questions to the session block in `docs/discovery_journal.md`.
+3. Run a **silent pre-mortem**: "Imagine the developer builds this feature exactly as described, all tests pass, but the feature doesn't work for the user. What would be missing?" Add any discoveries as new questions.
 
 **During the session**: Apply Level 1 active listening per answer. Apply CIT, Laddering, and CI Perspective Change per answer. Add new questions in the moment.
 
 **After the session**:
 
-1. Write the **Session 1 Synthesis** in the `.feature` file: summarize the key entities, their relationships, and the constraints that emerged.
-2. Present the synthesis to the stakeholder. Stakeholder confirms or corrects. PO refines until approved.
-3. Run a **silent pre-mortem** on the confirmed synthesis.
-4. Mark `Template §1: CONFIRMED`. This unlocks Session 2.
+1. Append the Q&A to `docs/discovery_journal.md`.
+2. Write a **Session 1 Synthesis** block in `docs/discovery.md`: summarize the key entities, their relationships, and the constraints that emerged for this feature.
+3. Present the synthesis to the stakeholder. Stakeholder confirms or corrects. PO refines until approved.
+4. Run a **silent pre-mortem** on the confirmed synthesis.
+5. Update the feature description in `docs/features/backlog/<name>.feature` to reflect the confirmed scope.
+6. Mark `Template §1: CONFIRMED` in `docs/discovery.md`. This unlocks Session 2.
 
 ### Session 2 — Behavior Groups / Big Picture for This Feature
 
-**Before the session**: Review the confirmed Session 1 synthesis. Identify behavior groups within this feature (happy paths, error paths, edge cases, lifecycle events, integration points).
+**Before the session**: Review the confirmed Session 1 synthesis. Identify behavior groups within this feature (happy paths, error paths, edge cases, lifecycle events, integration points). Append a new dated session block to `docs/discovery_journal.md`.
 
 **During the session**: Apply Level 1 active listening per answer. Apply Level 2 active listening when transitioning between groups. Apply CIT, Laddering, and CI Perspective Change per group.
 
 **After the session**:
 
-1. Write **Group Summaries** in the `.feature` file. Name each group — these names become candidate `Rule:` titles.
-2. Mark `Template §2: CONFIRMED`. This unlocks Session 3.
+1. Append the Q&A to `docs/discovery_journal.md`.
+2. Append **Group Summaries** to `docs/discovery.md` under this feature's session block. Name each group — these names become candidate `Rule:` titles.
+3. Mark `Template §2: CONFIRMED` in `docs/discovery.md`. This unlocks Session 3.
 
 ### Session 3 — Feature Synthesis Approval + Story Derivation
 
-**Before the session**: Produce a **Full Synthesis** of the feature scope, covering all behavior groups from Sessions 1 and 2.
+**Before the session**: Produce a **Full Synthesis** of the feature scope, covering all behavior groups from Sessions 1 and 2. Append it to `docs/discovery.md`.
 
 **During the session**: Present the full synthesis to the stakeholder. Stakeholder approves or corrects. PO refines until explicitly approved.
 
 **After the session** (PO alone):
 
 1. Map each named group from Session 2 to a candidate user story (Rule).
-2. Write `Status: BASELINED (YYYY-MM-DD)` to the `.feature` file's discovery section.
-3. Mark `Template §3: CONFIRMED`.
+2. Update `Status: BASELINED (YYYY-MM-DD)` in the `.feature` file's feature description.
+3. Mark `Template §3: CONFIRMED` in `docs/discovery.md`.
 
 Commit: `feat(discovery): baseline <name> feature discovery`
 
@@ -194,7 +226,7 @@ Does this feature span **>2 distinct concerns** OR have **>8 candidate Examples*
 
 ### 3.1 Write Rule Blocks
 
-Clusters from Phase 2 Session 2 → one `Rule:` block per user story. Add after the discovery section in the `.feature` file.
+Clusters from Phase 2 Session 2 → one `Rule:` block per user story. Add to the `.feature` file after the feature description.
 
 Each `Rule:` block contains:
 - The rule title (2-4 words, kebab-friendly)
@@ -234,7 +266,7 @@ Before committing, verify every Rule passes:
 
 - [ ] Every Rule has a distinct user role and benefit
 - [ ] No Rule duplicates another
-- [ ] Rules collectively cover all entities marked in-scope in the discovery section
+- [ ] Rules collectively cover the scope described in the feature description
 - [ ] Every Rule passes the INVEST gate
 
 Commit: `feat(stories): write user stories for <name>`
@@ -325,47 +357,44 @@ git commit -m "feat(criteria): write acceptance criteria for <name>"
 
 ---
 
+## Phase 5 — Revision Protocol
+
+**When**: Scope changes after project or feature discovery is baselined. **Never edit past content in `discovery_journal.md`, `discovery.md`, or `architecture.md`.**
+
+### Project Scope Revision
+
+1. Append a new dated session block to `docs/discovery_journal.md` with new Q&A.
+2. Append a new `## Session: YYYY-MM-DD — Revision: <reason>` block to `docs/discovery.md` with updated synthesis, feature list delta, and domain model additions.
+3. For removed or renamed features: add `@deprecated` tag to all affected Examples in their `.feature` files; create new `.feature` files for renamed features.
+4. For new features: create `docs/features/backlog/<name>.feature` stubs and run Phase 2.
+5. Commit: `feat(discovery): revise project scope — <reason>`
+
+### Feature Scope Revision
+
+1. Append a new dated session block to `docs/discovery_journal.md`.
+2. Append a new synthesis block to `docs/discovery.md`.
+3. Rewrite the **feature description** and **Rules (Business)** / **Constraints** sections of the `.feature` file — these are the only parts of a `.feature` file that are not frozen.
+4. For changed acceptance criteria: add `@deprecated` to old Examples; add new Examples with new `@id` tags.
+5. Update `Status: BASELINED (YYYY-MM-DD)` with the new date.
+6. Commit: `feat(discovery): revise <name> feature scope — <reason>`
+
+---
+
 ## Feature File Format
 
-Each feature is a single `.feature` file. The free-form description before the first `Rule:` contains all discovery content. Architecture is added later by the developer (Step 2).
+Each feature is a single `.feature` file. The **feature description** (the free-form prose before the first `Rule:`) is always current — the PO rewrites it when scope changes. It is not append-only. The `Rule:` and `Example:` blocks are frozen after the criteria commit.
 
 ```gherkin
 Feature: <Feature title>
-
-  Discovery:
+  <2-4 sentence feature description — what it does, for whom, and why.>
 
   Status: ELICITING | BASELINED (YYYY-MM-DD)
-
-  Entities:
-  | Type | Name | Candidate Class/Method | In Scope |
-  |------|------|----------------------|----------|
-  | Noun | Ball | Ball                 | Yes      |
-  | Verb | Bounce | Ball.bounce()      | Yes      |
 
   Rules (Business):
   - <Business rule that applies across multiple Examples>
 
   Constraints:
   - <Non-functional requirement specific to this feature>
-
-  Session 1 — Individual Entity Elicitation:
-  | ID | Question | Answer | Status |
-  |----|----------|--------|--------|
-  | Q1 | ... | ... | OPEN / ANSWERED |
-  Template §1: CONFIRMED
-  Synthesis: <PO synthesis — confirmed by stakeholder>
-
-  Session 2 — Behavior Groups / Big Picture:
-  | ID | Question | Answer | Status |
-  |----|----------|--------|--------|
-  | Q2 | ... | ... | OPEN / ANSWERED |
-  Template §2: CONFIRMED
-  Behavior Groups:
-  - <Behavior group name>: <one-sentence summary>
-
-  Session 3 — Feature Synthesis:
-  Synthesis: <full synthesis across all behavior groups>
-  Template §3: CONFIRMED — stakeholder approved YYYY-MM-DD
 
   Rule: <User story title>
     As a <role>
@@ -378,7 +407,8 @@ Feature: <Feature title>
       When <event or action>
       Then <observable outcome>
 
-    @deprecated @id:b5c6d7e8
+    @deprecated
+    @id:b5c6d7e8
     Example: <Superseded scenario>
       Given ...
       When ...
@@ -391,39 +421,85 @@ The **Constraints** section captures non-functional requirements. Testable const
 
 ---
 
-## Project-Level Discovery (`docs/features/discovery.md`)
+## Discovery Journal Format (`docs/discovery_journal.md`)
+
+```markdown
+# Discovery Journal: <project-name>
+
+---
+
+## YYYY-MM-DD — Project: Session 1
+
+| ID | Question | Answer | Status |
+|----|----------|--------|--------|
+| Q1 | Who are the users? | ... | ANSWERED |
+
+---
+
+## YYYY-MM-DD — Project: Session 2 — Behavior Groups
+
+Groups discussed: <group-a>, <group-b>
+
+| ID | Group | Question | Answer | Status |
+|----|-------|----------|--------|--------|
+| Q2 | <group-a> | ... | ... | ANSWERED |
+
+---
+
+## YYYY-MM-DD — Feature: <name> — Session 1
+
+| ID | Question | Answer | Status |
+|----|----------|--------|--------|
+| Q1 | ... | ... | ANSWERED |
+```
+
+---
+
+## Discovery Changelog Format (`docs/discovery.md`)
 
 ```markdown
 # Discovery: <project-name>
 
-## State
-Status: ELICITING | BASELINED (YYYY-MM-DD)
+---
 
-## Session 1 — Individual Scope Elicitation
+## Session: YYYY-MM-DD — Initial Synthesis
 
-| ID | Question | Answer | Status |
-|----|----------|--------|--------|
-| Q1 | Who are the users? | ... | OPEN / ANSWERED |
+### Scope
+<3–5 sentence synthesis>
 
 Template §1: CONFIRMED
-Synthesis: <PO synthesis — confirmed by stakeholder>
-Pre-mortem: <gaps identified; new questions added above>
-
-## Session 2 — Behavior Groups / Big Picture
-
-| ID | Question | Answer | Status |
-|----|----------|--------|--------|
-| Q2 | ... | ... | OPEN / ANSWERED |
-
 Template §2: CONFIRMED
-Behavior Groups:
-- <Behavior group name>: <one-sentence summary>
-
-## Session 3 — Full Synthesis
-
-<3–6 paragraph synthesis of all scope, behavior groups, and boundaries>
-
 Template §3: CONFIRMED — stakeholder approved YYYY-MM-DD
+
+### Behavior Groups
+- <group-name>: <one-sentence summary>
+
+### Feature List
+- `<feature-name>` — <one-sentence description>
+
+### Domain Model
+| Type | Name | Description | In Scope |
+|------|------|-------------|----------|
+
+Status: BASELINED (YYYY-MM-DD)
+
+---
+
+## Session: YYYY-MM-DD — Revision: <reason>
+
+### Scope
+<updated synthesis — only what changed>
+
+### Feature List
+<additions, removals, or renames only>
+
+### Domain Model
+<additions or changed descriptions only>
 ```
 
-No Entities table at project level.
+Base directory for this skill: file:///home/user/Documents/projects/pytest-beehave/.opencode/skills/scope
+Relative paths in this skill (e.g., scripts/, reference/) are relative to this base directory.
+
+<skill_files>
+<file>/home/user/Documents/projects/pytest-beehave/.opencode/skills/scope/discovery-template.md</file>
+</skill_files>

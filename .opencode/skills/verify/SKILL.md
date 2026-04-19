@@ -1,7 +1,7 @@
 ---
 name: verify
 description: Step 4 — run all verification commands, review code quality, and produce a written report
-version: "3.0"
+version: "4.0"
 author: reviewer
 audience: reviewer
 workflow: feature-lifecycle
@@ -26,8 +26,10 @@ After the software-engineer signals Step 3 is complete and all self-verification
 Read `docs/features/in-progress/<name>.feature`. Extract:
 - All `@id` tags and their Example titles from `Rule:` blocks
 - The interaction model (if the feature involves user interaction)
-- The Architecture section (module structure, ADRs)
-- The software-engineer's Self-Declaration from `TODO.md`
+
+Also read:
+- `docs/architecture.md` — all architectural decisions relevant to this feature
+- The software-engineer's Self-Declaration from the conversation (produced before Step 4 handoff)
 
 ### 2. pyproject.toml Gate
 
@@ -124,7 +126,7 @@ Read the source files changed in this feature. **Do this before running lint/sta
 | No internal attribute access | Search for `_x` in assertions | None found | `_x`, `isinstance`, `type()` |
 | Every `@id` has a mapped test | Match `@id` to test functions | All mapped | Missing test |
 | No orphaned skipped stubs | Search for `@pytest.mark.skip` in `tests/features/` | None found | Any found — stub was written but never implemented |
-| Function naming | Matches `test_<rule_slug>_<8char_hex>` | All match | Mismatch |
+    | Function naming | Matches `test_<feature_slug>_<@id>` | All match | Mismatch |
 | Hypothesis tests have `@slow` | Read every `@given` for `@slow` marker | All present | Any missing |
 
 #### 5g. Code Quality — any FAIL → REJECTED
@@ -156,7 +158,7 @@ Record what input was given and what output was observed.
 
 ### 8. Self-Declaration Audit
 
-Read the software-engineer's Self-Declaration from `TODO.md`.
+Read the software-engineer's Self-Declaration from the conversation (produced as output before Step 4 handoff).
 
 For every **AGREE** claim:
 - Find the `file:line` — does it hold?
@@ -221,8 +223,12 @@ OR
 1. `<file>:<line>` — <specific, actionable fix>
 
 ### Next Steps
-**If APPROVED**: Run `@product-owner` — accept the feature at Step 5.
+**If APPROVED**: Escalate to @product-owner. Output:
+> Step 4 APPROVED for `<feature-name>`. Escalating to @product-owner — please move `docs/features/in-progress/<feature-name>.feature` to `docs/features/completed/<feature-name>.feature` and pick the next feature from backlog.
+
 **If REJECTED**: Run `@software-engineer` — apply the fixes listed above, re-run quality gate, update Self-Declaration, then signal Step 4 again.
+
+**Note**: The reviewer never moves `.feature` files. Moving `in-progress/` to `completed/` is the PO's responsibility.
 ```
 
 ## Standards Summary
