@@ -173,6 +173,9 @@ Undeclared violations → REJECT.
 ```markdown
 ## Step 4 Verification Report — <feature-name>
 
+### Reviewer Stance Declaration
+I am approaching this review adversarially. My default hypothesis is that the code is broken despite passing automated checks. I will APPROVE only if I cannot find a failure mode after thorough investigation.
+
 ### pyproject.toml Gate
 | Check | Result | Notes |
 |---|---|---|
@@ -223,10 +226,11 @@ OR
 1. `<file>:<line>` — <specific, actionable fix>
 
 ### Next Steps
-**If APPROVED**: Escalate to @product-owner. Output:
+**If APPROVED**: Update `TODO.md` `## Next` line, then escalate to @product-owner. Output:
 > Step 4 APPROVED for `<feature-name>`. Escalating to @product-owner — please move `docs/features/in-progress/<feature-name>.feature` to `docs/features/completed/<feature-name>.feature` and pick the next feature from backlog.
 
-**If REJECTED**: Run `@software-engineer` — apply the fixes listed above, re-run quality gate, update Self-Declaration, then signal Step 4 again.
+**If REJECTED**: Output:
+> Step 4 REJECTED for `<feature-name>`. Run @software-engineer — apply the fixes listed above, re-run quality gate, update Self-Declaration in TODO.md, then signal Step 4 again.
 
 **Note**: The reviewer never moves `.feature` files. Moving `in-progress/` to `completed/` is the PO's responsibility.
 ```

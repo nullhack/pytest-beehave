@@ -3,6 +3,7 @@
 ---
 
 ## 2026-04-18 — Project: Session 1
+Status: COMPLETE
 
 | ID | Question | Answer | Status |
 |----|----------|--------|--------|
@@ -29,6 +30,7 @@
 ---
 
 ## 2026-04-18 — Project: Session 2 — Behavior Groups
+Status: COMPLETE
 
 | ID | Group | Question | Answer | Status |
 |----|-------|----------|--------|--------|

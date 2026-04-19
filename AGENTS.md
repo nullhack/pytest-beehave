@@ -30,7 +30,7 @@ STEP 5: ACCEPT         (product-owner)  → demo, validate, move in-progress/ to
 
 ## Agents
 
-- **product-owner** — defines scope (4 phases), picks features, accepts deliveries
+- **product-owner** — defines scope (Stage 1 Discovery + Stage 2 Specification), picks features, accepts deliveries
 - **software-engineer** — architecture, tests, code, git, releases (Steps 2-3 + release)
 - **reviewer** — runs commands and reviews code at Step 4, produces APPROVED/REJECTED report
 - **setup-project** — one-time setup to initialize a new project from this template
@@ -54,31 +54,50 @@ STEP 5: ACCEPT         (product-owner)  → demo, validate, move in-progress/ to
 
 **Session protocol**: Every agent loads `skill session-workflow` at session start. Load additional skills as needed for the current step.
 
-## Step 1 — SCOPE (4 Phases)
+## Step 1 — SCOPE
 
-### Phase 1 — Project Discovery (once per project)
-PO appends Q&A to `docs/discovery_journal.md` and synthesis blocks to `docs/discovery.md`. **Skip Phase 1 entirely if `docs/discovery.md` contains a BASELINED block.** To add features to an existing project: use Phase 5 (Revision) instead.
+Step 1 has two stages:
 
-- **Session 1** — Individual scope elicitation: 5Ws + Success + Failure + Out-of-scope. Gap-finding per answer using CIT, Laddering, and CI Perspective Change. PO writes synthesis; stakeholder confirms or corrects. PO runs silent pre-mortem on confirmed synthesis. Template §1 must be confirmed before Session 2.
-- **Session 2** — Behavior groups / big picture: questions target behavior groups and cross-cutting concerns. Gap-finding per group. Level 2 synthesis when transitioning between groups. Template §2 must be complete before Session 3.
-- **Session 3** — Synthesis approval + feature derivation: PO produces full synthesis of all behavior groups; stakeholder approves or corrects (PO refines until approved). Domain analysis: nouns/verbs → subject areas → FDD "Action object" feature names. Create `backlog/<name>.feature` stubs. Write `Status: BASELINED` to `docs/discovery.md`.
+### Stage 1 — Discovery (PO + stakeholder, iterative)
 
-### Phase 2 — Feature Discovery (per feature)
-Q&A goes to `docs/discovery_journal.md`; synthesis goes to `docs/discovery.md`. The `.feature` file's **feature description** (preamble before `Rule:` blocks) is updated to reflect confirmed scope. No Q&A tables, no Entities table in `.feature` files.
+Discovery is a continuous process. Sessions happen whenever scope needs to be established or refined — for a new project, new features, or new information. Every session follows the same structure:
 
-- **Session 1** — Individual entity elicitation: generate questions from entity gaps in project discovery; use CIT, Laddering, CI Perspective Change. PO writes synthesis; stakeholder confirms. Silent pre-mortem on confirmed synthesis.
-- **Session 2** — Behavior groups / big picture: questions target behavior groups within this feature. Gap-finding per group. Level 2 group transition summaries.
-- **Session 3** — Feature synthesis approval + story derivation: PO produces synthesis of feature scope and behavior groups; stakeholder approves or corrects (PO refines until approved). Story candidates become candidate user stories (Rules). Write `Status: BASELINED` to feature description in `.feature` file.
+**Session question order:**
+1. **General** (5Ws + Success + Failure + Out-of-scope) — first session only, if the journal doesn't exist yet
+2. **Cross-cutting** — behavior groups, bounded contexts, integration points, lifecycle events
+3. **Per-feature** — one feature at a time; extract entities from `docs/discovery.md` Domain Model; gap-finding with CIT, Laddering, CI Perspective Change
 
-**Decomposition check**: after Session 3, does this feature span >2 distinct concerns OR have >8 candidate Examples? YES → split into separate `.feature` files, re-run Phase 2. NO → proceed.
+**Real-time split rule**: if the PO detects >2 concerns or >8 candidate Examples for a feature during per-feature questions, split immediately — record the split in the journal, create stub `.feature` files, continue questions for both in the same session.
 
-### Phase 3 — Stories (PO alone)
-Story candidates from Phase 2 Session 2 → one `Rule:` block per user story. Each `Rule:` has the user story header (`As a / I want / So that`) as its description — no `Example:` blocks yet. INVEST gate: all 6 letters must pass. Commit: `feat(stories): write user stories for <name>`
+**After questions (PO alone, in order):**
+1. Append answered Q&A (in groups) to `docs/discovery_journal.md` — only answered questions
+2. Rewrite `.feature` description for each feature touched — others stay unchanged
+3. Append session synthesis block to `docs/discovery.md` — LAST, after all `.feature` updates
 
-### Phase 4 — Criteria (PO alone)
-Pre-mortem per Rule (all Rules must be checked before writing Examples). Write `Example:` blocks — declarative Given/When/Then, MoSCoW triage (Must/Should/Could) per Example. Review checklist (4.3). Commit: `feat(criteria): write acceptance criteria for <name>`
+**Session status**: the journal session header begins with `Status: IN-PROGRESS` (written before questions). Updated to `Status: COMPLETE` after all writes. If a session is interrupted, the next agent detects `IN-PROGRESS` and resumes the pending writes before starting a new session.
 
-**Criteria are frozen**: no `Example:` changes after commit. Adding new Example with new `@id` replaces old.
+**Baselining**: PO writes `Status: BASELINED (YYYY-MM-DD)` in the `.feature` file when the stakeholder approves that feature's discovery and the decomposition check passes.
+
+Commit per session: `feat(discovery): <session summary>`
+
+### Stage 2 — Specification (PO alone, per feature)
+
+Only runs on features with `Status: BASELINED`. No stakeholder involvement. If a gap requires stakeholder input, open a new Stage 1 session first.
+
+**Step A — Stories**: derive one `Rule:` block per user story from the baselined feature description. INVEST gate: all 6 letters must pass.
+Commit: `feat(stories): write user stories for <name>`
+
+**Step B — Criteria**: PO writes `Example:` blocks with `@id` tags under each `Rule:`. Pre-mortem per Rule before writing any Examples. MoSCoW triage per Example. Examples are frozen after commit.
+Commit: `feat(criteria): write acceptance criteria for <name>`
+
+**Criteria are frozen**: no `Example:` changes after commit. Adding a new Example with a new `@id` replaces old.
+
+### Bug Handling
+
+When a defect is reported:
+1. **PO** adds a `@bug @id:<hex>` Example to the relevant `Rule:` in the `.feature` file and moves (or keeps) the feature in `backlog/` for normal scheduling.
+2. **SE** handles the bug when the feature is selected for development (standard Step 2–3 flow): implements the specific `@bug`-tagged test in `tests/features/<feature-name>/` and also writes a `@given` Hypothesis property test in `tests/unit/` covering the whole class of inputs.
+3. Both tests are required. SE follows the normal TDD loop (Step 3).
 
 ## Filesystem Structure
 
@@ -117,38 +136,17 @@ Tests in `tests/unit/` are software-engineer-authored extras not covered by any 
 ## Test File Layout
 
 ```
-tests/features/<feature-name>/<rule_slug>_test.py   ← one per Rule: block
-tests/features/<feature-name>/examples_test.py      ← when no Rule: blocks
+tests/features/<feature-name>/<rule_slug>_test.py
 ```
 
-### Function Naming
-
-All tests are top-level functions — no classes, no `self`.
-
-```python
-# Rule block → top-level functions in <rule_slug>_test.py
-def test_ball_game_a3f2b1c4() -> None: ...
-def test_ball_game_c4d5e6f7() -> None: ...
-
-# No Rule block → top-level functions in examples_test.py
-def test_ball_game_a3f2b1c4() -> None: ...
-```
-
-Function naming in all cases: `test_<feature_slug>_<@id>`
-
-### Docstring Format (mandatory)
+### Stub Format (mandatory)
 
 ```python
 @pytest.mark.skip(reason="not yet implemented")
-def test_ball_game_a3f2b1c4() -> None:
+def test_<feature_slug>_<@id>() -> None:
     """
-    Given: A ball moving upward reaches y=0
-    When: The physics engine processes the next frame
-    Then: The ball velocity y-component becomes positive
+    <@id steps raw text including new lines>
     """
-    # Given
-    # When
-    # Then
 ```
 
 ### Markers
@@ -173,8 +171,8 @@ uv run task test-fast
 # Run full test suite with coverage
 uv run task test
 
-# Run slow tests only
-uv run task test-slow
+# Run full test suite with coverage report generation
+uv run task test-build
 
 # Lint and format
 uv run task lint
@@ -182,20 +180,20 @@ uv run task lint
 # Type checking
 uv run task static-check
 
-# Serve documentation
-uv run task doc-serve
+# Build documentation
+uv run task doc-build
 ```
 
 ## Code Quality Standards
 
-- **Principles (in priority order)**: YAGNI > KISS > DRY > SOLID > Object Calisthenics
+- **Principles (in priority order)**: YAGNI > KISS > DRY > SOLID > Object Calisthenics > appropriate design patterns > complex code > complicate code > failing code > no code
 - **Linting**: ruff format, ruff check, Google docstring convention, `noqa` forbidden
 - **Type checking**: pyright, 0 errors required
 - **Coverage**: 100% (measured against your actual package)
 - **Function length**: ≤ 20 lines (code lines only, excluding docstrings)
 - **Class length**: ≤ 50 lines (code lines only, excluding docstrings)
 - **Max nesting**: 2 levels
-**Instance variables**: ≤ 2 per class *(exception: dataclasses, Pydantic models, value objects, and TypedDicts are exempt — they may carry as many fields as the domain requires)*
+- **Instance variables**: ≤ 2 per class *(exception: dataclasses, Pydantic models, value objects, and TypedDicts are exempt — they may carry as many fields as the domain requires)*
 - **Semantic alignment**: tests must operate at the same abstraction level as the acceptance criteria they cover
 - **Integration tests**: multi-component features require at least one test in `tests/features/` that exercises the public entry point end-to-end
 
@@ -203,11 +201,10 @@ uv run task doc-serve
 
 During Step 3 (TDD Loop), correctness priorities are:
 
-1. **Design correctness** — YAGNI > KISS > DRY > SOLID > Object Calisthenics > appropriate design patterns
+1. **Design correctness** — YAGNI > KISS > DRY > SOLID > Object Calisthenics > appropriated design patterns > complex code > complicated code > failing code > no code
 2. **One test green** — the specific test under work passes, plus `test-fast` still passes
-3. **Reviewer code-design check** — reviewer verifies design + semantic alignment (no lint/pyright/coverage)
-4. **Commit** — only after reviewer APPROVED
-5. **Quality tooling** — `lint`, `static-check`, full `test` with coverage run only at software-engineer handoff (before Step 5)
+3. **Reviewer code-design check** — reviewer verifies design + semantic alignment (no lint/pyright/coverage yet)
+5. **Quality tooling** — `lint`, `static-check`, full `test` with coverage run only at software-engineer handoff (before Step 4)
 
 Design correctness is far more important than lint/pyright/coverage compliance. A well-designed codebase with minor lint issues is better than a lint-clean codebase with poor design.
 
@@ -237,6 +234,8 @@ Use `@software-engineer /skill git-release` for the full release process.
 Every session: load `skill session-workflow`. Read `TODO.md` first, update it at the end.
 
 `TODO.md` is a session bookmark — not a project journal. It contains: Feature/Step/Source header, `## Cycle State` (Step 3 only), `## Progress` rows (manually maintained, no script required), and `## Next`. The Self-Declaration is produced as conversation output before Step 4 handoff — it is never written into TODO.md.
+
+See `skill session-workflow` for the full structure including the Cycle State block used during Step 3.
 
 ## Setup
 

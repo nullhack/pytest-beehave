@@ -173,7 +173,11 @@ def test_<feature_slug>_<@id>() -> None:
     # Then
 ```
 
-Add `[ ]` rows to `## Progress` in `TODO.md` for each `@id` in the in-progress `.feature` file that is not already listed.
+Add `[ ]` rows to `## Progress` in `TODO.md` for each `@id` in the in-progress `.feature` file that is not already listed. Then run `gen-todo` to sync any rows that were missed:
+
+```bash
+uv run task gen-todo
+```
 
 ### Build TODO.md Test List
 
@@ -230,7 +234,7 @@ All must pass before Self-Declaration.
 
 ### Self-Declaration (once, after all quality gates pass)
 
-Produce the Self-Declaration as **conversation output** — do not write it into TODO.md. Output this block in the chat before handing off to the reviewer:
+Produce the Self-Declaration as **conversation output only** — do not write it into TODO.md. Output this block in the chat before handing off to the reviewer:
 
 ```
 Self-Declaration — <feature-name>
