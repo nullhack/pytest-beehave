@@ -2,15 +2,10 @@
 
 from pathlib import Path
 
-import pytest
-
 from pytest_beehave.sync_engine import run_sync
 
 
-@pytest.mark.skip(
-    reason="non-conforming: should be in /home/user/Documents/projects/pytest-beehave/tests/features/example_hatch/stdlib_only_randomisation_test.py class TestStdlibOnlyRandomisation"
-)
-def test_stub_format_config_d4e5f6a7(tmp_path: Path) -> None:
+def test_stub_format_config_a2b3c4d5(tmp_path: Path) -> None:
     """
     Given: a pyproject.toml with stub_format = "classes" under [tool.beehave]
     When: pytest generates a stub for a Rule-block Example
@@ -40,10 +35,7 @@ def test_stub_format_config_d4e5f6a7(tmp_path: Path) -> None:
     assert "(self)" in def_line
 
 
-@pytest.mark.skip(
-    reason="non-conforming: should be in /home/user/Documents/projects/pytest-beehave/tests/features/example_hatch/stdlib_only_randomisation_test.py class TestStdlibOnlyRandomisation"
-)
-def test_stub_format_config_e5f6a7b8(tmp_path: Path) -> None:
+def test_stub_format_config_b3c4d5e6(tmp_path: Path) -> None:
     """
     Given: a pyproject.toml with stub_format = "classes" and a Rule titled "Wall bounce"
     When: pytest generates a stub for an Example under that Rule

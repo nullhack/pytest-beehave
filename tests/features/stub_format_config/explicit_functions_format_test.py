@@ -2,15 +2,10 @@
 
 from pathlib import Path
 
-import pytest
-
 from pytest_beehave.sync_engine import run_sync
 
 
-@pytest.mark.skip(
-    reason="non-conforming: should be in /home/user/Documents/projects/pytest-beehave/tests/features/example_hatch/configured_path_respect_test.py class TestConfiguredPathRespect"
-)
-def test_stub_format_config_c3d4e5f6(tmp_path: Path) -> None:
+def test_stub_format_config_f1e2d3c4(tmp_path: Path) -> None:
     """
     Given: a pyproject.toml with stub_format = "functions" under [tool.beehave]
     When: pytest generates a stub for a Rule-block Example
