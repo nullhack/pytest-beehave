@@ -6,6 +6,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Protocol
 
+from pytest_beehave.config import StubFormat
 from pytest_beehave.feature_parser import (
     ParsedExample,
     ParsedFeature,
@@ -295,12 +296,14 @@ def _sync_non_conforming(
 def _sync_active_feature(
     feature: ParsedFeature,
     tests_dir: Path,
+    stub_format: StubFormat = "functions",
 ) -> list[SyncAction]:
     """Sync stubs for an active (backlog/in-progress) feature.
 
     Args:
         feature: The parsed feature.
         tests_dir: Root of the tests/features/ directory.
+        stub_format: The output format for new stubs.
 
     Returns:
         List of SyncAction objects.
@@ -310,7 +313,9 @@ def _sync_active_feature(
 
     if feature.rules:
         for rule in feature.rules:
-            actions.extend(_sync_rule_stubs(feature, rule, feature_test_dir))
+            actions.extend(
+                _sync_rule_stubs(feature, rule, feature_test_dir, stub_format)
+            )
     elif feature.top_level_examples:
         actions.extend(_sync_top_level_stubs(feature, feature_test_dir))
 
@@ -321,6 +326,7 @@ def _sync_rule_stubs(
     feature: ParsedFeature,
     rule: ParsedRule,
     feature_test_dir: Path,
+    stub_format: StubFormat = "functions",
 ) -> list[SyncAction]:
     """Sync stubs for a single rule block.
 
@@ -328,6 +334,7 @@ def _sync_rule_stubs(
         feature: The parsed feature.
         rule: The parsed rule.
         feature_test_dir: Directory for this feature's tests.
+        stub_format: The output format for new stubs.
 
     Returns:
         List of SyncAction objects.
@@ -338,7 +345,9 @@ def _sync_rule_stubs(
     existing = {s.example_id: s for s in read_stubs_from_file(test_file)}
     actions: list[SyncAction] = []
     for example in rule.examples:
-        action = _sync_one_example(feature, rule, example, test_file, existing)
+        action = _sync_one_example(
+            feature, rule, example, test_file, existing, stub_format
+        )
         if action is not None:
             actions.append(action)
     actions.extend(_sync_deprecated_in_rule(feature, rule, test_file))
@@ -379,6 +388,7 @@ def _sync_one_example(
     example: ParsedExample,
     test_file: Path,
     existing: dict[ExampleId, ExistingStub],
+    stub_format: StubFormat = "functions",
 ) -> SyncAction | None:
     """Sync a single example stub — create or update.
 
@@ -388,6 +398,7 @@ def _sync_one_example(
         example: The parsed example.
         test_file: Path to the test file.
         existing: Map of existing stubs by example ID.
+        stub_format: The output format for new stubs.
 
     Returns:
         SyncAction or None.
@@ -402,6 +413,7 @@ def _sync_one_example(
         rule_slug=rule_slug,
         example=example,
         feature=feature,
+        stub_format=stub_format,
     )
     return write_stub_to_file(test_file, spec)
 
@@ -588,6 +600,7 @@ def run_sync(
     features_root: Path,
     tests_root: Path,
     filesystem: FileSystemProtocol | None = None,
+    stub_format: StubFormat = "functions",
 ) -> list[str]:
     """Sync test stubs from .feature files to the tests directory.
 
@@ -596,6 +609,7 @@ def run_sync(
             in-progress/, completed/).
         tests_root: Root of the tests/features/ directory.
         filesystem: Optional filesystem adapter. Defaults to _RealFileSystem.
+        stub_format: The output format for new stubs.
 
     Returns:
         List of action description strings.
@@ -608,7 +622,7 @@ def run_sync(
         if stage == FeatureStage.COMPLETED:
             actions.extend(_sync_completed_feature(feature, tests_root))
         else:
-            actions.extend(_sync_active_feature(feature, tests_root))
+            actions.extend(_sync_active_feature(feature, tests_root, stub_format))
     expected_locations = _build_expected_locations(feature_stage_pairs, tests_root)
     actions.extend(_sync_non_conforming(tests_root, expected_locations, filesystem))
     all_ids = _collect_all_ids(features_root, filesystem)

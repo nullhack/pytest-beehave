@@ -171,6 +171,7 @@ def test_write_class_based_stub_adds_to_existing_class(tmp_path: Path) -> None:
         rule_slug=RuleSlug("my_rule"),
         example=example,
         feature=feature,
+        stub_format="classes",
     )
     action = write_stub_to_file(test_file, spec)
     assert action.action == "UPDATE"
@@ -206,6 +207,7 @@ def test_write_class_based_stub_creates_new_class_in_existing_file(
         rule_slug=RuleSlug("new_rule"),
         example=example,
         feature=feature,
+        stub_format="classes",
     )
     action = write_stub_to_file(test_file, spec)
     assert action.action == "UPDATE"

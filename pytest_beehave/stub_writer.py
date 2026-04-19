@@ -6,6 +6,7 @@ import re
 from dataclasses import dataclass
 from pathlib import Path
 
+from pytest_beehave.config import StubFormat
 from pytest_beehave.feature_parser import (
     ParsedExample,
     ParsedFeature,
@@ -53,12 +54,14 @@ class StubSpec:
         rule_slug: The rule slug (underscore-separated), or None for top-level stubs.
         example: The parsed example.
         feature: The full parsed feature (for docstring context).
+        stub_format: The output format for the stub ("functions" or "classes").
     """
 
     feature_slug: FeatureSlug
     rule_slug: RuleSlug | None
     example: ParsedExample
     feature: ParsedFeature
+    stub_format: StubFormat = "functions"
 
 
 def build_function_name(feature_slug: FeatureSlug, example_id: ExampleId) -> str:
@@ -265,7 +268,7 @@ def write_stub_to_file(path: Path, spec: StubSpec) -> SyncAction:
     function_source = _stub_function_source(
         function_name, docstring_body, example.is_deprecated
     )
-    if spec.rule_slug is not None:
+    if spec.rule_slug is not None and spec.stub_format == "classes":
         return _write_class_based_stub(path, spec, function_name, function_source)
     return _write_top_level_stub(path, function_source)
 
