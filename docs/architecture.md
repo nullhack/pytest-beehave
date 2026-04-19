@@ -22,7 +22,7 @@ Feature: stub-creation
 
 ## 2026-04-18 — stub-creation: slug conventions
 
-Decision: `FeatureSlug` replaces hyphens with underscores (for Python identifiers); `RuleSlug` uses hyphens (for file names).
+Decision: `FeatureSlug` replaces hyphens with underscores (for Python identifiers); `RuleSlug` uses underscores (for file names and Python identifiers).
 Reason: Python function names cannot contain hyphens; file names can.
 Alternatives considered: Both using underscores — rejected because file names with underscores diverge from the naming spec.
 Feature: stub-creation

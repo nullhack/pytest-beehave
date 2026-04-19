@@ -50,7 +50,7 @@ class StubSpec:
 
     Attributes:
         feature_slug: The feature slug (underscored).
-        rule_slug: The rule slug (hyphenated), or None for top-level stubs.
+        rule_slug: The rule slug (underscore-separated), or None for top-level stubs.
         example: The parsed example.
         feature: The full parsed feature (for docstring context).
     """
@@ -78,7 +78,7 @@ def build_class_name(rule_slug: RuleSlug) -> str:
     """Build the test class name from a rule slug.
 
     Args:
-        rule_slug: The rule slug (hyphen-separated).
+        rule_slug: The rule slug (underscore-separated).
 
     Returns:
         String like 'TestMyRule'.
@@ -250,7 +250,6 @@ def write_stub_to_file(path: Path, spec: StubSpec) -> SyncAction:
     """Write a test stub for a single example to a test file.
 
     Creates the file if it doesn't exist, appends if it does.
-    For Rule-based specs, wraps the stub in a Test<RuleSlug> class.
 
     Args:
         path: Path to the test file.
