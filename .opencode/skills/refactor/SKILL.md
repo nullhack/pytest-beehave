@@ -265,9 +265,9 @@ Refactoring commits are always **separate** from feature commits.
 
 | Commit type | Message format | When |
 |---|---|---|
-| Preparatory refactoring | `refactor(<feature-name>): <what>` | Before RED, to make the feature easier |
-| REFACTOR phase | `refactor(<feature-name>): <what>` | After GREEN, cleaning up the green code |
-| Feature addition | `feat(<feature-name>): <what>` | After GREEN (never mixed with refactor) |
+| Preparatory refactoring | `refactor(<feature-stem>): <what>` | Before RED, to make the feature easier |
+| REFACTOR phase | `refactor(<feature-stem>): <what>` | After GREEN, cleaning up the green code |
+| Feature addition | `feat(<feature-stem>): <what>` | After GREEN (never mixed with refactor) |
 
 Never mix a structural cleanup with a behavior addition in one commit. This keeps history bisectable and CI green at every commit.
 
@@ -291,7 +291,7 @@ Before marking the `@id` complete, verify all of the following. Each failed item
 | OC-5 | One dot per line | `obj.repo.find(id).name` |
 | OC-6 | No abbreviations | `usr`, `mgr`, `cfg`, `val`, `tmp` |
 | OC-7 | Classes ≤ 50 lines, methods ≤ 20 lines | Any method requiring scrolling |
-| OC-8 | ≤ 2 instance variables per class | `__init__` with 3+ `self.x =` assignments *(dataclasses/Pydantic/value objects/TypedDicts exempt)* |
+| OC-8 | ≤ 2 instance variables per class *(behavioural classes only; dataclasses, Pydantic models, value objects, and TypedDicts are exempt)* | `__init__` with 3+ `self.x =` assignments in a behavioural class |
 | OC-9 | No getters/setters | `def get_name(self)` / `def set_name(self, v)` |
 
 ### SOLID (Martin 2000)

@@ -37,6 +37,7 @@ def test_stub_format_config_d4e5f6a7(tmp_path: Path) -> None:
     lines = content.splitlines()
     def_line = next((ln for ln in lines if "def test_my_feature_aabbccdd" in ln), "")
     assert def_line.startswith("    ")
+    assert "(self)" in def_line
 
 
 @pytest.mark.skip(

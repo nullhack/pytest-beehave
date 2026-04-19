@@ -1,7 +1,7 @@
 ---
 name: git-release
-description: Create releases with hybrid major.minor.calver versioning and bee-genus naming
-version: "2.0"
+description: Create releases with hybrid major.minor.calver versioning and AI-generated adjective-animal naming
+version: "1.0"
 author: software-engineer
 audience: software-engineer
 workflow: release-management
@@ -28,80 +28,17 @@ v1.2.20260415  →  v1.3.20260415   (same-day second release)
 
 ## Release Naming
 
-Each release gets a unique name: **`{adjective}-{bee-genus}`**
+Each release gets a unique adjective-animal name. Analyze the commits and PRs since the last release, identify the theme, and choose a name that reflects it.
 
-The adjective reflects what this release does or its character. The bee genus is chosen from the curated pool below, matched thematically to the release (e.g. a release about test orchestration might use *Bombus* — the highly-organized bumblebee; a release about precise detection might use *Osmia* — the meticulous mason bee).
+Choose any adjective and any animal (use scientific name, not common name). The only constraints:
 
-**Constraints:**
-1. **Thematic fit**: adjective and genus should together evoke the release character
-2. **No repetition**: neither the adjective nor the genus may appear in any previous release name
+1. **Thematic fit**: the name should reflect what this release does
+2. **No repetition**: neither the adjective nor the animal may appear in a previous release
 
 Check previous names to avoid repetition:
 ```bash
-gh release list --limit 100
+gh release list --limit 20
 ```
-
-### Curated Bee Genus Pool
-
-Choose from this pool for intentional, memorable names. Each genus has a character note to guide thematic matching.
-
-| Genus | Common name | Character / theme |
-|---|---|---|
-| *Apis* | Honey bee | Collaboration, industry, the gold standard |
-| *Bombus* | Bumblebee | Robustness, persistence, surprising capability |
-| *Osmia* | Mason bee | Precision, craftsmanship, careful construction |
-| *Megachile* | Leafcutter bee | Clever tooling, cutting to shape |
-| *Xylocopa* | Carpenter bee | Structural work, building into solid foundations |
-| *Halictus* | Sweat bee | Small but essential, invisible infrastructure |
-| *Lasioglossum* | Small sweat bee | Ubiquity, the most common; baseline correctness |
-| *Nomada* | Nomad bee | Migration, discovery, exploratory behavior |
-| *Andrena* | Mining bee | Digging deep, uncovering hidden things |
-| *Colletes* | Plasterer bee | Sealing, finishing, waterproofing |
-| *Hylaeus* | Masked bee | Hidden internals, minimal exterior |
-| *Eulaema* | Orchid bee | Exotic, specialized, high-value collection |
-| *Eufriesea* | Orchid bee | Rare, distinctive, one-of-a-kind |
-| *Agapostemon* | Metallic sweat bee | Brilliance, sheen, polish |
-| *Augochlora* | Green sweat bee | Fresh, new, verdant growth |
-| *Augochlorella* | Sweat bee | Emerging, small-scale refinement |
-| *Augochloropsis* | Sweat bee | Variation on a theme, extension |
-| *Panurgus* | Mining bee | Collective effort, many small contributions |
-| *Perdita* | Mining bee | Smallest US bee; economy, minimalism |
-| *Melitturga* | Mining bee | Clarity, straight lines |
-| *Dasypoda* | Pantaloon bee | Deep foundations, load-bearing |
-| *Macropis* | Oil bee | Specialized extraction, targeted collection |
-| *Melitta* | Melitta bee | Sweetness, reward, delight |
-| *Anthidium* | Wool-carder bee | Gathering, tidying, organization |
-| *Coelioxys* | Sharp-tailed bee | Edge cases, pointed precision |
-| *Stelis* | Cleptoparasitic bee | Detection, catching what doesn't belong |
-| *Dioxys* | Cleptoparasitic bee | Finding impostors, validation |
-| *Sphecodes* | Blood bee | Ruthless removal of what shouldn't be there |
-| *Ceratina* | Small carpenter bee | Incremental progress, small but persistent |
-| *Exomalopsis* | Bee | Quiet correctness, unassuming reliability |
-| *Emphorella* | Bee | Niche specialization |
-| *Peponapis* | Squash bee | Domain-specific excellence |
-| *Xenoglossa* | Squash bee | Specialized vocabulary, domain language |
-| *Ptilothrix* | Mallow bee | Softness of interface, gentle handling |
-| *Melissodes* | Long-horned bee | Signal detection, communication |
-| *Svastra* | Long-horned bee | Season-aware, time-sensitive behavior |
-| *Eucera* | Long-horned bee | Patient waiting, timing |
-| *Tetralonia* | Long-horned bee | Systematic coverage |
-| *Anthophora* | Digger bee | Fast, energetic execution |
-| *Habropoda* | Digger bee | Buzz-pollination; resonance, vibration |
-| *Amegilla* | Blue-banded bee | Vibrant, high-frequency operation |
-| *Xylocopinae* | Carpenter bee subfamily | Load-bearing architecture |
-| *Euglossa* | Orchid bee | Precision collection, perfume of quality |
-| *Eulaema* | Orchid bee | Valuable, coveted output |
-| *Trigona* | Stingless bee | Safe, no sharp edges, user-friendly |
-| *Tetragonula* | Stingless bee | Compact, structured, geometric |
-| *Meliponula* | Stingless bee | African precision; warm-climate reliability |
-| *Frieseomelitta* | Stingless bee | Abundant output, productivity |
-| *Scaptotrigona* | Stingless bee | Aggressive defense of quality |
-| *Plebeia* | Stingless bee | Humble, small, widely deployed |
-| *Schwarziana* | Stingless bee | Named for a scientist; rigorous methodology |
-| *Ctenocolletes* | Stenotritid bee | Ancient, foundational, rarely changed |
-| *Stenotritus* | Stenotritid bee | Narrow, focused, specialized interface |
-
-If the release theme doesn't match any entry above, choose any other real bee genus and add it to this list with a character note.
 
 ## Release Process
 
@@ -110,6 +47,7 @@ If the release theme doesn't match any entry above, choose any other real bee ge
 ```bash
 last_tag=$(git describe --tags --abbrev=0)
 git log ${last_tag}..HEAD --oneline
+gh pr list --state merged --limit 20 --json title,number,labels
 ```
 
 ### 2. Calculate new version
@@ -120,46 +58,31 @@ current_date=$(date +%Y%m%d)
 # new_version="v{major}.{minor}.${current_date}"
 ```
 
-### 3. Choose release name
+### 3. Update version in pyproject.toml and package __init__.py
 
-1. Read the commits and accepted features since the last release
-2. Identify the theme (what did this release fundamentally accomplish?)
-3. Choose an adjective that captures the theme
-4. Choose a bee genus from the pool above that matches the theme
-5. Verify neither the adjective nor the genus appear in previous release names:
-   ```bash
-   gh release list --limit 100
-   ```
-
-### 4. Update version in pyproject.toml
-
+Both must match:
 ```bash
-# Update the version field in pyproject.toml
-# e.g.: version = "0.2.20260418"
+# Update pyproject.toml version field
+# Update <package>/__version__ to match
 ```
 
-No `__version__` in `__init__.py` — version is read at runtime via `importlib.metadata`.
+### 4. Update CHANGELOG.md
 
-### 5. Update CHANGELOG.md
-
-Add at the top of the changelog (below the `# Changelog` heading):
-
+Add at the top:
 ```markdown
-## [v{version}] — {Adjective Genus} — {YYYY-MM-DD}
+## [v{version}] - {Adjective Animal} - {YYYY-MM-DD}
 
 ### Added
-- feat({feature-name}): description of what was added
-
-### Fixed
-- fix({feature-name}): description of what was fixed
+- description (#PR-number)
 
 ### Changed
-- refactor/chore: description of structural changes
+- description (#PR-number)
+
+### Fixed
+- description (#PR-number)
 ```
 
-Reference feature names (from `feat(<feature-name>): ...` commits), not PR numbers — this project uses direct commits rather than PRs.
-
-### 6. Update living docs
+### 5. Update living docs
 
 Run the `living-docs` skill to reflect the newly accepted feature in C4 diagrams and the glossary. This step runs inline — do not commit separately.
 
@@ -168,80 +91,65 @@ Load and execute the full `living-docs` skill now:
 - Update `docs/c4/container.md` (C4 Level 2, if multi-container)
 - Update `docs/glossary.md` (living glossary)
 
-The `living-docs` commit step is **skipped** here — all changed files are staged together with the version bump in step 7.
+The `living-docs` commit step is **skipped** here — all changed files are staged together with the version bump in step 6.
 
-### 7. Regenerate lockfile and commit version bump
+### 6. Regenerate lockfile and commit version bump
 
 After updating `pyproject.toml`, regenerate the lockfile — CI runs `uv sync --locked` and will fail if it is stale:
 
 ```bash
 uv lock
-git add pyproject.toml CHANGELOG.md uv.lock docs/c4/context.md docs/c4/container.md docs/glossary.md
-git commit -m "chore(release): bump version to v{version} — {Adjective Genus}"
+git add pyproject.toml <package>/__init__.py CHANGELOG.md uv.lock \
+  docs/c4/context.md docs/c4/container.md docs/glossary.md
+git commit -m "chore(release): bump version to v{version} - {Adjective Animal}"
 ```
 
-### 8. Open a PR and merge it
+### 7. Create GitHub release
 
-Push to a release branch and open a PR against `main`:
-
-```bash
-git checkout -b release/v{version}
-git push -u origin release/v{version}
-gh pr create \
-  --title "chore(release): v{version} — {Adjective Genus}" \
-  --body "Version bump to v{version}. Merging this PR will automatically create the tag and trigger PyPI publish."
-```
-
-Once the PR is merged to `main`, the `tag-release` CI workflow fires automatically:
-- Reads `version` from `pyproject.toml`
-- Creates tag `v{version}` at the merge commit
-- The `pypi-publish` workflow triggers on the new tag and publishes to PyPI
-- The `publish-docs` CI job triggers on the push to `main` and deploys gh-pages
-
-**Do not create the tag manually.** Let CI handle it.
-
-### 9. Create GitHub release
-
-After the tag is created by CI (check Actions to confirm), create the GitHub release pointed at the new tag:
+Assign the SHA first so it expands correctly inside the notes string:
 
 ```bash
+SHA=$(git rev-parse --short HEAD)
 gh release create "v{version}" \
-  --title "v{version} — {Adjective Genus}" \
-  --notes "# v{version} — {Adjective Genus}
+  --title "v{version} - {Adjective Animal}" \
+  --notes "# v{version} - {Adjective Animal}
 
 > *\"{one-line tagline matching the release theme}\"*
 
 ## Changelog
 
 ### Added
-- feat({feature-name}): description
+- feat: description (#PR)
 
 ### Fixed
-- fix({feature-name}): description
+- fix: description (#PR)
 
 ### Changed
-- refactor/chore: description
+- refactor/chore/docs: description (#PR)
 
 ## Summary
 
-2-3 sentences describing what this release accomplishes and why the genus name fits.
+2-3 sentences describing what this release accomplishes and why the name fits.
 
 ---
-**SHA**: \`$(git rev-parse --short v{version})\`"
+**SHA**: \`${SHA}\`"
 ```
 
-### 10. If the tag was created before the version bump landed on main
+### 8. If a hotfix commit follows the release tag
 
-This can happen if CI is triggered by something other than the merge. Reassign the tag:
+If CI fails after the release (e.g. a stale lockfile) and a hotfix commit is pushed, reassign the tag and GitHub release to that commit:
 
 ```bash
 # Delete the old tag locally and on remote
 git tag -d "v{version}"
 git push origin ":refs/tags/v{version}"
 
-# Recreate the tag on the correct commit
-git tag "v{version}" {correct-sha}
+# Recreate the tag on the hotfix commit
+git tag "v{version}" {hotfix-sha}
 git push origin "v{version}"
+
+# Update the GitHub release to point to the new tag
+gh release edit "v{version}" --target {hotfix-sha}
 ```
 
 The release notes and title do not need to change — only the target commit moves.
@@ -253,11 +161,9 @@ The release notes and title do not need to change — only the target commit mov
 - [ ] `task static-check` passes
 - [ ] `pyproject.toml` version updated
 - [ ] `uv lock` run after version bump — lockfile must be up to date
-- [ ] CHANGELOG.md updated with only beehave-specific changes (no template history)
-- [ ] Release name: adjective not used before, genus not used before
-- [ ] Genus chosen from curated pool (or new entry added to pool with character note)
-- [ ] Release notes follow the template format
+- [ ] `<package>/__version__` matches `pyproject.toml` version
+- [ ] CHANGELOG.md updated
 - [ ] `living-docs` skill run — C4 diagrams and glossary reflect the new feature
-- [ ] PR merged to `main` before creating GitHub release
-- [ ] Tag created automatically by `tag-release` CI workflow (verify in Actions)
-- [ ] Do NOT create the tag manually
+- [ ] Release name not used before
+- [ ] Release notes follow the template format
+- [ ] If a hotfix was pushed after the tag: tag reassigned to hotfix commit

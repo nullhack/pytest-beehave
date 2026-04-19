@@ -177,6 +177,9 @@ def test_write_class_based_stub_adds_to_existing_class(tmp_path: Path) -> None:
     assert action.action == "UPDATE"
     content = test_file.read_text(encoding="utf-8")
     assert "test_my_feature_22222222" in content
+    lines = content.splitlines()
+    def_line = next((ln for ln in lines if "def test_my_feature_22222222" in ln), "")
+    assert "(self)" in def_line
 
 
 def test_write_class_based_stub_creates_new_class_in_existing_file(
@@ -214,6 +217,9 @@ def test_write_class_based_stub_creates_new_class_in_existing_file(
     content = test_file.read_text(encoding="utf-8")
     assert "class TestNewRule:" in content
     assert "test_my_feature_aabbccdd" in content
+    lines = content.splitlines()
+    def_line = next((ln for ln in lines if "def test_my_feature_aabbccdd" in ln), "")
+    assert "(self)" in def_line
 
 
 def test_find_rule_returns_none_when_not_found() -> None:
@@ -408,3 +414,6 @@ def test_write_class_based_stub_creates_new_file(tmp_path: Path) -> None:
     content = test_file.read_text(encoding="utf-8")
     assert "class TestMyRule:" in content
     assert "test_my_feature_aabbccdd" in content
+    lines = content.splitlines()
+    def_line = next((ln for ln in lines if "def test_my_feature_aabbccdd" in ln), "")
+    assert "(self)" in def_line

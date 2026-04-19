@@ -165,6 +165,8 @@ def _stub_function_source(
     function_name: str,
     docstring_body: str,
     is_deprecated: bool,
+    *,
+    is_method: bool = False,
 ) -> str:
     """Build full source text for a single test stub function.
 
@@ -172,14 +174,16 @@ def _stub_function_source(
         function_name: The test function name.
         docstring_body: The docstring body (without triple-quotes).
         is_deprecated: If True, add @pytest.mark.deprecated.
+        is_method: If True, emit (self) as the parameter.
 
     Returns:
         Full function source as a string.
     """
     decorator = _stub_decorator(is_deprecated)
+    params = "self" if is_method else ""
     return (
         f"{decorator}"
-        f"def {function_name}() -> None:\n"
+        f"def {function_name}({params}) -> None:\n"
         f'    """\n{docstring_body}\n    """\n'
         f"    raise NotImplementedError\n"
     )
@@ -265,10 +269,11 @@ def write_stub_to_file(path: Path, spec: StubSpec) -> SyncAction:
     function_name = build_function_name(spec.feature_slug, example.example_id)
     rule = _find_rule(spec.feature, spec.rule_slug) if spec.rule_slug else None
     docstring_body = build_docstring(spec.feature, rule, example)
+    is_class_method = spec.rule_slug is not None and spec.stub_format == "classes"
     function_source = _stub_function_source(
-        function_name, docstring_body, example.is_deprecated
+        function_name, docstring_body, example.is_deprecated, is_method=is_class_method
     )
-    if spec.rule_slug is not None and spec.stub_format == "classes":
+    if is_class_method:
         return _write_class_based_stub(path, spec, function_name, function_source)
     return _write_top_level_stub(path, function_source)
 

@@ -70,7 +70,7 @@ Do not introduce topic labels or categories during active listening. The summary
 
 ## Stage 1 — Discovery
 
-Discovery is a continuous, iterative process. Sessions happen whenever scope needs to be established or refined — for a new project, for a new feature, or when new information emerges. There is no fixed number of sessions; every session follows the same structure.
+Discovery is a continuous, iterative process. Sessions happen whenever scope needs to be established or refined — for a new project, for a new feature, or when new information emerges. There is no "Phase 1" vs "Phase 2" distinction; every session follows the same structure.
 
 ### Session Start (every session)
 
@@ -130,7 +130,7 @@ Append all answered Q&A to `docs/discovery_journal.md`, in groups (general, cros
 Group headers use this format:
 - General group: `### General`
 - Cross-cutting group: `### <Group Name>`
-- Feature group: `### Feature: <feature-name>`
+- Feature group: `### Feature: <feature-stem>`
 
 **Step B — Update .feature descriptions**
 
@@ -143,7 +143,7 @@ If a feature is new (just created as a stub): write its initial description now.
 After all `.feature` files are updated, append one `## Session: YYYY-MM-DD` block to `docs/discovery.md`. The block contains:
 - `### Feature List` — which features were added or changed (0–N entries); if nothing changed, write "No changes"
 - `### Domain Model` — new or updated domain entities and verbs; if nothing changed, write "No changes"
-- `### Scope` (first session only) — 3–5 sentence synthesis of who the users are, what the product does, why it exists, success/failure conditions, and explicit out-of-scope
+- `### Context` (first session only) — 3–5 sentence synthesis of who the users are, what the product does, why it exists, success/failure conditions, and explicit out-of-scope
 
 **Step D — Mark session complete**
 
@@ -216,7 +216,7 @@ Avoid: "As the system, I want..." (no business value). Break down stories that c
 - [ ] Rules collectively cover all entities in scope from the feature description
 - [ ] Every Rule passes the INVEST gate
 
-Commit: `feat(stories): write user stories for <name>`
+Commit: `feat(stories): write user stories for <feature-stem>`
 
 ### Step B — Criteria
 
@@ -244,7 +244,6 @@ All Rules must have their pre-mortems completed before any Examples are written.
 ```
 
 **Rules**:
-- `@id` tag on the line before `Example:`
 - `Example:` keyword (not `Scenario:`)
 - `Given/When/Then` in plain English
 - `Then` must be a single, observable, measurable outcome — no "and"
@@ -271,7 +270,6 @@ All Rules must have their pre-mortems completed before any Examples are written.
 
 **Review checklist:**
 - [ ] Every `Rule:` block has at least one Example
-- [ ] Every `@id` is unique within this feature
 - [ ] Every Example has `Given/When/Then`
 - [ ] Every `Then` is a single, observable, measurable outcome
 - [ ] No Example tests implementation details
@@ -283,24 +281,22 @@ All Rules must have their pre-mortems completed before any Examples are written.
 
 Communicate verbally to the next agent. Every `DISAGREE` is a **hard blocker** — fix before committing. Do not commit until all items are AGREE or have a documented resolution.
 
-As a Product Owner, I declare that:
-1  INVEST-I: each Rule is Independent (no hidden ordering or dependency between Rules) — AGREE/DISAGREE | conflict:
-2 INVEST-V: each Rule delivers Value to a named user — AGREE/DISAGREE | Rule:
-3 INVEST-S: each Rule is Small enough for one development cycle — AGREE/DISAGREE | Rule:
-4 INVEST-T: each Rule is Testable (I can write a pass/fail Example for it) — AGREE/DISAGREE | Rule:
-5 Observable: every Then is a single, observable, measurable outcome — AGREE/DISAGREE | file:line
-6 No impl details: no Example tests internal state or implementation — AGREE/DISAGREE | file:line
-7 Coverage: every entity in the feature description appears in at least one Rule — AGREE/DISAGREE | missing:
-8 Distinct: no two Examples test the same observable behavior — AGREE/DISAGREE | file:line
-9 Unique IDs: all @id values are unique within this feature — AGREE/DISAGREE
-10 Pre-mortem: I ran a pre-mortem on each Rule and found no hidden failure modes — AGREE/DISAGREE | Rule:
-11 Scope: no Example introduces behavior outside the feature boundary — AGREE/DISAGREE | file:line
+- INVEST-I: each Rule is Independent (no hidden ordering or dependency between Rules) — AGREE/DISAGREE | conflict:
+- INVEST-V: each Rule delivers Value to a named user — AGREE/DISAGREE | Rule:
+- INVEST-S: each Rule is Small enough for one development cycle — AGREE/DISAGREE | Rule:
+- INVEST-T: each Rule is Testable (I can write a pass/fail Example for it) — AGREE/DISAGREE | Rule:
+- Observable: every Then is a single, observable, measurable outcome — AGREE/DISAGREE | file:line
+- No impl details: no Example tests internal state or implementation — AGREE/DISAGREE | file:line
+- Coverage: every entity in the feature description appears in at least one Rule — AGREE/DISAGREE | missing:
+- Distinct: no two Examples test the same observable behavior — AGREE/DISAGREE | file:line
+- Pre-mortem: I ran a pre-mortem on each Rule and found no hidden failure modes — AGREE/DISAGREE | Rule:
+- Scope: no Example introduces behavior outside the feature boundary — AGREE/DISAGREE | file:line
 
-Commit: `feat(criteria): write acceptance criteria for <name>`
+Commit: `feat(criteria): write acceptance criteria for <feature-stem>`
 
 **After this commit, `Example:` blocks are frozen.** Any change requires:
 1. Add `@deprecated` tag to the old Example
-2. Write a new Example with a new `@id`
+2. Write a new Example (the `@id` tag will be assigned automatically)
 
 ---
 
@@ -311,14 +307,14 @@ When a defect is reported against a completed or in-progress feature:
 1. **PO** adds a new Example to the relevant `Rule:` block in the `.feature` file:
 
    ```gherkin
-   @bug @id:<new-8-char-hex>
+   @bug
    Example: <what the bug is>
      Given <conditions that trigger the bug>
      When <action>
      Then <correct behavior>
    ```
 
-2. **SE** implements the specific test in `tests/features/<feature-name>/` (the `@id` test).
+2. **SE** implements the specific test in `tests/features/<feature_slug>/` (the `@id` test).
 3. **SE** also writes a `@given` Hypothesis property test in `tests/unit/` covering the whole class of inputs that triggered the bug — not just the single case.
 4. Both tests are required — neither is optional.
 5. SE follows the normal TDD loop (Step 3) for the new `@id`.
@@ -368,6 +364,7 @@ The **Constraints** section captures non-functional requirements. Testable const
 What is **not** in `.feature` files:
 - Entities table — domain model lives in `docs/discovery.md`
 - Session Q&A blocks — live in `docs/discovery_journal.md`
+- Template §N markers — live in `docs/discovery_journal.md` session blocks
 - Architecture section — lives in `docs/architecture.md`
 
 ---
@@ -404,7 +401,7 @@ Status: IN-PROGRESS
 |----|----------|--------|
 | Q8 | ... | ... |
 
-### Feature: <feature-name>
+### Feature: <feature-stem>
 
 | ID | Question | Answer |
 |----|----------|--------|
@@ -429,13 +426,13 @@ Rules:
 
 ## Session: YYYY-MM-DD
 
-### Scope
+### Context
 <3–5 sentence synthesis of who the users are, what the product does, why it exists,
 success/failure conditions, and out-of-scope boundaries.>
 (First session only. Omit this subsection in subsequent sessions.)
 
 ### Feature List
-- `<feature-name>` — <one-sentence description of what changed or was added>
+- `<feature-stem>` — <one-sentence description of what changed or was added>
 (Write "No changes" if no features were added or modified this session.)
 
 ### Domain Model
@@ -459,20 +456,20 @@ Rules:
 
 ---
 
-## YYYY-MM-DD — <feature-name>: <short title>
+## YYYY-MM-DD — <feature-stem>: <short title>
 
 Decision: <what was decided — one sentence>
 Reason: <why — one sentence>
 Alternatives considered: <what was rejected and why>
-Feature: <feature-name>
+Feature: <feature-stem>
 ```
 
 Rules: Append-only. When a decision changes, append a new block that supersedes the old one. Cross-feature decisions use `Cross-feature:` in the header. Only write a block for non-obvious decisions with meaningful trade-offs.
 
-Base directory for this skill: file:///home/user/Documents/projects/pytest-beehave/.opencode/skills/scope
+Base directory for this skill: file:///home/user/Documents/projects/python-project-template/.opencode/skills/scope
 Relative paths in this skill (e.g., scripts/, reference/) are relative to this base directory.
 Note: file list is sampled.
 
 <skill_files>
-<file>/home/user/Documents/projects/pytest-beehave/.opencode/skills/scope/discovery-template.md</file>
+<file>/home/user/Documents/projects/python-project-template/.opencode/skills/scope/discovery-template.md</file>
 </skill_files>

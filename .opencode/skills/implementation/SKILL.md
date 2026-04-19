@@ -1,7 +1,7 @@
 ---
 name: implementation
 description: Steps 2-3 — Architecture + TDD Loop, one @id at a time
-version: "4.0"
+version: "3.0"
 author: software-engineer
 audience: software-engineer
 workflow: feature-lifecycle
@@ -15,12 +15,12 @@ Steps 2 (Architecture) and 3 (TDD Loop) combined into a single skill. The softwa
 
 During implementation, correctness priorities are (in order):
 
-1. **Design correctness** — YAGNI > KISS > DRY > SOLID > Object Calisthenics > appropriate design patterns
+1. **Design correctness** — YAGNI > KISS > DRY > SOLID > Object Calisthenics > appropriate design patterns > complex code > complicated code > failing code > no code
 2. **One @id green** — the specific test under work passes, plus `test-fast` still passes
 3. **Commit** — when a meaningful increment is green
-4. **Quality tooling** — `lint`, `static-check`, `test-coverage` run only at end-of-feature handoff (after all @id are green)
+4. **Quality tooling** — `lint`, `static-check`, full `test` with coverage run at end-of-feature handoff
 
-Design correctness is far more important than lint/pyright/coverage compliance. Never run lint, static-check, or coverage during the TDD loop — those are handoff-only checks.
+Design correctness is far more important than lint/pyright/coverage compliance. Never run lint (ruff check, ruff format), static-check (pyright), or coverage during the TDD loop — those are handoff-only checks.
 
 ---
 
@@ -28,33 +28,30 @@ Design correctness is far more important than lint/pyright/coverage compliance. 
 
 ### Prerequisites (stop if any fail — escalate to PO)
 
-1. `docs/features/in-progress/` contains exactly one `.feature` file. If it is empty (only `.gitkeep`): **STOP** — no feature is in progress. Output the escalation message and wait for PO to move a BASELINED feature from `backlog/` to `in-progress/`.
-2. The feature file's feature description has `Status: BASELINED`. If not, escalate to PO — Step 1 is incomplete.
+1. `docs/features/in-progress/` contains exactly one `.feature` file (not just `.gitkeep`). If none exists, **STOP** — update TODO.md `Next:` to `Run @product-owner — move the chosen feature to in-progress/` and stop. Never self-select or move a feature yourself.
+2. The feature file's discovery section has `Status: BASELINED`. If not, escalate to PO — Step 1 is incomplete.
 3. The feature file contains `Rule:` blocks with `Example:` blocks and `@id` tags. If not, escalate to PO — criteria have not been written.
 4. Package name confirmed: read `pyproject.toml` → locate `[tool.setuptools]` → confirm directory exists on disk.
-
-**The PO moves the `.feature` file from `backlog/` to `in-progress/` before Step 2 starts. Software-engineer never moves feature files.**
-
-Update `TODO.md` Source path to `docs/features/in-progress/<name>.feature`.
 
 ### Package Verification (mandatory — before writing any code)
 
 1. Read `pyproject.toml` → locate `[tool.setuptools]` → record `packages = ["<name>"]`
 2. Confirm directory exists: `ls <name>/`
-3. All new source files go under `<name>/` — never under a template placeholder.
+3. All new source files go under `<name>/`
+
+**Note on feature file moves**: The PO moves `.feature` files between folders. The software-engineer never moves or edits `.feature` files. Update TODO.md `Source:` path to reflect `in-progress/` once the PO has moved the file.
 
 ### Read Phase (all before writing anything)
 
-1. Read `docs/discovery.md` (project-level synthesis changelog)
+1. Read `docs/discovery.md` (project-level synthesis changelog) and optionally `docs/discovery_journal.md` (Q&A history for context)
 2. Read `docs/glossary.md` if it exists — use existing domain terms when naming classes, methods, and modules; do not invent synonyms for terms already defined
-3. Read `docs/architecture.md` (all architectural decisions to date)
-4. Read **ALL** `.feature` files in `docs/features/backlog/` (feature descriptions + Rules)
-5. Read in-progress `.feature` file (full: Rules + Examples + @id)
-6. Read **ALL** existing `.py` files in `<package>/` — understand what already exists before adding anything
+3. Read **ALL** `.feature` files in `docs/features/backlog/` (discovery + entities sections)
+4. Read in-progress `.feature` file (full: Rules + Examples + @id)
+5. Read **ALL** existing `.py` files in `<package>/` — understand what already exists before adding anything
 
 ### Domain Analysis
 
-From the Domain Model in `docs/discovery.md` + Rules (Business) in the `.feature` file:
+From the Domain Model table in `docs/discovery.md` + Rules (Business) in the `.feature` file:
 - **Nouns** → named classes, value objects, aggregates
 - **Verbs** → method names with typed signatures
 - **Datasets** → named types (not bare dict/list)
@@ -114,38 +111,41 @@ class UserRepository(Protocol):
 
 Place stubs where responsibility dictates — do not pre-create `ports/` or `adapters/` folders unless a concrete external dependency was identified in scope. Structure follows domain analysis, not a template.
 
-### Write Architectural Decisions (significant decisions only)
+### Record Architectural Decisions
 
-For each significant architectural decision, append a dated block to `docs/architecture.md`:
+Append a new dated block to `docs/architecture.md` for each significant decision:
 
 ```markdown
----
-
-## YYYY-MM-DD — <feature-name>: <decision title>
+## YYYY-MM-DD — <feature-stem>: <short title>
 
 Decision: <what was decided>
 Reason: <why, one sentence>
 Alternatives considered: <what was rejected and why>
+Feature: <feature-stem>
 ```
 
-Only append an entry if the decision is non-obvious or has meaningful trade-offs. Routine YAGNI choices do not need an entry. Never edit past entries — append only.
+Only write a block for non-obvious decisions with meaningful trade-offs. Routine YAGNI choices do not need a record.
 
 ### Architecture Smell Check (hard gate)
 
 Apply to the stub files just written:
 
 - [ ] No class with >2 responsibilities (SOLID-S)
-- [ ] No class with >2 instance variables (OC-8) — behavioural classes only; dataclasses, Pydantic models, value objects, and TypedDicts are exempt
+- [ ] No behavioural class with >2 instance variables (OC-8; dataclasses, Pydantic models, value objects, and TypedDicts are exempt)
 - [ ] All external deps assigned a Protocol (SOLID-D + Hexagonal) — N/A if no external dependencies identified in scope
 - [ ] No noun with different meaning across modules (DDD Bounded Context)
 - [ ] No missing Creational pattern: repeated construction without Factory/Builder
 - [ ] No missing Structural pattern: type-switching without Strategy/Visitor
 - [ ] No missing Behavioral pattern: state machine or scattered notification without State/Observer
-- [ ] Each architectural decision in `docs/architecture.md` consistent with each @id AC — no contradictions
+- [ ] Each ADR consistent with each @id AC — no contradictions
 
 If any check fails: fix the stub files before committing.
 
-Commit: `feat(<feature-name>): add architecture stubs`
+### Generate Test Stubs
+
+Run `uv run task test-fast` once. It reads the in-progress `.feature` file, assigns `@id` tags to any untagged `Example:` blocks (writing them back to the `.feature` file), and generates `tests/features/<feature_slug>/<rule_slug>_test.py` — one file per `Rule:` block, one skipped function per `@id`. Verify the files were created, then stage all changes (including any `@id` write-backs to the `.feature` file).
+
+Commit: `feat(<feature-stem>): add architecture and test stubs`
 
 ---
 
@@ -153,33 +153,17 @@ Commit: `feat(<feature-name>): add architecture stubs`
 
 ### Prerequisites
 
-- [ ] Exactly one `.feature` file in `in-progress/`. If not present, load `skill feature-selection`
+- [ ] Exactly one .feature `in_progress`. If not present, Load `skill feature-selection` 
 - [ ] Architecture stubs present in `<package>/` (committed by Step 2)
 - [ ] Read `docs/architecture.md` — understand all architectural decisions before writing any test
-- [ ] Test stub files exist in `tests/features/<feature-name>/` — one file per `Rule:` block, all `@id` functions present with `@pytest.mark.skip`; if missing, write them now before entering RED
-
-### Write Test Stubs (if not present)
-
-For each `Rule:` block in the in-progress `.feature` file, create `tests/features/<feature-name>/<rule_slug>_test.py` if it does not already exist. Write one function per `@id` Example, all skipped:
-
-```python
-@pytest.mark.skip(reason="not yet implemented")
-def test_<feature_slug>_<@id>() -> None:
-    """
-    Given: ...
-    When: ...
-    Then: ...
-    """
-```
-
-Add `[ ]` rows to `## Progress` in `TODO.md` for each `@id` in the in-progress `.feature` file that is not already listed.
+- [ ] Test stub files exist in `tests/features/<feature_slug>/<rule_slug>_test.py` — generated by pytest-beehave at Step 2 end; if missing, re-run `uv run task test-fast` and commit the generated files before entering RED
 
 ### Build TODO.md Test List
 
 1. List all `@id` tags from in-progress `.feature` file
 2. Order: fewest dependencies first; most impactful within that set
 3. Each `@id` = one TODO item, status: `pending`
-4. Confirm each `@id` has a corresponding skipped stub in `tests/features/<feature-name>/` — if any are missing, add them before proceeding
+4. Confirm each `@id` has a corresponding skipped stub in `tests/features/<feature_slug>/` — if any are missing, add them before proceeding
 
 ### Outer Loop — One @id at a time
 
@@ -190,17 +174,17 @@ For each pending `@id`:
 ```
 INNER LOOP
 ├── RED
-│   ├── Confirm stub for this @id exists in tests/features/<feature-name>/ with @pytest.mark.skip
+│   ├── Confirm stub for this @id exists in tests/features/<feature_slug>/<rule_slug>_test.py with @pytest.mark.skip
 │   ├── Read existing stubs in `<package>/` — base the test on the current data model and signatures
 │   ├── Write test body (Given/When/Then → Arrange/Act/Assert); remove @pytest.mark.skip
-│   ├── Update stub signatures as needed — edit the `.py` file directly
+│   ├── Update <package> stub signatures as needed — edit the `.py` file directly
 │   ├── uv run task test-fast
 │   └── EXIT: this @id FAILS
 │       (if it passes: test is wrong — fix it first)
 │
 ├── GREEN
 │   ├── Write minimum code — YAGNI + KISS only
-│   │   (no DRY, SOLID, OC here — those belong in REFACTOR)
+│   │   (no DRY, SOLID, OC, Docstring, type hint here — those belong in REFACTOR)
 │   ├── uv run task test-fast
 │   └── EXIT: this @id passes AND all prior tests pass
 │       (fix implementation only; do not advance to next @id)
@@ -219,31 +203,29 @@ Commit when a meaningful increment is green
 ```bash
 uv run task lint
 uv run task static-check
-uv run task test-coverage   # coverage must be 100%
+uv run task test-coverage          # coverage must be 100%
 timeout 10s uv run task run
 ```
 
 If coverage < 100%: add test in `tests/unit/` for uncovered branch (do NOT add @id tests for coverage).
-Only add coverage tests for branches introduced or changed by the current feature. Pre-existing uncovered lines are a separate concern — note them in TODO.md and hand off; do not block on them.
 
 All must pass before Self-Declaration.
 
 ### Self-Declaration (once, after all quality gates pass)
 
-Communicate verbally to the reviewer. Answer honestly for each principle.
+<!-- This list has exactly 25 items — count before submitting. If your count ≠ 25, you missed one. -->
 
-**The Self-Declaration has exactly 25 numbered items. Count yours before submitting. Fewer than 25 means you omitted something — find it and add it.**
+Communicate verbally to the reviewer. Answer honestly for each principle:
 
-As a Software Engineer, I declare that:
-1.  YAGNI: no code without a failing test — AGREE/DISAGREE | file:line
-2.  YAGNI: no speculative abstractions — AGREE/DISAGREE | file:line
-3.  KISS: simplest solution that passes — AGREE/DISAGREE | file:line
-4.  KISS: no premature optimization — AGREE/DISAGREE | file:line
-5.  DRY: no duplication — AGREE/DISAGREE | file:line
-6.  DRY: no redundant comments — AGREE/DISAGREE | file:line
-7.  SOLID-S: one reason to change per class — AGREE/DISAGREE | file:line
-8.  SOLID-O: open for extension, closed for modification — AGREE/DISAGREE | file:line
-9.  SOLID-L: subtypes substitutable — AGREE/DISAGREE | file:line
+1. YAGNI: no code without a failing test — AGREE/DISAGREE | file:line
+2. YAGNI: no speculative abstractions — AGREE/DISAGREE | file:line
+3. KISS: simplest solution that passes — AGREE/DISAGREE | file:line
+4. KISS: no premature optimization — AGREE/DISAGREE | file:line
+5. DRY: no duplication — AGREE/DISAGREE | file:line
+6. DRY: no redundant comments — AGREE/DISAGREE | file:line
+7. SOLID-S: one reason to change per class — AGREE/DISAGREE | file:line
+8. SOLID-O: open for extension, closed for modification — AGREE/DISAGREE | file:line
+9. SOLID-L: subtypes substitutable — AGREE/DISAGREE | file:line
 10. SOLID-I: no forced unused deps — AGREE/DISAGREE | file:line
 11. SOLID-D: depend on abstractions, not concretions — AGREE/DISAGREE | file:line
 12. OC-1: one level of indentation per method — AGREE/DISAGREE | deepest: file:line
@@ -255,7 +237,7 @@ As a Software Engineer, I declare that:
 18. OC-7: ≤20 lines per function, ≤50 per class — AGREE/DISAGREE | longest: file:line
 19. OC-8: ≤2 instance variables per class (behavioural classes only; dataclasses, Pydantic models, value objects, and TypedDicts are exempt) — AGREE/DISAGREE | file:line
 20. OC-9: no getters/setters — AGREE/DISAGREE | file:line
-21. Patterns: I have no good reason to refactor parts of the code using OOP or Design Patterns — AGREE/DISAGREE | file:line
+21. Patterns: no good reason remains to refactor using OOP or Design Patterns — AGREE/DISAGREE | file:line
 22. Patterns: no creational smell — AGREE/DISAGREE | file:line
 23. Patterns: no structural smell — AGREE/DISAGREE | file:line
 24. Patterns: no behavioral smell — AGREE/DISAGREE | file:line
@@ -270,10 +252,6 @@ Signal completion to the reviewer. Provide:
 - Self-Declaration (communicated verbally, as above)
 - Summary of what was implemented
 
-**After Step 4 APPROVED: do not move the `.feature` file. Escalate to PO.** Output:
-
-> Step 4 APPROVED for `<feature-name>`. Escalating to @product-owner — please move `docs/features/in-progress/<feature-name>.feature` to `docs/features/completed/<feature-name>.feature` and pick the next feature from backlog.
-
 ---
 
 ## Test Writing Conventions
@@ -281,30 +259,20 @@ Signal completion to the reviewer. Provide:
 ### Test File Layout
 
 ```
-tests/features/<feature-name>/<rule_slug>_test.py   ← one per Rule: block
-tests/features/<feature-name>/examples_test.py      ← when no Rule: blocks
+tests/features/<feature_slug>/<rule_slug>_test.py
 ```
 
-- `<feature-name>` = the `.feature` file stem
-- `<rule_slug>` = the `Rule:` title slugified
+- `<feature_slug>` = the `.feature` file stem with hyphens replaced by underscores, lowercase
+- `<rule_slug>` = the `Rule:` title slugified (lowercase, underscores)
 
 ### Function Naming
 
-All tests are top-level functions — no classes, no `self`.
-
 ```python
-# Rule block → top-level functions in <rule_slug>_test.py
-def test_ball_game_a3f2b1c4() -> None: ...
-def test_ball_game_c4d5e6f7() -> None: ...
-
-# No Rule block → top-level functions in examples_test.py
-def test_ball_game_a3f2b1c4() -> None: ...
+def test_<feature_slug>_<@id>() -> None:
 ```
 
-Function naming in all cases: `test_<feature_slug>_<@id>`
-
-- `feature_slug` = the `.feature` file stem with hyphens replaced by underscores, lowercase
-- `@id` = the `@id` tag value from the `Example:` block
+- `feature_slug` = the `.feature` file stem with spaces/hyphens replaced by underscores, lowercase
+- `@id` = the `@id` from the `Example:` block
 
 ### Docstring Format (mandatory)
 
@@ -312,24 +280,23 @@ New tests start as skipped stubs. Remove `@pytest.mark.skip` when implementing i
 
 ```python
 @pytest.mark.skip(reason="not yet implemented")
-def test_ball_game_a3f2b1c4() -> None:
+def test_<feature_slug>_<@id>() -> None:
     """
-    Given: A ball moving upward reaches y=0
-    When: The physics engine processes the next frame
-    Then: The ball velocity y-component becomes positive
+    <@id steps raw text including new lines>
     """
 ```
 
 **Rules**:
-- Docstring contains `Given:/When:/Then:` on separate indented lines
+- Docstring contains `Gherkin steps` as raw text on separate indented lines
 - No extra metadata in docstring — traceability comes from function name `@id` suffix
 
 ### Markers
 
 - `@pytest.mark.slow` — takes > 50ms (Hypothesis, DB, network, terminal I/O)
-- `@pytest.mark.deprecated` — auto-skipped by conftest; used for superseded Examples
+- `@pytest.mark.deprecated` — auto-skipped by pytest-beehave; used for superseded Examples
 
 ```python
+@pytest.mark.deprecated
 def test_wall_bounce_a3f2b1c4() -> None:
     ...
 
@@ -360,11 +327,11 @@ def test_wall_bounce_c4d5e6f7(x: float) -> None:
 **Rules**:
 - `@pytest.mark.slow` is mandatory on every `@given`-decorated test
 - `@example(...)` is optional but encouraged
-- Never use Hypothesis for: I/O, side effects, network calls, database writes
+- Do not use Hypothesis for: I/O, side effects, network calls, database writes
 
 ### Semantic Alignment Rule
 
-The test's Given/When/Then must operate at the **same abstraction level** as the AC's Given/When/Then.
+The test's Given/When/Then must operate at the **same abstraction level** as the AC's Steps.
 
 | AC says | Test must do |
 |---|---|
@@ -379,7 +346,7 @@ If testing through the real entry point is infeasible, escalate to PO to adjust 
 - No `isinstance()`, `type()`, or internal attribute (`_x`) checks in assertions
 - One assertion concept per test (multiple `assert` ok if they verify the same thing)
 - No `pytest.mark.xfail` without written justification
-- `pytest.mark.skip` is only valid on stubs (`reason="not yet implemented"`) — remove it when implementing
+- `pytest.mark.skip(reason="not yet implemented")` is only valid on stubs — remove it when implementing
 - Test data embedded directly in the test, not loaded from external files
 
 ### Test Tool Decision
@@ -406,7 +373,7 @@ Extra tests in `tests/unit/` are allowed freely (coverage, edge cases, etc.) —
 
 ## Signature Design
 
-Signatures are written during Step 2 (Architecture) and refined during Step 3 (RED). They live directly in the package `.py` files — never in the `.feature` file.
+<package> signatures are written during Step 2 (Architecture) and refined during Step 3 (RED). They live directly in the package `.py` files — never in the `.feature` file.
 
 Key rules:
 - Bodies are always `...` in the architecture stub
