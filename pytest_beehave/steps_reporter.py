@@ -26,7 +26,8 @@ class StepsReporter:
         """
         if report.when != "call" and not (report.when == "setup" and report.skipped):
             return
-        option = self._config.option
+        config = self._config
+        option = config.option
         verbose = option.verbose
         if verbose < 1:
             return

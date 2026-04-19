@@ -30,8 +30,8 @@ class TestNoOpWhenStructureIsCorrect:
         lines: list[str] = []
 
         class _Writer:
-            def line(self, s: str = "") -> None:
-                lines.append(s)
+            def line(self, text: str = "") -> None:
+                lines.append(text)
 
         report_bootstrap(_Writer(), result)
         assert lines == []
@@ -51,8 +51,8 @@ class TestNoOpWhenStructureIsCorrect:
         lines: list[str] = []
 
         class _Writer:
-            def line(self, s: str = "") -> None:
-                lines.append(s)
+            def line(self, text: str = "") -> None:
+                lines.append(text)
 
         report_bootstrap(_Writer(), result)
         assert result.is_noop

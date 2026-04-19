@@ -39,18 +39,18 @@ class _PytestTerminalWriter:
         """
         self._config = config
 
-    def line(self, s: str = "") -> None:
+    def line(self, text: str = "") -> None:
         """Write a line to the terminal.
 
         Args:
-            s: The line to write.
+            text: The line to write.
         """
         try:
             config = self._config
             writer = config.get_terminal_writer()
-            writer.line(s)
+            writer.line(text)
         except (AssertionError, AttributeError):
-            sys.stdout.write(s + "\n")
+            sys.stdout.write(text + "\n")
             sys.stdout.flush()
 
 
@@ -62,10 +62,10 @@ def _exit_if_missing_configured_path(rootdir: Path, path: Path) -> None:
         path: Resolved features path.
     """
     if not path.exists() and is_explicitly_configured(rootdir):
-        msg = f"[beehave] features_path not found: {path}"
-        sys.stderr.write(msg + "\n")
+        message = f"[beehave] features_path not found: {path}"
+        sys.stderr.write(message + "\n")
         sys.stderr.flush()
-        pytest.exit(msg, returncode=1)
+        pytest.exit(message, returncode=1)
 
 
 def _run_beehave_sync(config: pytest.Config, path: Path) -> None:
@@ -103,9 +103,9 @@ def pytest_runtest_makereport(item: pytest.Item, call: pytest.CallInfo[None]) ->
     """
     outcome = yield
     report = outcome.get_result()
-    obj = getattr(item, "obj", None)
+    test_object = getattr(item, "obj", None)
     report._beehave_docstring = (
-        getattr(obj, "__doc__", None) or "" if obj is not None else ""
+        getattr(test_object, "__doc__", None) or "" if test_object is not None else ""
     )
 
 
