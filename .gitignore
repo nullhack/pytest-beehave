@@ -1,5 +1,8 @@
 .DS_Store
 .coverage
+*.swp
+*.swo
+~*
 .vscode/\n.idea/
 # Byte-compiled / optimized / DLL files
 __pycache__/
