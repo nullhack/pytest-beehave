@@ -2,6 +2,26 @@
 
 All notable changes to pytest-beehave will be documented in this file.
 
+## [v3.3.20260419] — Mason Osmia — 2026-04-20
+
+### Added
+- feat(stub-format-config): add `stub_format` config key under `[tool.beehave]` — controls output format of generated test stubs
+  - `"functions"` (default): top-level functions
+  - `"classes"`: class-wrapped methods for backward compatibility
+- feat(stub-format-config): 7 acceptance criteria across 5 Rules
+- feat(stub-format-config): new test suite in `tests/features/stub_format_config/`
+- feat(example-hatch): `pytest --beehave-hatch` generates bee-themed feature files
+- feat(plugin-hook): adds deprecated marker sync for `Example:` blocks
+
+### Changed
+- ci(release): add auto-tag workflow (`.github/workflows/tag-release.yml`) — creates version tag on main merge
+- ci(release): fix stale artifact reuse — clean `dist/` before build
+- docs: add "See it in 2 minutes" demo section to README
+- chore(skills): number SE Self-Declaration items 1–25
+- chore(skills): restore bee genus pool to git-release skill (50 curated genera)
+- chore: add `test-coverage` task
+- chore: add `*.swp` to .gitignore
+
 ## [v3.2.20260419] — Mason Osmia — 2026-04-19
 
 ### Added
