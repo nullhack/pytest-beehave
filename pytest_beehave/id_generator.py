@@ -99,7 +99,7 @@ def _id_tag_precedes(lines: list[str]) -> bool:
 
 
 def _count_preceding_id_tags(lines: list[str]) -> int:
-    """Count @id tags in the block of Gherkin tags immediately preceding the current position.
+    """Count @id tags in the Gherkin tag block immediately before the current position.
 
     Scans backwards through lines, counting @id tag lines and skipping other
     tag lines and blanks, until a non-tag, non-blank line is found.

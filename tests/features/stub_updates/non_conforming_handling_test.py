@@ -164,4 +164,3 @@ def test_stub_updates_7e1a3c90() -> None:
     Then: stub-sync creates a conforming stub in the correct location and marks the original with @pytest.mark.skip(reason="non-conforming: moved to <file>")
     """
     raise NotImplementedError
-

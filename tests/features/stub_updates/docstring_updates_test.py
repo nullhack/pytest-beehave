@@ -129,4 +129,3 @@ def test_stub_updates_d6a4f382() -> None:
     Then: the updated docstring contains a blank line between the last Background step and the first Scenario step
     """
     raise NotImplementedError
-

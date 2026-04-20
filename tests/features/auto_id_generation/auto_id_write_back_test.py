@@ -3,8 +3,6 @@
 import re
 from pathlib import Path
 
-import pytest
-
 from pytest_beehave.id_generator import assign_ids
 
 
@@ -143,4 +141,3 @@ def test_auto_id_generation_b8c6d504(tmp_path: Path) -> None:
     errors = assign_ids(features_dir)
     assert errors
     assert any("Something happens" in e for e in errors)
-

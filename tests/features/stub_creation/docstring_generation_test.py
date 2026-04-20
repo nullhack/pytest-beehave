@@ -265,4 +265,3 @@ def test_stub_creation_e5c3b271() -> None:
     Then: the generated test stub docstring contains a blank line between the last Background step and the first Scenario step
     """
     raise NotImplementedError
-

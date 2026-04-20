@@ -342,4 +342,3 @@ def test_stub_creation_f3e1a290() -> None:
     Then: a single @pytest.mark.parametrize test stub is created for that Scenario Outline with the Examples table rows as parameter values
     """
     raise NotImplementedError
-
