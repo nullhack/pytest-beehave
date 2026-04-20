@@ -180,10 +180,31 @@ git add pyproject.toml CHANGELOG.md uv.lock docs/c4/context.md docs/c4/container
 git commit -m "chore(release): bump version to v{version} — {Adjective Genus}"
 ```
 
-### 8. Create GitHub release
+### 8. Open a PR and merge it
+
+Push to a release branch and open a PR against `main`:
 
 ```bash
-SHA=$(git rev-parse --short HEAD)
+git checkout -b release/v{version}
+git push -u origin release/v{version}
+gh pr create \
+  --title "chore(release): v{version} — {Adjective Genus}" \
+  --body "Version bump to v{version}. Merging this PR will automatically create the tag and trigger PyPI publish."
+```
+
+Once the PR is merged to `main`, the `tag-release` CI workflow fires automatically:
+- Reads `version` from `pyproject.toml`
+- Creates tag `v{version}` at the merge commit
+- The `pypi-publish` workflow triggers on the new tag and publishes to PyPI
+- The `publish-docs` CI job triggers on the push to `main` and deploys gh-pages
+
+**Do not create the tag manually.** Let CI handle it.
+
+### 9. Create GitHub release
+
+After the tag is created by CI (check Actions to confirm), create the GitHub release pointed at the new tag:
+
+```bash
 gh release create "v{version}" \
   --title "v{version} — {Adjective Genus}" \
   --notes "# v{version} — {Adjective Genus}
@@ -206,24 +227,21 @@ gh release create "v{version}" \
 2-3 sentences describing what this release accomplishes and why the genus name fits.
 
 ---
-**SHA**: \`${SHA}\`"
+**SHA**: \`$(git rev-parse --short v{version})\`"
 ```
 
-### 9. If a hotfix commit follows the release tag
+### 10. If the tag was created before the version bump landed on main
 
-If CI fails after the release (e.g. a stale lockfile) and a hotfix commit is pushed, reassign the tag and GitHub release to that commit:
+This can happen if CI is triggered by something other than the merge. Reassign the tag:
 
 ```bash
 # Delete the old tag locally and on remote
 git tag -d "v{version}"
 git push origin ":refs/tags/v{version}"
 
-# Recreate the tag on the hotfix commit
-git tag "v{version}" {hotfix-sha}
+# Recreate the tag on the correct commit
+git tag "v{version}" {correct-sha}
 git push origin "v{version}"
-
-# Update the GitHub release to point to the new tag
-gh release edit "v{version}" --target {hotfix-sha}
 ```
 
 The release notes and title do not need to change — only the target commit moves.
@@ -240,4 +258,6 @@ The release notes and title do not need to change — only the target commit mov
 - [ ] Genus chosen from curated pool (or new entry added to pool with character note)
 - [ ] Release notes follow the template format
 - [ ] `living-docs` skill run — C4 diagrams and glossary reflect the new feature
-- [ ] If a hotfix was pushed after the tag: tag reassigned to hotfix commit
+- [ ] PR merged to `main` before creating GitHub release
+- [ ] Tag created automatically by `tag-release` CI workflow (verify in Actions)
+- [ ] Do NOT create the tag manually
