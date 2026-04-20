@@ -28,9 +28,9 @@ v1.2.20260415  →  v1.3.20260415   (same-day second release)
 
 ## Release Naming
 
-Each release gets a unique adjective-animal name. Analyze the commits and PRs since the last release, identify the theme, and choose a name that reflects it.
+Each release gets a unique name: **{adjective}-{bee-genus}**. Analyze the commits and PRs since the last release, identify the theme, choose an adjective that reflects it, and select a bee genus from the pool below that matches.
 
-Choose any adjective and any animal (use scientific name, not common name). The only constraints:
+The only constraints:
 
 1. **Thematic fit**: the name should reflect what this release does
 2. **No repetition**: neither the adjective nor the animal may appear in a previous release
@@ -39,6 +39,68 @@ Check previous names to avoid repetition:
 ```bash
 gh release list --limit 20
 ```
+
+### Curated Bee Genus Pool
+
+Choose from this pool for intentional, memorable names. Each genus has a character note to guide thematic matching.
+
+| Genus | Common name | Character / theme |
+|---|---|---|
+| *Apis* | Honey bee | Collaboration, industry, the gold standard |
+| *Bombus* | Bumblebee | Robustness, persistence, surprising capability |
+| *Osmia* | Mason bee | Precision, craftsmanship, careful construction |
+| *Megachile* | Leafcutter bee | Clever tooling, cutting to shape |
+| *Xylocopa* | Carpenter bee | Structural work, building into solid foundations |
+| *Halictus* | Sweat bee | Small but essential, invisible infrastructure |
+| *Lasioglossum* | Small sweat bee | Ubiquity, the most common; baseline correctness |
+| *Nomada* | Nomad bee | Migration, discovery, exploratory behavior |
+| *Andrena* | Mining bee | Digging deep, uncovering hidden things |
+| *Colletes* | Plasterer bee | Sealing, finishing, waterproofing |
+| *Hylaeus* | Masked bee | Hidden internals, minimal exterior |
+| *Eulaema* | Orchid bee | Exotic, specialized, high-value collection |
+| *Eufriesea* | Orchid bee | Rare, distinctive, one-of-a-kind |
+| *Agapostemon* | Metallic sweat bee | Brilliance, sheen, polish |
+| *Augochlora* | Green sweat bee | Fresh, new, verdant growth |
+| *Augochlorella* | Sweat bee | Emerging, small-scale refinement |
+| *Augochloropsis* | Sweat bee | Variation on a theme, extension |
+| *Panurgus* | Mining bee | Collective effort, many small contributions |
+| *Perdita* | Mining bee | Smallest US bee; economy, minimalism |
+| *Melitturga* | Mining bee | Clarity, straight lines |
+| *Dasypoda* | Pantaloon bee | Deep foundations, load-bearing |
+| *Macropis* | Oil bee | Specialized extraction, targeted collection |
+| *Melitta* | Melitta bee | Sweetness, reward, delight |
+| *Anthidium* | Wool-carder bee | Gathering, tidying, organization |
+| *Coelioxys* | Sharp-tailed bee | Edge cases, pointed precision |
+| *Stelis* | Cleptoparasitic bee | Detection, catching what doesn't belong |
+| *Dioxys* | Cleptoparasitic bee | Finding impostors, validation |
+| *Sphecodes* | Blood bee | Ruthless removal of what shouldn't be there |
+| *Ceratina* | Small carpenter bee | Incremental progress, small but persistent |
+| *Exomalopsis* | Bee | Quiet correctness, unassuming reliability |
+| *Emphorella* | Bee | Niche specialization |
+| *Peponapis* | Squash bee | Domain-specific excellence |
+| *Xenoglossa* | Squash bee | Specialized vocabulary, domain language |
+| *Ptilothrix* | Mallow bee | Softness of interface, gentle handling |
+| *Melissodes* | Long-horned bee | Signal detection, communication |
+| *Svastra* | Long-horned bee | Season-aware, time-sensitive behavior |
+| *Eucera* | Long-horned bee | Patient waiting, timing |
+| *Tetralonia* | Long-horned bee | Systematic coverage |
+| *Anthophora* | Digger bee | Fast, energetic execution |
+| *Habropoda* | Digger bee | Buzz-pollination; resonance, vibration |
+| *Amegilla* | Blue-banded bee | Vibrant, high-frequency operation |
+| *Xylocopinae* | Carpenter bee subfamily | Load-bearing architecture |
+| *Euglossa* | Orchid bee | Precision collection, perfume of quality |
+| *Eulaema* | Orchid bee | Valuable, coveted output |
+| *Trigona* | Stingless bee | Safe, no sharp edges, user-friendly |
+| *Tetragonula* | Stingless bee | Compact, structured, geometric |
+| *Meliponula* | Stingless bee | African precision; warm-climate reliability |
+| *Frieseomelitta* | Stingless bee | Abundant output, productivity |
+| *Scaptotrigona* | Stingless bee | Aggressive defense of quality |
+| *Plebeia* | Stingless bee | Humble, small, widely deployed |
+| *Schwarziana* | Stingless bee | Named for a scientist; rigorous methodology |
+| *Ctenocolletes* | Stenotritid bee | Ancient, foundational, rarely changed |
+| *Stenotritus* | Stenotritid bee | Narrow, focused, specialized interface |
+
+If the release theme doesn't match any entry above, choose any other real bee genus and add it to this list with a character note.
 
 ## Release Process
 
