@@ -107,7 +107,8 @@ def _is_id_tag_line(line: str) -> bool:
     Returns:
         True if the line matches the @id tag pattern.
     """
-    return line.strip().startswith("@") and bool(_ID_TAG_LINE_RE.match(line))
+    stripped = line.strip()
+    return stripped.startswith("@") and bool(_ID_TAG_LINE_RE.match(line))
 
 
 def _count_preceding_id_tags(lines: list[str]) -> int:
