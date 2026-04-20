@@ -135,3 +135,25 @@ Status: IN-PROGRESS
 | Q6 | What happens if the target features directory already contains content? | Fail loudly with a descriptive error; provide a `--beehave-hatch-force` flag to overwrite (PO-resolved by convention — consistent with project hard-error philosophy) | RESOLVED-BY-PO |
 
 Status: COMPLETE
+
+---
+
+## 2026-04-19 — Feature: stub-format-config — Session 1
+Status: IN-PROGRESS
+
+### Feature: stub-format-config
+
+| ID | Question | Answer | Status |
+|----|----------|--------|--------|
+| Q1 | What config key name and section? | `stub_format` under `[tool.beehave]` in `pyproject.toml` | ANSWERED |
+| Q2 | What are the valid values? | `"functions"` (default, top-level functions, no class wrapper) and `"classes"` (class Test<RuleSlug> wrapping) — case-sensitive | ANSWERED |
+| Q3 | What is the default when the key is absent? | `"functions"` — existing projects that never set this key get top-level functions | ANSWERED |
+| Q4 | Does this affect features with no Rule blocks? | No — no-Rule features always produce module-level functions in `examples_test.py` regardless of `stub_format` | ANSWERED |
+| Q5 | What happens with an invalid value (e.g. `stub_format = "methods"`)? | Hard error at pytest startup with a descriptive message — consistent with the project's hard-error philosophy | ANSWERED |
+| Q6 | Does changing `stub_format` reformat existing stubs? | No — only new stubs are affected; existing stubs are not touched | ANSWERED |
+| Q7 | Is the setting per-feature or project-wide? | Project-wide — applies uniformly to all Rule-block features | ANSWERED |
+| Q8 | What happens to existing projects using the plugin (no `stub_format` key)? | They get `"functions"` (the new default) — top-level functions, which is the desired behavior going forward | ANSWERED |
+| Q9 | What happens if a project was relying on class-based output? | They set `stub_format = "classes"` in `[tool.beehave]` to restore the old behavior | ANSWERED |
+| Q10 | Is the `"classes"` format identical to the old class-based stub output? | Yes — `class Test<RuleSlug>:` wrapper with methods inside, same as what `stub_writer.py` currently produces | ANSWERED |
+
+Status: COMPLETE

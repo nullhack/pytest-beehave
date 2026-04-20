@@ -11,6 +11,7 @@ import pytest
 from pytest_beehave.bootstrap import bootstrap_features_directory
 from pytest_beehave.config import (
     is_explicitly_configured,
+    read_stub_format,
     resolve_features_path,
     show_steps_in_html,
     show_steps_in_terminal,
@@ -82,7 +83,14 @@ def _run_beehave_sync(config: pytest.Config, path: Path) -> None:
     report_id_write_back(writer, errors)
     if errors:
         pytest.exit("[beehave] untagged Examples in read-only files", returncode=1)
-    report_sync_actions(writer, run_sync(path, config.rootpath / "tests" / "features"))
+    try:
+        stub_format = read_stub_format(config.rootpath)
+    except SystemExit as exc:
+        pytest.exit(str(exc), returncode=1)
+    report_sync_actions(
+        writer,
+        run_sync(path, config.rootpath / "tests" / "features", stub_format=stub_format),
+    )
 
 
 def _html_available() -> bool:

@@ -242,3 +242,11 @@ Decision: `stub_writer` and `stub_reader` use direct string parsing/formatting r
 Reason: The implementation does not need to round-trip arbitrary Python source with full formatting preservation. Direct string manipulation is simpler, has zero additional dependencies, and is sufficient for the structured output format (top-level functions with a docstring and `raise NotImplementedError`). `libcst` was never added as a runtime dependency.
 Supersedes: "2026-04-18 — stub-creation: test file writing library" and "2026-04-18 — stub-updates: stub_reader uses libcst"
 Feature: stub-creation, stub-updates
+
+---
+
+## 2026-04-19 — stub-format-config: StubFormat threaded through StubSpec
+
+Decision: add `stub_format: StubFormat` field to `StubSpec` (stub_writer.py) and thread it from `run_sync` down to `write_stub_to_file`.
+Reason: keeps the format decision co-located with the stub spec rather than using a global or module-level state.
+Alternatives considered: global config object passed via module — rejected (hidden coupling); separate `write_top_level_stub_to_file` / `write_class_stub_to_file` public functions — rejected (duplicate routing logic at call sites).
