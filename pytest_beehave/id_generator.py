@@ -98,6 +98,18 @@ def _id_tag_precedes(lines: list[str]) -> bool:
     return bool(_ID_TAG_LINE_RE.match(last_non_empty))
 
 
+def _is_id_tag_line(line: str) -> bool:
+    """Return True if line is an @id tag line.
+
+    Args:
+        line: A single line from a .feature file.
+
+    Returns:
+        True if the line matches the @id tag pattern.
+    """
+    return line.strip().startswith("@") and bool(_ID_TAG_LINE_RE.match(line))
+
+
 def _count_preceding_id_tags(lines: list[str]) -> int:
     """Count @id tags in the Gherkin tag block immediately before the current position.
 
@@ -115,11 +127,10 @@ def _count_preceding_id_tags(lines: list[str]) -> int:
         stripped = line.strip()
         if not stripped:
             continue
-        if stripped.startswith("@"):
-            if _ID_TAG_LINE_RE.match(line):
-                count += 1
-        else:
+        if not stripped.startswith("@"):
             break
+        if _is_id_tag_line(line):
+            count += 1
     return count
 
 
