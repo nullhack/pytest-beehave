@@ -3,6 +3,8 @@
 import re
 from pathlib import Path
 
+import pytest
+
 from pytest_beehave.id_generator import assign_ids
 
 
@@ -120,16 +122,22 @@ def test_auto_id_generation_a7b5c493(tmp_path: Path) -> None:
     assert "test_my_feature_my-custom-name" in stub_content
 
 
-def test_auto_id_generation_b8c6d504(tmp_path: Path) -> None:
+def test_auto_id_generation_b8c6d504(pytester: pytest.Pytester) -> None:
     """
-    Given: a .feature file containing an Example with two @id tags on separate lines before the Example keyword
+    Given: a writable .feature file containing an Example with two @id tags on separate lines before the Example keyword
     When: pytest is invoked
     Then: pytest exits with a non-zero status code and an error message naming the Example with duplicate @id tags
     """
-    features_dir = tmp_path / "features"
-    feature_path = features_dir / "in-progress" / "my-feature" / "my-story.feature"
-    feature_path.parent.mkdir(parents=True)
-    feature_path.write_text(
+    feature_file = (
+        pytester.path
+        / "docs"
+        / "features"
+        / "in-progress"
+        / "my-feature"
+        / "my-story.feature"
+    )
+    feature_file.parent.mkdir(parents=True)
+    feature_file.write_text(
         "Feature: My feature\n"
         "  @id:aabbccdd\n"
         "  @id:11223344\n"
@@ -138,6 +146,7 @@ def test_auto_id_generation_b8c6d504(tmp_path: Path) -> None:
         "    When an action\n"
         "    Then an outcome\n"
     )
-    errors = assign_ids(features_dir)
-    assert errors
-    assert any("Something happens" in e for e in errors)
+    pytester.makepyfile("def test_placeholder(): pass")
+    result = pytester.runpytest()
+    assert result.ret != 0
+    result.stdout.fnmatch_lines(["*Something happens*"])

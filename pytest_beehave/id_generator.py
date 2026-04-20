@@ -140,7 +140,8 @@ def _duplicate_id_error(
         return None
     if _count_preceding_id_tags(preceding) < 2:
         return None
-    title = line.strip().removeprefix("Example:").strip()
+    stripped = line.strip()
+    title = stripped.removeprefix("Example:").strip()
     return f"{feature_path}: Example '{title}' has duplicate @id tags"
 
 
@@ -199,7 +200,8 @@ def _missing_id_error(
         return None
     if _id_tag_precedes(preceding):
         return None
-    title = line.strip().removeprefix("Example:").strip()
+    stripped = line.strip()
+    title = stripped.removeprefix("Example:").strip()
     return f"{feature_path}: Example '{title}' has no @id"
 
 
