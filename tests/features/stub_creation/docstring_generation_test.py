@@ -5,6 +5,8 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Callable
 
+import pytest
+
 from pytest_beehave.sync_engine import run_sync as sync_stubs
 
 
@@ -253,3 +255,14 @@ Feature: My feature
         assert "When: it <action>" in content
         assert "| thing | action | result |" in content
         assert "| ball  | rolls  | stops  |" in content
+
+
+@pytest.mark.skip(reason="not yet implemented")
+def test_stub_creation_e5c3b271() -> None:
+    """
+    Given: a backlog feature with a Background section and a Scenario with its own steps
+    When: pytest is invoked and the stub is created
+    Then: the generated test stub docstring contains a blank line between the last Background step and the first Scenario step
+    """
+    raise NotImplementedError
+

@@ -5,6 +5,8 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Callable
 
+import pytest
+
 from pytest_beehave.sync_engine import run_sync as sync_stubs
 
 
@@ -117,3 +119,14 @@ def test_my_feature_aabbccdd() -> None:
         assert "Given: the new condition" in content
         assert "result = my_function()" in content
         assert "assert result == 42" in content
+
+
+@pytest.mark.skip(reason="not yet implemented")
+def test_stub_updates_d6a4f382() -> None:
+    """
+    Given: an existing test stub for a feature with a Background section whose docstring does not have a blank line between Background steps and Scenario steps
+    When: pytest is invoked and the stub docstring is updated
+    Then: the updated docstring contains a blank line between the last Background step and the first Scenario step
+    """
+    raise NotImplementedError
+

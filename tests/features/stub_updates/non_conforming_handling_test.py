@@ -154,3 +154,14 @@ def test_my_feature_aabbccdd() -> None:
         correct_file = tests_dir / "my_feature" / "my_rule_test.py"
         correct_content = correct_file.read_text(encoding="utf-8")
         assert correct_content == conforming_content
+
+
+@pytest.mark.skip(reason="not yet implemented")
+def test_stub_updates_7e1a3c90() -> None:
+    """
+    Given: a test function whose @id matches a current Example but is in the wrong file
+    When: pytest is invoked
+    Then: stub-sync creates a conforming stub in the correct location and marks the original with @pytest.mark.skip(reason="non-conforming: moved to <file>")
+    """
+    raise NotImplementedError
+

@@ -3,6 +3,8 @@
 import re
 from pathlib import Path
 
+import pytest
+
 from pytest_beehave.id_generator import assign_ids
 
 
@@ -88,3 +90,24 @@ class TestAutoIdWriteBack:
         feature_file = _make_feature_file(tmp_path, original_content)
         assign_ids(tmp_path)
         assert feature_file.read_text() == original_content
+
+
+@pytest.mark.skip(reason="not yet implemented")
+def test_auto_id_generation_a7b5c493() -> None:
+    """
+    Given: a writable .feature file containing an Example tagged @id:my-custom-name (non-hex format)
+    When: pytest is invoked
+    Then: the generated stub function is named test_<feature_slug>_my-custom-name and no additional @id tag is written to the .feature file
+    """
+    raise NotImplementedError
+
+
+@pytest.mark.skip(reason="not yet implemented")
+def test_auto_id_generation_b8c6d504() -> None:
+    """
+    Given: a .feature file containing an Example with two @id tags on separate lines before the Example keyword
+    When: pytest is invoked
+    Then: pytest exits with a non-zero status code and an error message naming the Example with duplicate @id tags
+    """
+    raise NotImplementedError
+

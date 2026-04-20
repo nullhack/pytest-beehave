@@ -322,3 +322,24 @@ Feature: Done feature
         # For a completed feature, no new stubs are created at all
         test_file = tests_dir / "done_feature" / "examples_test.py"
         assert not test_file.exists()
+
+
+@pytest.mark.deprecated
+def test_stub_creation_c3a8f291() -> None:
+    """
+    Given: a backlog feature file with a Rule block containing a new @id-tagged Example
+    When: pytest is invoked
+    Then: the generated stub is a top-level function in <rule_slug>_test.py with no class wrapping
+    """
+    raise NotImplementedError
+
+
+@pytest.mark.skip(reason="not yet implemented")
+def test_stub_creation_f3e1a290() -> None:
+    """
+    Given: a backlog feature file containing a Scenario Outline with an Examples table
+    When: pytest is invoked
+    Then: a single @pytest.mark.parametrize test stub is created for that Scenario Outline with the Examples table rows as parameter values
+    """
+    raise NotImplementedError
+
