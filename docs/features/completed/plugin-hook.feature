@@ -41,6 +41,7 @@ Feature: pytest lifecycle integration
       Then pytest completes collection without errors
 
     @deprecated @id:e3a13b58
+    @id:39654ea7
     Example: Plugin does not crash when configured features directory is absent
       Given a project where the configured features directory does not exist
       When pytest is invoked

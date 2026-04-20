@@ -122,12 +122,25 @@ def test_auto_id_generation_a7b5c493(tmp_path: Path) -> None:
     assert "test_my_feature_my-custom-name" in stub_content
 
 
-@pytest.mark.skip(reason="not yet implemented")
-def test_auto_id_generation_b8c6d504() -> None:
+def test_auto_id_generation_b8c6d504(tmp_path: Path) -> None:
     """
     Given: a .feature file containing an Example with two @id tags on separate lines before the Example keyword
     When: pytest is invoked
     Then: pytest exits with a non-zero status code and an error message naming the Example with duplicate @id tags
     """
-    raise NotImplementedError
+    features_dir = tmp_path / "features"
+    feature_path = features_dir / "in-progress" / "my-feature" / "my-story.feature"
+    feature_path.parent.mkdir(parents=True)
+    feature_path.write_text(
+        "Feature: My feature\n"
+        "  @id:aabbccdd\n"
+        "  @id:11223344\n"
+        "  Example: Something happens\n"
+        "    Given a condition\n"
+        "    When an action\n"
+        "    Then an outcome\n"
+    )
+    errors = assign_ids(features_dir)
+    assert errors
+    assert any("Something happens" in e for e in errors)
 

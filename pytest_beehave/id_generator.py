@@ -9,7 +9,7 @@ from pathlib import Path
 
 FEATURE_STAGES: tuple[str, ...] = ("backlog", "in-progress", "completed")
 _EXAMPLE_LINE_RE: re.Pattern[str] = re.compile(r"^(\s+)Example:", re.MULTILINE)
-_ID_TAG_RE: re.Pattern[str] = re.compile(r"@id:\S+")
+_ID_TAG_LINE_RE: re.Pattern[str] = re.compile(r"^\s*@id:\S+\s*$")
 
 
 def _collect_existing_ids(content: str) -> set[str]:
@@ -94,21 +94,92 @@ def _id_tag_precedes(lines: list[str]) -> bool:
     Returns:
         True if the previous non-empty line contains an @id tag.
     """
-    last_non_empty = next((ln.strip() for ln in reversed(lines) if ln.strip()), "")
-    return bool(_ID_TAG_RE.search(last_non_empty))
+    last_non_empty = next((ln for ln in reversed(lines) if ln.strip()), "")
+    return bool(_ID_TAG_LINE_RE.match(last_non_empty))
 
 
-def _process_writable_file(feature_path: Path) -> None:
+def _count_preceding_id_tags(lines: list[str]) -> int:
+    """Count @id tags in the block of Gherkin tags immediately preceding the current position.
+
+    Scans backwards through lines, counting @id tag lines and skipping other
+    tag lines and blanks, until a non-tag, non-blank line is found.
+
+    Args:
+        lines: Lines accumulated so far (or all lines before the current line).
+
+    Returns:
+        Number of @id tag lines in the preceding tag block.
+    """
+    count = 0
+    for line in reversed(lines):
+        stripped = line.strip()
+        if not stripped:
+            continue
+        if stripped.startswith("@"):
+            if _ID_TAG_LINE_RE.match(line):
+                count += 1
+        else:
+            break
+    return count
+
+
+def _duplicate_id_error(
+    feature_path: Path, line: str, preceding: list[str]
+) -> str | None:
+    """Return an error string if an Example line has two or more preceding @id tags.
+
+    Args:
+        feature_path: Path to the feature file (used in error message).
+        line: The current line being processed.
+        preceding: All lines before this one.
+
+    Returns:
+        Error string if duplicate @id tags are found, or None.
+    """
+    if not _EXAMPLE_LINE_RE.match(line):
+        return None
+    if _count_preceding_id_tags(preceding) < 2:
+        return None
+    title = line.strip().removeprefix("Example:").strip()
+    return f"{feature_path}: Example '{title}' has duplicate @id tags"
+
+
+def _duplicate_errors_in_content(feature_path: Path, content: str) -> list[str]:
+    """Collect duplicate @id tag errors for all Examples in content.
+
+    Args:
+        feature_path: Path to the feature file (used in error messages).
+        content: Full text of the .feature file.
+
+    Returns:
+        List of error strings for Examples with duplicate @id tags.
+    """
+    lines = content.splitlines()
+    errors = [
+        _duplicate_id_error(feature_path, line, lines[:index])
+        for index, line in enumerate(lines)
+    ]
+    return [e for e in errors if e is not None]
+
+
+def _process_writable_file(feature_path: Path) -> list[str]:
     """Insert @id tags into a writable .feature file for untagged Examples.
 
     Args:
         feature_path: Path to the .feature file to process.
+
+    Returns:
+        List of error strings if duplicate @id tags are found, else empty list.
     """
     content = feature_path.read_text(encoding="utf-8")
+    errors = _duplicate_errors_in_content(feature_path, content)
+    if errors:
+        return errors
     existing_ids = _collect_existing_ids(content)
     updated = _insert_id_before_example(content, existing_ids)
     if updated != content:
         feature_path.write_text(updated, encoding="utf-8")
+    return []
 
 
 def _missing_id_error(
@@ -133,15 +204,19 @@ def _missing_id_error(
 
 
 def _check_readonly_file(feature_path: Path) -> list[str]:
-    """Collect error messages for untagged Examples in a read-only file.
+    """Collect error messages for untagged or duplicate-tagged Examples.
 
     Args:
         feature_path: Path to the read-only .feature file.
 
     Returns:
-        List of error strings, one per untagged Example.
+        List of error strings, one per problematic Example.
     """
-    lines = feature_path.read_text(encoding="utf-8").splitlines()
+    content = feature_path.read_text(encoding="utf-8")
+    duplicate_errors = _duplicate_errors_in_content(feature_path, content)
+    if duplicate_errors:
+        return duplicate_errors
+    lines = content.splitlines()
     errors = [
         _missing_id_error(feature_path, line, lines[:index])
         for index, line in enumerate(lines)
@@ -156,11 +231,10 @@ def _process_feature_file(feature_path: Path) -> list[str]:
         feature_path: Path to the .feature file.
 
     Returns:
-        List of error strings (empty if writable or no untagged Examples).
+        List of error strings (empty if writable and no duplicates).
     """
     if os.access(feature_path, os.W_OK):
-        _process_writable_file(feature_path)
-        return []
+        return _process_writable_file(feature_path)
     return _check_readonly_file(feature_path)
 
 
