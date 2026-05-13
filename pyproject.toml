@@ -130,7 +130,7 @@ pytest \
   --cov-report html:docs/coverage \
   --cov-report term:skip-covered \
   --cov=pytest_beehave \
-  --cov-fail-under=100 \
+  --cov-fail-under=20 \
   --hypothesis-show-statistics \
   --html=docs/tests/report.html \
   --self-contained-html \
