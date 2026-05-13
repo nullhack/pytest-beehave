@@ -1,43 +1,19 @@
 <div align="center">
-  <img src="docs/images/banner.svg" alt="pytest-beehave" width="860"/>
 
-  <br><br>
+<img src="docs/assets/banner.svg" alt="pytest-beehave" width="100%"/>
 
-  <p><strong>Generates test stubs from Gherkin <code>.feature</code> files, keeps them in sync, and displays BDD steps in pytest output — automatically, every time pytest runs.</strong></p>
+[![Python](https://img.shields.io/badge/python-%E2%89%A53.14-blue?style=for-the-badge)](https://www.python.org/downloads/)
+[![License](https://img.shields.io/badge/license-MIT-green?style=for-the-badge)](LICENSE)
+[![PyPI](https://img.shields.io/pypi/v/pytest-beehave?style=for-the-badge)](https://pypi.org/project/pytest-beehave/)
+[![CI](https://img.shields.io/github/actions/workflow/status/nullhack/pytest-beehave/ci.yml?style=for-the-badge&label=CI)](https://github.com/nullhack/pytest-beehave/actions/workflows/ci.yml)
 
-  [![Contributors][contributors-shield]][contributors-url]
-  [![Forks][forks-shield]][forks-url]
-  [![Stargazers][stars-shield]][stars-url]
-  [![Issues][issues-shield]][issues-url]
-  [![MIT License][license-shield]][license-url]
-  [![CI](https://img.shields.io/github/actions/workflow/status/nullhack/pytest-beehave/ci.yml?style=for-the-badge&label=CI)](https://github.com/nullhack/pytest-beehave/actions/workflows/ci.yml)
-  [![Python](https://img.shields.io/badge/python-3.14-blue?style=for-the-badge)](https://www.python.org/downloads/)
+**Generates pytest test stubs from Gherkin `.feature` files, checks consistency, and displays BDD steps — automatically, every time pytest runs.**
+
 </div>
 
 ---
 
-## What it does
-
-pytest-beehave is a pytest plugin powered by the [beehave](https://pypi.org/project/beehave/) library. Every time you run `pytest`, it reads your Gherkin `.feature` files and keeps your test stubs in sync:
-
-- **New scenario?** It generates a typed, Hypothesis-compatible test stub — already marked `@pytest.mark.skip(reason="not implemented")` so it doesn't pollute your results.
-- **Scenario Outline?** It generates `@example()` and `@given()` decorators with the right parameters.
-- **Test drift?** `check_all()` detects orphan tests, misplaced tests, missing placeholders, and example mismatches — and reports them as real test failures.
-- **Want to see your steps?** Run with `-v` and BDD steps appear under each test name. Install `pytest-html` and a "Scenario" column appears in the report.
-
-All of this happens in `pytest_configure` — before pytest collects a single test.
-
----
-
-## Why pytest-beehave?
-
-BDD frameworks sold a compelling promise: human-readable specifications that live alongside your tests, kept honest by the test suite itself. The promise is real. The implementation is the problem. Every scenario explodes into a constellation of `@given`, `@when`, and `@then` step functions scattered across multiple files, wired together by fragile string matching. Refactor one step and you're hunting across the codebase. The ceremony grows with every feature, and the spec drifts from reality anyway.
-
-pytest-beehave is the middle ground. Write your acceptance criteria in plain Gherkin — business-readable, version-controlled, owned by the team. The plugin generates test stubs with the right names and structure, marks unimplemented ones as skipped, and flags drift before it silently rots. You implement the test body however you like, in plain pytest, with no step files and no glue code.
-
----
-
-## Installation
+**pytest-beehave** is a pytest plugin powered by [beehave](https://pypi.org/project/beehave/). It reads your Gherkin `.feature` files and generates [Hypothesis](https://hypothesis.readthedocs.io/)-compatible test stubs with the right names, decorators, and parameters — then verifies that your test code stays consistent with your spec. New scenarios get `@pytest.mark.skip`; drift becomes a real test failure.
 
 ```bash
 pip install pytest-beehave
@@ -55,7 +31,7 @@ pip install "pytest-beehave[html]"
 
 ## Quick start
 
-**1. Write a feature file:**
+### 1. Write a feature file
 
 ```gherkin
 # docs/features/checkout/shopping_cart.feature
@@ -72,15 +48,21 @@ Feature: Shopping cart
       Then the order total is $120
 ```
 
-**2. Run pytest:**
+### 2. Run pytest
 
 ```bash
 pytest --collect-only
 ```
 
-**3. A test stub was created at `tests/features/shopping_cart/tax_calculation_test.py`:**
+### 3. A test stub is created
+
+```
+tests/features/shopping_cart/
+├── tax_calculation_test.py
+```
 
 ```python
+# tests/features/shopping_cart/tax_calculation_test.py
 import pytest
 
 @pytest.mark.skip(reason="not implemented")
@@ -88,7 +70,7 @@ def test_VAT_is_applied_at_the_correct_rate():
     ...
 ```
 
-**4. Run pytest again:**
+### 4. See BDD steps
 
 ```bash
 pytest -v
@@ -102,15 +84,15 @@ tests/features/shopping_cart/tax_calculation_test.py::test_VAT_is_applied_at_the
   Then the order total is $120
 ```
 
-**5. Implement the test and ship.**
+### 5. Implement and ship
 
-Remove the `@pytest.mark.skip` decorator, replace `...` with your test logic, and run `pytest` again. The steps display stays in sync with your feature file.
+Remove `@pytest.mark.skip`, write the test body, run `pytest` again. The steps display stays in sync with your feature file.
 
 ---
 
 ## How it works
 
-pytest-beehave hooks into `pytest_configure`, the earliest possible entry point. Every stub exists on disk before pytest begins collection.
+The plugin hooks into `pytest_configure` — every stub exists on disk before collection begins.
 
 ```
 pytest invoked
@@ -121,9 +103,8 @@ pytest invoked
        ├─ _add_skip_markers()            → mark unimplemented stubs with @pytest.mark.skip
        ├─ check_all()                    → detect drift between features and tests
        └─ register display plugins       → StepsReporter (-v) and/or HtmlStepsPlugin
-  └─ pytest_collection_modifyitems       → inject synthetic failing tests for ERROR violations
+  └─ pytest_collection_modifyitems       → inject failing tests for ERROR violations
   └─ Collection begins — every stub is already present
-  └─ Tests run
 ```
 
 ---
@@ -139,22 +120,22 @@ tests/features/             ← configured via tests_dir
     <rule_slug>_test.py     ← one file per Rule: block (or default_test.py)
 ```
 
-Each test function name follows the convention `test_<scenario_title_with_underscores>`. The mapping is exact string equality — no `@id` tags, no step definitions, no glue code.
+Each test function name follows `test_<scenario_title_with_underscores>`. The mapping is exact string equality — no `@id` tags, no step definitions, no glue code.
 
 ---
 
-## Consistency checking
+## What `check_all` enforces
 
-After stub generation, the plugin runs `check_all()` to detect drift between feature files and test code. Violations produce real test failures:
+After stub generation, the plugin runs `check_all()` to detect drift between feature files and test code. ERROR violations produce real test failures via synthetic test items:
 
-| Type | Severity | Meaning |
-|------|----------|---------|
-| `unmapped-scenario` | ERROR (fails run) | Scenario has no matching test function |
-| `unmapped-test` | ERROR (fails run) | Test function has no matching scenario |
-| `misplaced-test` | WARNING | Test is in the wrong rule file |
-| `missing-placeholder` | ERROR (fails run) | Test body missing a placeholder |
-| `missing-literal` | ERROR (fails run) | Test body missing a literal value |
-| `example-mismatch` | ERROR (fails run) | Examples rows don't match `@example()` decorators |
+| Type | Severity | What it catches |
+|------|----------|-----------------|
+| `unmapped-scenario` | ERROR | Scenario has no matching test function |
+| `unmapped-test` | ERROR | Test function has no matching scenario |
+| `misplaced-test` | WARNING | Function is in the wrong rule file |
+| `missing-placeholder` | ERROR | Test body missing a `<placeholder>` |
+| `missing-literal` | ERROR | Test body missing a `"string"` or numeric literal |
+| `example-mismatch` | ERROR | Examples rows don't match `@example()` decorators |
 
 ```
 $ pytest
@@ -162,13 +143,22 @@ $ pytest
 ========================= 1 failed, 3 passed, 2 skipped =========================
 ```
 
-Stub functions (body is `...`) are excluded from placeholder and literal checks — they are expected to be incomplete.
+Stub functions (body is `...`) are excluded from placeholder and literal checks.
+
+---
+
+## How it maps
+
+- **Scenario title → function name:** `VAT Is Applied At The Correct Rate` → `test_VAT_is_applied_at_the_correct_rate`. Lowercased. Globally unique.
+- **Rule → test file:** Top-level scenarios go to `default_test.py`. Scenarios inside a Rule go to `<rule>_test.py`.
+- **Feature title → directory:** `Shopping Cart` → `tests/features/shopping_cart/`.
+- **Scenario Outline → decorators:** `<placeholder>` columns become `@given()` parameters with inferred Hypothesis strategies. Example rows become `@example()` decorators.
 
 ---
 
 ## TDD workflow
 
-1. `pytest --collect-only` → stubs generated with `@pytest.mark.skip` → all skipped
+1. `pytest --collect-only` → stubs generated with `@pytest.mark.skip`
 2. Remove `@pytest.mark.skip`, write the test body → test runs and fails (red)
 3. Fix the implementation → test passes (green)
 4. Add new scenarios to `.feature` files → only new stubs get the skip marker
@@ -188,7 +178,7 @@ background_check_numeric = true     # default: true
 background_check_string = true      # default: true
 ```
 
-If `features_dir` does not exist, the plugin exits silently (no error, no stub generation).
+If `features_dir` does not exist, the plugin exits silently.
 
 ---
 
@@ -211,24 +201,10 @@ uv sync --all-extras
 uv run task test && uv run task lint && uv run task static-check
 ```
 
-Bug reports and pull requests are welcome on [GitHub](https://github.com/nullhack/pytest-beehave/issues).
+Bug reports and pull requests welcome on [GitHub](https://github.com/nullhack/pytest-beehave/issues).
 
 ---
 
 ## License
 
 MIT — see [LICENSE](LICENSE).
-
-**Author:** eol ([@nullhack](https://github.com/nullhack)) · [Documentation](https://nullhack.github.io/pytest-beehave)
-
-<!-- MARKDOWN LINKS & IMAGES -->
-[contributors-shield]: https://img.shields.io/github/contributors/nullhack/pytest-beehave.svg?style=for-the-badge
-[contributors-url]: https://github.com/nullhack/pytest-beehave/graphs/contributors
-[forks-shield]: https://img.shields.io/github/forks/nullhack/pytest-beehave.svg?style=for-the-badge
-[forks-url]: https://github.com/nullhack/pytest-beehave/network/members
-[stars-shield]: https://img.shields.io/github/stars/nullhack/pytest-beehave.svg?style=for-the-badge
-[stars-url]: https://github.com/nullhack/pytest-beehave/stargazers
-[issues-shield]: https://img.shields.io/github/issues/nullhack/pytest-beehave.svg?style=for-the-badge
-[issues-url]: https://github.com/nullhack/pytest-beehave/issues
-[license-shield]: https://img.shields.io/badge/license-MIT-green?style=for-the-badge
-[license-url]: https://github.com/nullhack/pytest-beehave/blob/main/LICENSE
