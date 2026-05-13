@@ -16,6 +16,7 @@ classifiers = [
     "Framework :: Pytest",
 ]
 dependencies = [
+    "beehave>=0.2.20250421",
     "fire>=0.7.1",
     "gherkin-official>=39.0.0",
 ]
@@ -155,6 +156,8 @@ package = true
 
 [dependency-groups]
 dev = [
+    "agents-smith>=1.0.0",
+    "flowr>=1.0.0",
     "gherkin-official>=39.0.0",
     "safety>=3.7.0",
 ]
