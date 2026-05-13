@@ -100,7 +100,7 @@ addopts = """
 --color=yes \
 """
 testpaths = ["tests"]
-python_files = ["*_test.py"]
+python_files = ["test_*.py", "*_test.py"]
 python_functions = ["test_*"]
 render_collapsed = "all"
 
