@@ -1,9 +1,9 @@
 [project]
 name = "pytest-beehave"
-version = "0.1.20260421"
-description = "A pytest plugin that runs acceptance criteria stub generation as part of the pytest lifecycle, with auto-ID assignment and generic step docstrings"
+version = "0.2.0"
+description = "A pytest plugin that generates test stubs from Gherkin feature files, checks consistency, and displays BDD steps in pytest output"
 readme = "README.md"
-requires-python = ">=3.13"
+requires-python = ">=3.14"
 license = { file = "LICENSE" }
 authors = [
     { name = "eol", email = "nullhack@users.noreply.github.com" }
@@ -16,9 +16,7 @@ classifiers = [
     "Framework :: Pytest",
 ]
 dependencies = [
-    "beehave>=0.2.20250421",
-    "fire>=0.7.1",
-    "gherkin-official>=39.0.0",
+    "beehave>=0.4.0",
 ]
 
 [project.urls]
