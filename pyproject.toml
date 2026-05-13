@@ -1,6 +1,6 @@
 [project]
 name = "pytest-beehave"
-version = "0.2.0"
+version = "0.2.1"
 description = "A pytest plugin that generates test stubs from Gherkin feature files, checks consistency, and displays BDD steps in pytest output"
 readme = "README.md"
 requires-python = ">=3.14"
