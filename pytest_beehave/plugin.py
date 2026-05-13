@@ -1,178 +1,232 @@
-"""pytest plugin entry point for pytest-beehave."""
+"""pytest plugin entry point — orchestrates beehave during the pytest lifecycle."""
 
 from __future__ import annotations
 
 import importlib.util
 import sys
+from collections.abc import Generator
 from pathlib import Path
+from typing import Any
 
 import pytest
+from beehave.check import check_all
+from beehave.config import Config, load_config
+from beehave.generate import generate_stubs
+from beehave.gherkin import parse_feature
+from beehave.models import ScenarioInfo, Violation
 
-from pytest_beehave.bootstrap import bootstrap_features_directory
-from pytest_beehave.config import (
-    is_explicitly_configured,
-    read_stub_format,
-    resolve_features_path,
-    show_steps_in_html,
-    show_steps_in_terminal,
-)
-from pytest_beehave.hatch import run_hatch
-from pytest_beehave.html_steps_plugin import HtmlStepsPlugin
-from pytest_beehave.id_generator import assign_ids
-from pytest_beehave.reporter import (
-    report_bootstrap,
-    report_id_write_back,
-    report_sync_actions,
-)
-from pytest_beehave.steps_reporter import StepsReporter
-from pytest_beehave.sync_engine import run_sync
-
-features_path_key: pytest.StashKey[Path] = pytest.StashKey()
+_beehave_config_key: pytest.StashKey[Config] = pytest.StashKey()
+_scenarios_key: pytest.StashKey[dict[str, ScenarioInfo]] = pytest.StashKey()
+_error_violations_key: pytest.StashKey[list[Violation]] = pytest.StashKey()
 
 
-class _PytestTerminalWriter:
-    """Adapter wrapping pytest's terminal writer to match TerminalWriterProtocol."""
+class BeehaveViolationItem(pytest.Item):
+    """Synthetic test item that fails, representing a beehave ERROR."""
 
-    def __init__(self, config: pytest.Config) -> None:
-        """Initialise the adapter.
+    def __init__(  # noqa: D107
+        self,
+        *,
+        violation: Violation,
+        **kwargs: Any,  # noqa: ANN401
+    ) -> None:
+        safe_name = violation.error_type.replace("-", "_")
+        super().__init__(name=f"beehave_{safe_name}", **kwargs)
+        self.violation = violation
 
-        Args:
-            config: The pytest Config object.
-        """
-        self._config = config
+    def runtest(self) -> None:
+        """Execute the test — always raises AssertionError."""
+        raise AssertionError(f"[beehave] {self.violation}")
 
-    def line(self, text: str = "") -> None:
-        """Write a line to the terminal.
+    def repr_failure(
+        self,
+        excinfo: pytest.ExceptionInfo[BaseException],
+        style: str | None = None,
+    ) -> str:
+        """Return a string representation of the failure."""
+        return str(excinfo.value)
 
-        Args:
-            text: The line to write.
-        """
-        try:
-            config = self._config
-            writer = config.get_terminal_writer()
-            writer.line(text)
-        except (AssertionError, AttributeError):
-            sys.stdout.write(text + "\n")
-            sys.stdout.flush()
-
-
-def _exit_if_missing_configured_path(rootdir: Path, path: Path) -> None:
-    """Exit pytest if features_path is explicitly configured but missing.
-
-    Args:
-        rootdir: Project root directory.
-        path: Resolved features path.
-    """
-    if not path.exists() and is_explicitly_configured(rootdir):
-        message = f"[beehave] features_path not found: {path}"
-        sys.stderr.write(message + "\n")
-        sys.stderr.flush()
-        pytest.exit(message, returncode=1)
-
-
-def _run_beehave_sync(config: pytest.Config, path: Path) -> None:
-    """Bootstrap, assign IDs, and sync stubs for the features directory.
-
-    Args:
-        config: The pytest Config object.
-        path: The resolved features directory path.
-    """
-    writer = _PytestTerminalWriter(config)
-    report_bootstrap(writer, bootstrap_features_directory(path))
-    errors = assign_ids(path)
-    report_id_write_back(writer, errors)
-    if errors:
-        pytest.exit("[beehave] untagged Examples in read-only files", returncode=1)
-    try:
-        stub_format = read_stub_format(config.rootpath)
-    except SystemExit as exc:
-        pytest.exit(str(exc), returncode=1)
-    report_sync_actions(
-        writer,
-        run_sync(path, config.rootpath / "tests" / "features", stub_format=stub_format),
-    )
+    def reportinfo(self) -> tuple[str, int, str]:
+        """Return location info for the test report."""
+        return (
+            str(self.violation.path),
+            self.violation.line,
+            f"[beehave] {self.violation.error_type}: {self.violation.message}",
+        )
 
 
 def _html_available() -> bool:
-    """Return True if pytest-html is importable.
-
-    Returns:
-        True when pytest-html is installed.
-    """
     return importlib.util.find_spec("pytest_html") is not None
 
 
-@pytest.hookimpl(hookwrapper=True)
-def pytest_runtest_makereport(item: pytest.Item, call: pytest.CallInfo[None]) -> object:
-    """Attach the test docstring to the report for steps display.
-
-    Args:
-        item: The test item being reported.
-        call: The call info (unused).
-    """
-    outcome = yield
-    report = outcome.get_result()
-    test_object = getattr(item, "obj", None)
-    report._beehave_docstring = (
-        getattr(test_object, "__doc__", None) or "" if test_object is not None else ""
-    )
+def _format_scenario_steps(scenario: ScenarioInfo) -> str:
+    lines = [f"{step.keyword} {step.text}" for step in scenario.steps]
+    return "\n".join(lines)
 
 
-def _register_output_plugins(config: pytest.Config, rootdir: Path) -> None:
-    """Register terminal and HTML output plugins based on configuration.
-
-    Args:
-        config: The pytest Config object.
-        rootdir: Project root directory.
-    """
-    pm = config.pluginmanager
-    if show_steps_in_terminal(rootdir):
-        pm.register(StepsReporter(config), "beehave-steps-reporter")
-    if show_steps_in_html(rootdir) and _html_available():
-        pm.register(HtmlStepsPlugin(), "beehave-html-steps")
+def _write_line(config: pytest.Config, text: str) -> None:
+    try:
+        config.get_terminal_writer().line(text)
+    except AssertionError, AttributeError:
+        sys.stderr.write(text + "\n")
+        sys.stderr.flush()
 
 
-def pytest_addoption(parser: pytest.Parser) -> None:
-    """Register --beehave-hatch and --beehave-hatch-force CLI options.
+def _report_violation(config: pytest.Config, v: Violation) -> None:
+    level = "WARNING" if v.is_warning else "ERROR"
+    _write_line(config, f"[beehave] {level}: {v}")
 
-    Args:
-        parser: The pytest argument parser.
-    """
-    group = parser.getgroup("beehave")
-    group.addoption(
-        "--beehave-hatch",
-        action="store_true",
-        default=False,
-        help="Generate bee-themed example features directory and exit.",
-    )
-    group.addoption(
-        "--beehave-hatch-force",
-        action="store_true",
-        default=False,
-        help="Overwrite existing content when using --beehave-hatch.",
-    )
+
+_SKIP_MARKER = '@pytest.mark.skip(reason="not implemented")'
+
+
+def _add_skip_markers(tests_dir: Path) -> None:
+    """Add @pytest.mark.skip(reason='not implemented') to stub functions."""
+    for test_file in tests_dir.rglob("*.py"):
+        source = test_file.read_text(encoding="utf-8")
+        if "..." not in source:
+            continue
+
+        lines = source.split("\n")
+        changed = False
+        new_lines: list[str] = []
+
+        i = 0
+        while i < len(lines):
+            line = lines[i]
+            stripped = line.strip()
+
+            if stripped == "..." and new_lines:
+                prev = new_lines[-1]
+                if prev.lstrip().startswith("def "):
+                    def_indent = prev[: len(prev) - len(prev.lstrip())]
+                    insert_idx = len(new_lines) - 1
+                    while insert_idx > 0 and (
+                        new_lines[insert_idx - 1].lstrip().startswith("@")
+                    ):
+                        insert_idx -= 1
+                    already_marked = (
+                        insert_idx < len(new_lines)
+                        and "@pytest.mark.skip" in new_lines[insert_idx]
+                    )
+                    if not already_marked:
+                        new_lines.insert(insert_idx, f"{def_indent}{_SKIP_MARKER}")
+                        changed = True
+
+            new_lines.append(line)
+            i += 1
+
+        if not changed:
+            continue
+
+        source = "\n".join(new_lines)
+        if "import pytest" not in source:
+            source = "import pytest\n\n" + source
+
+        test_file.write_text(source, encoding="utf-8")
+
+
+def _collect_scenarios_and_generate(
+    features_dir: Path,
+    config: Config,
+    pytest_config: pytest.Config,
+) -> dict[str, ScenarioInfo]:
+    scenarios: dict[str, ScenarioInfo] = {}
+    seen_names: dict[str, str] = {}
+
+    for feature_file in sorted(features_dir.rglob("*.feature")):
+        try:
+            parsed = parse_feature(feature_file, config, seen_names)
+        except Exception as exc:
+            msg = f"[beehave] PARSE ERROR: {feature_file}: {exc}"
+            _write_line(pytest_config, msg)
+            continue
+        scenarios.update(parsed)
+
+        rel = feature_file.relative_to(features_dir)
+        feature_path_str = str(rel.with_suffix(""))
+        try:
+            generate_stubs(feature_path_str, config)
+        except Exception as exc:
+            msg = f"[beehave] GENERATE ERROR: {feature_file}: {exc}"
+            _write_line(pytest_config, msg)
+
+    return scenarios
 
 
 def pytest_configure(config: pytest.Config) -> None:
-    """Read beehave configuration, bootstrap directory, sync stubs.
-
-    Args:
-        config: The pytest Config object (provides rootdir and stash).
-    """
+    """Parse features, generate stubs, check violations, register reporters."""
     rootdir = config.rootpath
-    path = resolve_features_path(rootdir)
-    if config.getoption("--beehave-hatch", default=False):
-        force = bool(config.getoption("--beehave-hatch-force", default=False))
-        try:
-            written = run_hatch(path, force)
-        except SystemExit as exc:
-            pytest.exit(str(exc), returncode=1)
-        writer = _PytestTerminalWriter(config)
-        for entry in written:
-            writer.line(f"[beehave] HATCH {entry}")
-        pytest.exit("[beehave] hatch complete", returncode=0)
-    _exit_if_missing_configured_path(rootdir, path)
-    config.stash[features_path_key] = path
-    if path.exists():
-        _run_beehave_sync(config, path)
-    _register_output_plugins(config, rootdir)
+    beehave_config = load_config(rootdir)
+    config.stash[_beehave_config_key] = beehave_config
+
+    features_dir = rootdir / beehave_config.features_dir
+    if not features_dir.exists():
+        return
+
+    scenarios = _collect_scenarios_and_generate(
+        features_dir,
+        beehave_config,
+        config,
+    )
+    config.stash[_scenarios_key] = scenarios
+
+    _add_skip_markers(rootdir / beehave_config.tests_dir)
+
+    violations = check_all(beehave_config)
+    error_violations: list[Violation] = []
+    for v in violations:
+        _report_violation(config, v)
+        if not v.is_warning:
+            error_violations.append(v)
+    config.stash[_error_violations_key] = error_violations
+
+    if (config.getoption("verbose", default=0) or 0) >= 1:
+        from pytest_beehave.steps_display import StepsReporter
+
+        config.pluginmanager.register(
+            StepsReporter(config),
+            "beehave-steps-reporter",
+        )
+
+    if _html_available():
+        from pytest_beehave.html_column import HtmlStepsPlugin
+
+        config.pluginmanager.register(
+            HtmlStepsPlugin(),
+            "beehave-html-steps",
+        )
+
+
+def pytest_collection_modifyitems(
+    session: pytest.Session,
+    items: list[pytest.Item],
+) -> None:
+    """Inject synthetic failing tests for each ERROR violation."""
+    error_violations = session.config.stash.get(_error_violations_key, [])
+    for v in error_violations:
+        item = BeehaveViolationItem.from_parent(
+            parent=session,
+            violation=v,
+        )
+        items.append(item)
+
+
+@pytest.hookimpl(hookwrapper=True)
+def pytest_runtest_makereport(
+    item: pytest.Item,
+    call: pytest.CallInfo[None],
+) -> Generator[None, None, None]:
+    """Attach BDD steps to the test report for display plugins."""
+    outcome: pytest.TestReport = yield  # type: ignore[assignment]
+    report = outcome.get_result()
+    stash = item.config.stash
+    scenarios: dict[str, ScenarioInfo] | None = stash.get(
+        _scenarios_key,
+        None,
+    )
+    if scenarios is None:
+        return
+    func_name = getattr(item, "originalname", item.name)
+    scenario = scenarios.get(func_name)
+    if scenario is not None:
+        report._beehave_steps = _format_scenario_steps(scenario)

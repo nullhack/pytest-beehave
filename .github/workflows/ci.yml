@@ -41,8 +41,8 @@ jobs:
           enable-cache: true
           cache-dependency-glob: "uv.lock"
           
-      - name: Set up Python 3.13
-        run: uv python install 3.13
+      - name: Set up Python 3.14
+        run: uv python install 3.14
         
       - name: Install dependencies
         run: uv sync --locked --all-extras --dev
@@ -52,21 +52,20 @@ jobs:
         
       - name: Check ruff formatting
         run: uv run task ruff-format-check
-          
+            
       - name: Run type checking
         run: uv run task static-check
 
   test:
     name: Tests
     runs-on: ubuntu-latest
-    # SECURITY: Minimal permissions for test execution
     permissions:
       contents: read
       actions: read
     strategy:
       fail-fast: false
       matrix:
-        python-version: ["3.13"]
+        python-version: ["3.14"]
         
     steps:
       - name: Checkout code
@@ -90,7 +89,7 @@ jobs:
         run: uv run task test
         
       - name: Upload coverage reports
-        if: matrix.python-version == '3.13' && (github.ref == 'refs/heads/main' || github.event_name == 'pull_request')
+        if: matrix.python-version == '3.14' && (github.ref == 'refs/heads/main' || github.event_name == 'pull_request')
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: coverage-reports
@@ -100,7 +99,7 @@ jobs:
           retention-days: 30
           
       - name: Upload coverage to Codecov (optional)
-        if: matrix.python-version == '3.13' && (github.ref == 'refs/heads/main' || github.event_name == 'pull_request')
+        if: matrix.python-version == '3.14' && (github.ref == 'refs/heads/main' || github.event_name == 'pull_request')
         uses: codecov/codecov-action@57e3a136b779b570ffcdbf80b3bdc90e7fab3de2 # v5.0.2
         with:
           files: ./coverage.xml
@@ -126,8 +125,8 @@ jobs:
           enable-cache: true
           cache-dependency-glob: "uv.lock"
           
-      - name: Set up Python 3.13
-        run: uv python install 3.13
+      - name: Set up Python 3.14
+        run: uv python install 3.14
         
       - name: Install dependencies
         run: uv sync --locked --all-extras --dev
@@ -179,8 +178,8 @@ jobs:
           enable-cache: true
           cache-dependency-glob: "uv.lock"
 
-      - name: Set up Python 3.13
-        run: uv python install 3.13
+      - name: Set up Python 3.14
+        run: uv python install 3.14
 
       - name: Install dependencies
         run: uv sync --locked --all-extras --dev

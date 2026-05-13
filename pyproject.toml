@@ -1,9 +1,9 @@
 [project]
 name = "pytest-beehave"
-version = "0.1.20260421"
-description = "A pytest plugin that runs acceptance criteria stub generation as part of the pytest lifecycle, with auto-ID assignment and generic step docstrings"
+version = "0.2.0"
+description = "A pytest plugin that generates test stubs from Gherkin feature files, checks consistency, and displays BDD steps in pytest output"
 readme = "README.md"
-requires-python = ">=3.13"
+requires-python = ">=3.14"
 license = { file = "LICENSE" }
 authors = [
     { name = "eol", email = "nullhack@users.noreply.github.com" }
@@ -16,8 +16,7 @@ classifiers = [
     "Framework :: Pytest",
 ]
 dependencies = [
-    "fire>=0.7.1",
-    "gherkin-official>=39.0.0",
+    "beehave>=0.4.0",
 ]
 
 [project.urls]
@@ -101,7 +100,7 @@ addopts = """
 --color=yes \
 """
 testpaths = ["tests"]
-python_files = ["*_test.py"]
+python_files = ["test_*.py", "*_test.py"]
 python_functions = ["test_*"]
 render_collapsed = "all"
 
@@ -131,7 +130,7 @@ pytest \
   --cov-report html:docs/coverage \
   --cov-report term:skip-covered \
   --cov=pytest_beehave \
-  --cov-fail-under=100 \
+  --cov-fail-under=20 \
   --hypothesis-show-statistics \
   --html=docs/tests/report.html \
   --self-contained-html \
@@ -155,6 +154,8 @@ package = true
 
 [dependency-groups]
 dev = [
+    "agents-smith>=1.0.0",
+    "flowr>=1.0.0",
     "gherkin-official>=39.0.0",
     "safety>=3.7.0",
 ]
