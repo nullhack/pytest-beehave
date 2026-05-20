@@ -59,14 +59,14 @@ wheels = [
 
 [[package]]
 name = "beehave"
-version = "0.4.0"
+version = "1.0.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "gherkin-official" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/0c/7e/b64d1cd39f6e6a25479b616ed3bdc9d62f9cd7e52555c4c3960498763c8d/beehave-0.4.0.tar.gz", hash = "sha256:f0a17b4964b6d8f38f1a378032bf942edd31c364a8c3ca74f6a871e46ab40275", size = 55081, upload-time = "2026-05-13T15:53:02.276Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/77/01/9b90dec3e14a429b3a54fc69715152b3ca9b34bc5dc9852763d97487f27b/beehave-1.0.0.tar.gz", hash = "sha256:59e959959a0fa7a0e487b6bef4a2af8b9abcad55381e02bbfe11d2433d5aec42", size = 110601, upload-time = "2026-05-20T19:22:02.357Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/2a/fa/b00734b18ff765b412b1021c7eca9bdf38f30eaeac81b0005c675140edf6/beehave-0.4.0-py3-none-any.whl", hash = "sha256:c2a0335671a4f865c1fdad1e5e7511297faf0f1d2a93dc14c0ea83461f323616", size = 17187, upload-time = "2026-05-13T15:53:00.404Z" },
+    { url = "https://files.pythonhosted.org/packages/67/55/1ce4d584ba4e50a8dfcfafb1d27c3e61d17af5cc304ba3705b80a7ceb021/beehave-1.0.0-py3-none-any.whl", hash = "sha256:8ecc505d5a53d48cdb44fa28f67ff5b39840debe8df3733bc71b6470b3325054", size = 25557, upload-time = "2026-05-20T19:22:01.018Z" },
 ]
 
 [[package]]
@@ -677,7 +677,7 @@ wheels = [
 
 [[package]]
 name = "pytest-beehave"
-version = "0.2.2"
+version = "1.0.0"
 source = { editable = "." }
 dependencies = [
     { name = "beehave" },
@@ -710,7 +710,7 @@ dev = [
 
 [package.metadata]
 requires-dist = [
-    { name = "beehave", specifier = ">=0.4.0" },
+    { name = "beehave", specifier = ">=1.0.0" },
     { name = "ghp-import", marker = "extra == 'dev'", specifier = ">=2.1.0" },
     { name = "hypothesis", marker = "extra == 'dev'", specifier = ">=6.148.4" },
     { name = "pdoc", marker = "extra == 'dev'", specifier = ">=14.0" },

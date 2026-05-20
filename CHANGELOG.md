@@ -13,4 +13,4 @@ All notable changes to pytest-beehave will be documented in this file.
 - Terminal steps display and HTML acceptance criteria column
 - Deprecated marker sync for `Example:` blocks
 
-> **Note**: This is a beta release. The project is undergoing extensive rebuild. APIs and behaviour may change without notice.
+> **Note**: First public release. APIs follow semantic versioning.

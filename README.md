@@ -188,7 +188,7 @@ If `features_dir` does not exist, the plugin exits silently.
 |---|---|
 | Python | >= 3.14 |
 | pytest | >= 6.0 |
-| beehave | >= 0.4.0 |
+| beehave | >= 1.0.0 |
 
 ---
 

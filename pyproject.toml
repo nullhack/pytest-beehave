@@ -1,6 +1,6 @@
 [project]
 name = "pytest-beehave"
-version = "0.2.2"
+version = "1.0.0"
 description = "A pytest plugin that generates test stubs from Gherkin feature files, checks consistency, and displays BDD steps in pytest output"
 readme = "README.md"
 requires-python = ">=3.14"
@@ -12,16 +12,41 @@ maintainers = [
     { name = "eol", email = "nullhack@users.noreply.github.com" }
 ]
 classifiers = [
-    "Development Status :: 4 - Beta",
+    "Development Status :: 5 - Production/Stable",
     "Framework :: Pytest",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.14",
+    "Topic :: Software Development :: Testing",
+    "Topic :: Software Development :: Quality Assurance",
+]
+keywords = [
+    "pytest",
+    "bdd",
+    "gherkin",
+    "behave",
+    "beehave",
+    "cucumber",
+    "test",
+    "testing",
+    "tdd",
+    "plugin",
+    "acceptance",
+    "stub",
+    "generator",
+    "specification",
 ]
 dependencies = [
-    "beehave>=0.4.0",
+    "beehave>=1.0.0",
 ]
 
 [project.urls]
+Homepage = "https://github.com/nullhack/pytest-beehave"
 Repository = "https://github.com/nullhack/pytest-beehave"
 Documentation = "https://github.com/nullhack/pytest-beehave/tree/main/docs/api/"
+Issues = "https://github.com/nullhack/pytest-beehave/issues"
+Changelog = "https://github.com/nullhack/pytest-beehave/blob/main/CHANGELOG.md"
 
 [project.optional-dependencies]
 html = [
